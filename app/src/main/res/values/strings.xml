@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Private.Gallery.Android</string>
+    <string name="permission_denied">You have denied access. Some functions may not work</string>
+</resources>
