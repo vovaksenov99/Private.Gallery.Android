@@ -7,10 +7,8 @@
     android:orientation="vertical"
     tools:context="com.privategallery.akscorp.privategalleryandroid.MainActivity">
 
-
-    <com.privategallery.akscorp.privategalleryandroid.Widgets.TouchImageView
-        android:id="@+id/imageView"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/main_preview_rv_grid"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
 </LinearLayout>

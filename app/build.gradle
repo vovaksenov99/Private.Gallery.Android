@@ -7,6 +7,14 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 android {
+    signingConfigs {
+        config {
+            keyAlias 'akscorp'
+            keyPassword 'lgoptimussol'
+            storeFile file('C:/AndroidStudioProjects/akscorp.jks')
+            storePassword 'lgoptimussol'
+        }
+    }
     compileSdkVersion 26
     defaultConfig {
         applicationId "com.privategallery.akscorp.privategalleryandroid"
@@ -20,23 +28,28 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
+            debuggable true
         }
     }
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
-    implementation "com.android.support:support-fragment:26.1.0"
-
-
-    implementation("com.github.bumptech.glide:glide:4.6.1") {
+    implementation 'com.android.support:support-fragment:26.1.0'
+    implementation('com.github.bumptech.glide:glide:4.6.1') {
         exclude group: "com.android.support"
     }
     kapt 'com.github.bumptech.glide:compiler:4.6.1'
+    implementation 'com.android.support:gridlayout-v7:26.1.0'
+    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5'
+    compile 'com.android.support:recyclerview-v7:26.1.0'
+    compile 'com.github.codex-team:hawk.kotlin:master-SNAPSHOT'
+
 }
