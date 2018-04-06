@@ -42,11 +42,10 @@ class PreviewGridAdapter(private val mContext: Context) :
         
         GlideApp.with(mContext)
             .load("https://d.facdn.net/art/alisa-walker/1522590134/1522588969.alisa-walker_%D1%82%D1%80%D0%B5%D0%B9%D0%B4.png")
-            .placeholder(R.drawable.placeholder_image)
+            .placeholder(R.color.placeholder)
             .error(R.drawable.placeholder_image_error)
             .transition(DrawableTransitionOptions.withCrossFade(500))
-            .centerCrop()
-            .into(imageView);
+            .into(imageView)
     }
     
     inner class previewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)

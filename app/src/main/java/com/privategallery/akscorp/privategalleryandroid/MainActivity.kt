@@ -7,10 +7,14 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
+import android.view.Menu
 import android.widget.Toast
 import com.privategallery.akscorp.privategalleryandroid.Adapters.PreviewGridAdapter
+import com.privategallery.akscorp.privategalleryandroid.R.string.navigation_drawer_close
+import com.privategallery.akscorp.privategalleryandroid.R.string.navigation_drawer_open
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity()
@@ -23,6 +27,34 @@ class MainActivity : AppCompatActivity()
         
         checkPermission()
     
+        initStartUI()
+    }
+    
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean
+    {
+        menuInflater.inflate(R.menu.popup_menu, menu)
+        return true
+    }
+    
+    /**
+     * Initialization main UI component. NavBar, toolbar
+     *
+     */
+    private fun initStartUI()
+    {
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
+        
+        val toggle = ActionBarDrawerToggle(
+            this,
+            main_activity_drawer,
+            toolbar,
+            navigation_drawer_open,
+            navigation_drawer_close
+        )
+        main_activity_drawer.addDrawerListener(toggle)
+        toggle.syncState()
+        
         initPreviewGrid()
     }
     
@@ -34,7 +66,7 @@ class MainActivity : AppCompatActivity()
         val layoutManager = GridLayoutManager(this, SPAN_PREVIEW_RV_COUNT)
         main_preview_rv_grid.setHasFixedSize(true)
         main_preview_rv_grid.layoutManager = layoutManager
-        
+        main_preview_rv_grid.isNestedScrollingEnabled = true
         val adapter = PreviewGridAdapter(this)
         main_preview_rv_grid.adapter = adapter
     }
