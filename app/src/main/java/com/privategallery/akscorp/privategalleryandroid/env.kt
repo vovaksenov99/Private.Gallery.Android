@@ -17,6 +17,6 @@ const val HAWK_TOKEN = "d711a2da-36f4-43d0-97fe-4f81da847045"
 const val PERMISSIONS_REQUEST = 200
 
 /**
- * Column preview RV grid view quantity
+ * Column text RV grid view quantity
  */
 const val SPAN_PREVIEW_RV_COUNT = 4

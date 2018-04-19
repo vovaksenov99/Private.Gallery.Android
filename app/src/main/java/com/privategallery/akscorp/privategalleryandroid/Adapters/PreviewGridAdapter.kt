@@ -7,8 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.privategallery.akscorp.privategalleryandroid.GlideApp
+import com.privategallery.akscorp.privategalleryandroid.Essentials.Image
 import com.privategallery.akscorp.privategalleryandroid.R
+import com.privategallery.akscorp.privategalleryandroid.Utilities.GlideApp
 import kotlinx.android.synthetic.main.preview_rv_item.view.*
 
 /**
@@ -16,12 +17,12 @@ import kotlinx.android.synthetic.main.preview_rv_item.view.*
  * akscorp2014@gmail.com
  * web site aksenov-vladimir.herokuapp.com
  */
-class PreviewGridAdapter(private val mContext: Context) :
+class PreviewGridAdapter(private val mContext: Context, val images: List<Image>) :
     RecyclerView.Adapter<PreviewGridAdapter.previewHolder>()
 {
     override fun getItemCount(): Int
     {
-        return 500
+        return 30
     }
     
     override fun onCreateViewHolder(parent: ViewGroup,
@@ -41,7 +42,7 @@ class PreviewGridAdapter(private val mContext: Context) :
         val imageView = holder.preview
         
         GlideApp.with(mContext)
-            .load("https://d.facdn.net/art/alisa-walker/1522590134/1522588969.alisa-walker_%D1%82%D1%80%D0%B5%D0%B9%D0%B4.png")
+            .load("https://d.facdn.net/art/silianor/1522534197/1522534197.silianor_newcanvas1.png")
             .placeholder(R.color.placeholder)
             .error(R.drawable.placeholder_image_error)
             .transition(DrawableTransitionOptions.withCrossFade(500))

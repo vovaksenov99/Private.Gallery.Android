@@ -1,4 +1,4 @@
-package com.privategallery.akscorp.privategalleryandroid
+package com.privategallery.akscorp.privategalleryandroid.Utilities
 
 import android.content.Context
 import com.bumptech.glide.Glide

@@ -1,4 +1,4 @@
-package com.privategallery.akscorp.privategalleryandroid
+package com.privategallery.akscorp.privategalleryandroid.Activities
 
 import android.Manifest
 import android.annotation.TargetApi
@@ -9,16 +9,29 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.GridLayoutManager
+import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
+import android.view.MenuItem
+import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.Toast
-import com.privategallery.akscorp.privategalleryandroid.Adapters.PreviewGridAdapter
+import com.privategallery.akscorp.privategalleryandroid.Adapters.AlbumsAdapter
+import com.privategallery.akscorp.privategalleryandroid.Database.LocalDatabaseAPI
+import com.privategallery.akscorp.privategalleryandroid.Essentials.Album
+import com.privategallery.akscorp.privategalleryandroid.PERMISSIONS_REQUEST
+import com.privategallery.akscorp.privategalleryandroid.R
 import com.privategallery.akscorp.privategalleryandroid.R.string.navigation_drawer_close
 import com.privategallery.akscorp.privategalleryandroid.R.string.navigation_drawer_open
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.nav_view_menu.*
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.launch
+import org.jetbrains.anko.alert
 
 class MainActivity : AppCompatActivity()
 {
+    private val localDatabaseApi: LocalDatabaseAPI = LocalDatabaseAPI(this)
+    private lateinit var albums: List<Album>
     
     override fun onCreate(savedInstanceState: Bundle?)
     {
@@ -34,6 +47,44 @@ class MainActivity : AppCompatActivity()
     {
         menuInflater.inflate(R.menu.popup_menu, menu)
         return true
+    }
+    
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean
+    {
+        when (item!!.itemId)
+        {
+            R.id.add_album ->
+            {
+                
+                alert {
+                    title = "Alert"
+                    val albumName = EditText(this@MainActivity)
+                    albumName.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams
+                        .MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                    
+                    positiveButton(getString(R.string.ok)) {
+                        localDatabaseApi.insertAlbumInDatabase(Album(name = albumName.text.toString()))
+                        loadAlbums()
+                        
+                        it.cancel()
+                    }
+                    negativeButton(getString(R.string.cancel)) { it.cancel() }
+                    this.customView = albumName
+                }.show()
+            }
+            
+        }
+        return true
+    }
+    
+    fun loadAlbums()
+    {
+        launch(CommonPool) {
+            albums = localDatabaseApi.getAllAlbumsFromDatabase()
+            runOnUiThread {
+                initAlbums()
+            }
+        }
     }
     
     /**
@@ -54,21 +105,8 @@ class MainActivity : AppCompatActivity()
         )
         main_activity_drawer.addDrawerListener(toggle)
         toggle.syncState()
-        
-        initPreviewGrid()
-    }
     
-    /**
-     * Init Grid RV with image preview
-     */
-    private fun initPreviewGrid()
-    {
-        val layoutManager = GridLayoutManager(this, SPAN_PREVIEW_RV_COUNT)
-        main_preview_rv_grid.setHasFixedSize(true)
-        main_preview_rv_grid.layoutManager = layoutManager
-        main_preview_rv_grid.isNestedScrollingEnabled = true
-        val adapter = PreviewGridAdapter(this)
-        main_preview_rv_grid.adapter = adapter
+        loadAlbums()
     }
     
     /**
@@ -90,9 +128,21 @@ class MainActivity : AppCompatActivity()
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.ACCESS_NETWORK_STATE,
-                Manifest.permission.INTERNET), PERMISSIONS_REQUEST)
+                Manifest.permission.INTERNET),
+                PERMISSIONS_REQUEST)
         }
     }
+    
+    private fun initAlbums()
+    {
+        val layoutManager = LinearLayoutManager(this)
+        albums_rv.setHasFixedSize(true)
+        albums_rv.layoutManager = layoutManager
+        albums_rv.isNestedScrollingEnabled = true
+        val adapter = AlbumsAdapter(this, albums)
+        albums_rv.adapter = adapter
+    }
+  
     
     override fun onRequestPermissionsResult(requestCode: Int,
         permissions: Array<String>, grantResults: IntArray)

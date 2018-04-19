@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item
-        android:title="First option"
-        app:showAsAction="never">
+    <group android:id="@+id/popup_menu_group">
+        <item
+            android:title="@string/add_album"
+            android:id="@+id/add_album"
+            app:showAsAction="never">
 
-    </item>
-    <item
-        android:title="Second option"
-        app:showAsAction="never">
+        </item>
+        <item
+            android:title="Second option"
+            app:showAsAction="never">
 
-    </item>
+        </item>
+    </group>
 </menu>
