@@ -20,7 +20,8 @@ import org.jetbrains.anko.find
  * web site aksenov-vladimir.herokuapp.com
  */
 const val COMMON = 1
-const val SELECT_FILES = 2
+const val LOCK_FILES = 2
+const val UNLOCK_FILES = 3
 
 class GalleryToolbar : android.support.v7.widget.Toolbar
 {
@@ -42,9 +43,9 @@ class GalleryToolbar : android.support.v7.widget.Toolbar
         {
             COMMON ->
             {
+                removeAllViews()
                 menu.setGroupVisible(R.id
                     .popup_menu_group, true)
-                removeView(find(12))
                 setBackgroundColor(ContextCompat
                     .getColor(context, R
                         .color.colorPrimary))
@@ -62,12 +63,13 @@ class GalleryToolbar : android.support.v7.widget.Toolbar
                 getBaseContext().main_activity_drawer.addDrawerListener(toggle)
                 toggle.syncState()
             }
-            SELECT_FILES ->
+            LOCK_FILES ->
             {
+                removeAllViews()
                 setBackgroundColor(ContextCompat
                     .getColor(context, R
                         .color.toolbarSelectColor))
-                val b = SelectImageButton(context);
+                val b = LockImageButton(context);
                 b.id = 12
                 val l1 = Toolbar.LayoutParams(Toolbar.LayoutParams.WRAP_CONTENT,
                     Toolbar.LayoutParams.WRAP_CONTENT);
@@ -84,6 +86,39 @@ class GalleryToolbar : android.support.v7.widget.Toolbar
                     .setDrawerLockMode(
                         DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             }
+            UNLOCK_FILES ->
+            {
+                removeAllViews()
+                setBackgroundColor(ContextCompat
+                    .getColor(context, R
+                        .color.toolbarSelectColor))
+                val b = UnlockImageButton(context);
+                b.id = 14
+                val l1 = Toolbar.LayoutParams(Toolbar.LayoutParams.WRAP_CONTENT,
+                    Toolbar.LayoutParams.WRAP_CONTENT);
+                l1.gravity = Gravity.END;
+                b.layoutParams = l1
+                b.background = null
+                b.setImageResource(R.drawable.ic_done_black_24dp)
+                addView(b)
+                menu.setGroupVisible(R.id
+                    .popup_menu_group, false)
+        
+                navigationIcon = null
+                getBaseContext().main_activity_drawer
+                    .setDrawerLockMode(
+                        DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+            }
         }
+    }
+    
+    @SuppressLint("ResourceType")
+    override fun removeAllViews()
+    {
+        if(findViewById<LockImageButton>(12)!=null)
+            removeView(find(12))
+        if(findViewById<LockImageButton>(14)!=null)
+            removeView(find(14))
+    
     }
 }

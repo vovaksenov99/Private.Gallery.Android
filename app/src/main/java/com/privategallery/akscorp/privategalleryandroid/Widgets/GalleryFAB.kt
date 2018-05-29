@@ -84,7 +84,7 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener
                 {
                     override fun onFragCircRevealStart()
                     {
-                        (context as MainActivity).toolbar.setState(SELECT_FILES)
+                        (context as MainActivity).toolbar.setState(LOCK_FILES)
                     }
                     
                     override fun onFragCircRevealEnded()

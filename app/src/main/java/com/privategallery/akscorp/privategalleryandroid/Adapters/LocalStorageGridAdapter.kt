@@ -20,7 +20,7 @@ import java.io.File
  * akscorp2014@gmail.com
  * web site aksenov-vladimir.herokuapp.com
  */
-class LocalStorageGridAdapter(private val context: Context, private var files: MutableList<File>,
+class LocalStorageGridAdapter(private val context: Context, var files: MutableList<File>,
     private val startDirectory: String) :
     RecyclerView.Adapter<LocalStorageGridAdapter.previewHolder>()
 {
@@ -28,7 +28,7 @@ class LocalStorageGridAdapter(private val context: Context, private var files: M
     /**
      * Selected image paths
      */
-    public val used: MutableSet<String> = mutableSetOf()
+    val used: MutableSet<String> = mutableSetOf()
     
     private var lastDirectory: File
     

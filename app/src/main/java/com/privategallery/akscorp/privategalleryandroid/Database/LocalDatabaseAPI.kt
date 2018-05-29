@@ -8,6 +8,7 @@ import com.privategallery.akscorp.privategalleryandroid.Database.Tables.Albums
 import com.privategallery.akscorp.privategalleryandroid.Database.Tables.Images
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Album
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Image
+import org.jetbrains.anko.db.delete
 import org.jetbrains.anko.db.insertOrThrow
 
 /**
@@ -130,16 +131,16 @@ public class LocalDatabaseAPI(private val context: Context)
      * @param albumId album id
      * @return list image essence
      */
-    fun getImagesFromDatabase(albumId: String): MutableList<Image>
+    fun getImagesFromDatabase(albumId: Long): MutableList<Image>
     {
         return GalleryDatabase.getInstance(context).use {
             var cursor: Cursor
             try
             {
                 
-                cursor = query(Albums.NAME,
+                cursor = query(Images.NAME,
                     null,
-                    "${Albums.FIELDS._ID} = \"$albumId\"",
+                    "${Images.FIELDS.ALBUM_ID} = \"$albumId\"",
                     null,
                     null,
                     null,
@@ -166,6 +167,8 @@ public class LocalDatabaseAPI(private val context: Context)
                         Images.FIELDS._ID -> image.id = cursor.getString(pos).toLong()
                         Images.FIELDS.NAME -> image.name = cursor.getString(pos)
                         Images.FIELDS.LOCAL_PATH -> image.localPath = cursor.getString(pos)
+                        Images.FIELDS.ALBUM_ID -> image.albumId = cursor.getString(pos).toLong()
+                        Images.FIELDS.EXTENSION -> image.extension = cursor.getString(pos)
                     }
                 }
                 images.add(image)
@@ -189,6 +192,22 @@ public class LocalDatabaseAPI(private val context: Context)
                     Images.FIELDS.LOCAL_PATH to image.localPath,
                     Images.FIELDS.NAME to image.name)
             }
+        }
+    }
+    
+    /**
+     * Insert image in database
+     *
+     * @param image image to add to the database
+     */
+    fun insertImageInDatabase(image: Image): Long
+    {
+        return GalleryDatabase.getInstance(context).use {
+            return@use insertOrThrow(Images.NAME,
+                Images.FIELDS.LOCAL_PATH to image.localPath,
+                Images.FIELDS.NAME to image.name,
+                Images.FIELDS.ALBUM_ID to image.albumId,
+                Images.FIELDS.EXTENSION to image.extension)
         }
     }
     
@@ -258,6 +277,17 @@ public class LocalDatabaseAPI(private val context: Context)
                 throw Exception("Table ${image.name} doesn't exist")
             }
             return@use cursor.count > 0
+        }
+    }
+    
+    
+    /**
+     * @param image  image to remove in database
+     */
+    fun removeImageFromDatabase(image: Image)
+    {
+        GalleryDatabase.getInstance(context).use {
+            delete(Images.NAME,"${Images.FIELDS._ID} = ${image.id}")
         }
     }
     

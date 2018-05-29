@@ -24,6 +24,15 @@ import java.io.Serializable
 class AlbumsAdapter(private val context: Context, val albums: List<Album>) :
     RecyclerView.Adapter<AlbumsAdapter.AlbumHolder>()
 {
+    init
+    {
+        if (albums.isNotEmpty())
+        {
+            (context as MainActivity).currentAlbum = albums[0]
+            showAlbumContent(albums[0])
+        }
+    }
+    
     override fun getItemCount(): Int
     {
         return albums.size
@@ -48,6 +57,7 @@ class AlbumsAdapter(private val context: Context, val albums: List<Album>) :
         
         holder.itemView.setOnClickListener {
             showAlbumContent(albums[position])
+            (context as MainActivity).currentAlbum = albums[position]
         }
     }
     

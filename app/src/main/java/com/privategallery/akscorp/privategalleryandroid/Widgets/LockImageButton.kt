@@ -7,6 +7,8 @@ import android.view.View
 import android.widget.ImageButton
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Adapters.LocalStorageGridAdapter
+import com.privategallery.akscorp.privategalleryandroid.Database.LocalDatabaseAPI
+import com.privategallery.akscorp.privategalleryandroid.Essentials.Image
 import com.privategallery.akscorp.privategalleryandroid.Utilities.Utilities
 import kotlinx.android.synthetic.main.local_storage_grid_fragment.*
 import java.io.File
@@ -17,8 +19,10 @@ import java.io.File
  * web site aksenov-vladimir.herokuapp.com
  */
 
-class SelectImageButton : ImageButton, View.OnClickListener
+class LockImageButton : ImageButton, View.OnClickListener
 {
+    val db = LocalDatabaseAPI(getBaseContext())
+    
     init
     {
         setOnClickListener(this)
@@ -28,12 +32,24 @@ class SelectImageButton : ImageButton, View.OnClickListener
     
     override fun onClick(v: View?)
     {
-        var logFile = File(ContextWrapper(getBaseContext()).filesDir.path + "/Images")
+        val logFile = File(ContextWrapper(getBaseContext()).filesDir.path + "/Images")
         logFile.mkdir()
         
-        for (el in (getBaseContext().local_storage_rv_grid.adapter as LocalStorageGridAdapter).used)
-            Utilities.moveFile(el, logFile.absolutePath)
+        
+        val localStorageGridAdapter = getBaseContext().local_storage_rv_grid.adapter as LocalStorageGridAdapter
+        for (el in localStorageGridAdapter.used)
+        {
+            val extension = getFileExtension(el)
+            val id = db.insertImageInDatabase(Image(localPath = el,albumId = getBaseContext()
+                .currentAlbum.id, extension = extension))
+            Utilities.moveFile(el, logFile.absolutePath, "$id.$extension")
+            localStorageGridAdapter.files.remove(File(el))
+        }
+    
+        getBaseContext().local_storage_rv_grid.adapter.notifyDataSetChanged()
     }
+    
+    fun getFileExtension(path: String):String = path.substring(path.lastIndexOf('.')+1,path.length)
     
     constructor(context: Context) : super(context)
     

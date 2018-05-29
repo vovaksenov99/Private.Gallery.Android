@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/pin_dialog_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/submit_pincode"
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@+id/pin_dialog_text">
+
+
+        <com.privategallery.akscorp.privategalleryandroid.Widgets.SquareImageView
+            android:id="@+id/pin_point_1"
+            android:layout_width="20dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:padding="0dp"
+            android:src="@drawable/pin_point_empty" />
+
+        <com.privategallery.akscorp.privategalleryandroid.Widgets.SquareImageView
+            android:id="@+id/pin_point_2"
+            android:layout_width="20dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:padding="0dp"
+            android:src="@drawable/pin_point_empty" />
+
+        <com.privategallery.akscorp.privategalleryandroid.Widgets.SquareImageView
+            android:id="@+id/pin_point_3"
+            android:layout_width="20dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:padding="0dp"
+            android:src="@drawable/pin_point_empty" />
+
+        <com.privategallery.akscorp.privategalleryandroid.Widgets.SquareImageView
+            android:id="@+id/pin_point_4"
+            android:layout_width="20dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:padding="0dp"
+            android:src="@drawable/pin_point_empty" />
+    </LinearLayout>
+
+    <android.support.v7.widget.GridLayout
+        android:id="@+id/gridLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        app:columnCount="3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout">
+
+        <com.privategallery.akscorp.privategalleryandroid.Widgets.SquareButton
+            android:id="@+id/num_1"
+            android:layout_width="80dp"
+            android:layout_height="66dp"
+            android:layout_margin="0dp"
+            android:background="?attr/selectableItemBackground"
+            android:padding="0dp"
+            android:text="1"
+            android:textSize="24sp" />
+
+        <com.privategallery.akscorp.privategalleryandroid.Widgets.SquareButton
+            android:id="@+id/num_2"
+            android:layout_width="80dp"
+            android:layout_height="66dp"
+            android:layout_margin="0dp"
+            android:background="?attr/selectableItemBackground"
+            android:padding="0dp"
+            android:text="2"
+            android:textSize="24sp" />
+
+        <com.privategallery.akscorp.privategalleryandroid.Widgets.SquareButton
+            android:id="@+id/num_3"
+            android:layout_width="80dp"
+            android:layout_height="66dp"
+            android:layout_margin="0dp"
+            android:background="?attr/selectableItemBackground"
+            android:padding="0dp"
+            android:text="3"
+            android:textSize="24sp" />
+
+        <com.privategallery.akscorp.privategalleryandroid.Widgets.SquareButton
+            android:id="@+id/num_4"
+            android:layout_width="80dp"
+            android:layout_height="66dp"
+            android:layout_margin="0dp"
+            android:background="?attr/selectableItemBackground"
+            android:padding="0dp"
+            android:text="4"
+            android:textSize="24sp" />
+
+        <com.privategallery.akscorp.privategalleryandroid.Widgets.SquareButton
+            android:id="@+id/num_5"
+            android:layout_width="80dp"
+            android:layout_height="66dp"
+            android:layout_margin="0dp"
+            android:background="?attr/selectableItemBackground"
+            android:padding="0dp"
+            android:text="5"
+            android:textSize="24sp" />
+
+        <com.privategallery.akscorp.privategalleryandroid.Widgets.SquareButton
+            android:id="@+id/num_6"
+            android:layout_width="80dp"
+            android:layout_height="66dp"
+            android:layout_margin="0dp"
+            android:background="?attr/selectableItemBackground"
+            android:padding="0dp"
+            android:text="6"
+            android:textSize="24sp" />
+
+        <com.privategallery.akscorp.privategalleryandroid.Widgets.SquareButton
+            android:id="@+id/num_7"
+            android:layout_width="80dp"
+            android:layout_height="66dp"
+            android:layout_margin="0dp"
+            android:background="?attr/selectableItemBackground"
+            android:padding="0dp"
+            android:text="7"
+            android:textSize="24sp" />
+
+        <com.privategallery.akscorp.privategalleryandroid.Widgets.SquareButton
+            android:id="@+id/num_8"
+            android:layout_width="80dp"
+            android:layout_height="66dp"
+            android:layout_margin="0dp"
+            android:background="?attr/selectableItemBackground"
+            android:padding="0dp"
+            android:text="8"
+            android:textSize="24sp" />
+
+        <com.privategallery.akscorp.privategalleryandroid.Widgets.SquareButton
+            android:id="@+id/num_9"
+            android:layout_width="80dp"
+            android:layout_height="66dp"
+            android:layout_margin="0dp"
+            android:background="?attr/selectableItemBackground"
+            android:padding="0dp"
+            android:text="9"
+            android:textSize="24sp" />
+
+        <com.privategallery.akscorp.privategalleryandroid.Widgets.SquareButton
+            android:id="@+id/num_0"
+            android:layout_width="80dp"
+            android:layout_height="66dp"
+            android:layout_margin="0dp"
+            android:background="?attr/selectableItemBackground"
+            android:padding="0dp"
+            android:text="0"
+            android:textSize="24sp"
+            app:layout_column="1" />
+
+    </android.support.v7.widget.GridLayout>
+</android.support.constraint.ConstraintLayout>
