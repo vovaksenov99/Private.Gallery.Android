@@ -9,8 +9,10 @@ import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Adapters.LocalStorageGridAdapter
 import com.privategallery.akscorp.privategalleryandroid.Database.LocalDatabaseAPI
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Image
+import com.privategallery.akscorp.privategalleryandroid.R
 import com.privategallery.akscorp.privategalleryandroid.Utilities.Utilities
 import kotlinx.android.synthetic.main.local_storage_grid_fragment.*
+import org.jetbrains.anko.toast
 import java.io.File
 
 /**
@@ -21,6 +23,7 @@ import java.io.File
 
 class LockImageButton : ImageButton, View.OnClickListener
 {
+
     val db = LocalDatabaseAPI(getBaseContext())
     
     init
@@ -35,26 +38,39 @@ class LockImageButton : ImageButton, View.OnClickListener
         val logFile = File(ContextWrapper(getBaseContext()).filesDir.path + "/Images")
         logFile.mkdir()
         
-        
+        val currentAlbumId = getBaseContext()
+            .currentAlbum.id
+
+        if(currentAlbumId == -1L) {
+            getBaseContext().toast(getBaseContext().getString(R.string.internal_error))
+            return
+        }
         val localStorageGridAdapter = getBaseContext().local_storage_rv_grid.adapter as LocalStorageGridAdapter
         for (el in localStorageGridAdapter.used)
         {
             val extension = getFileExtension(el)
-            val id = db.insertImageInDatabase(Image(localPath = el,albumId = getBaseContext()
-                .currentAlbum.id, extension = extension))
+            val id = db.insertImageInDatabase(Image(localPath = el,albumId = currentAlbumId, extension = extension))
             Utilities.moveFile(el, logFile.absolutePath, "$id.$extension")
             localStorageGridAdapter.files.remove(File(el))
         }
-    
+        localStorageGridAdapter.used.clear()
+
         getBaseContext().local_storage_rv_grid.adapter.notifyDataSetChanged()
     }
     
     fun getFileExtension(path: String):String = path.substring(path.lastIndexOf('.')+1,path.length)
     
-    constructor(context: Context) : super(context)
-    
-    constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
-    
+    constructor(
+        context: Context
+    ) : super(context) {
+    }
+
+    constructor(
+        context: Context,
+        attrs: AttributeSet
+    ) : super(context, attrs) {
+    }
+
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context,
         attrs,
         defStyleAttr)

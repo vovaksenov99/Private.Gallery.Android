@@ -17,10 +17,32 @@ import kotlinx.android.synthetic.main.pin_dialog.view.*
  */
 val PIN = 0
 
+
 class SecurityController(val context: Context) {
+
+    companion object {
+
+        val LOGIN_DONE = 1
+        val LOGIN_ERROR = 2
+        val LOGIN_DENIDE = 3
+        val LOGIN_NOT_SUBMIT = 4
+
+    }
 
     private val sharedPreferences =
         context.getSharedPreferences(SignInPreference.NAME, Context.MODE_PRIVATE)
+
+
+    lateinit var securityDialog: SecurityDialog
+
+    val loginStatus: Int
+        get()
+        {
+            if(::securityDialog.isInitialized)
+                return securityDialog.loginStatus
+            else
+                return LOGIN_NOT_SUBMIT
+        }
 
     /**
      * Show dialog for confirm any action
@@ -30,14 +52,22 @@ class SecurityController(val context: Context) {
      * @param incorrectPasswordAction - function with action when password was submit, but incorrect
      */
     fun showSecurityDialog(securityDialog: SecurityDialog) {
+        this.securityDialog = securityDialog
         securityDialog.showSecurityDialog()
+    }
+
+    fun dismissSecurityDialog() {
+        securityDialog.dismissDialog()
+    }
+
+    fun logout()
+    {
+        securityDialog.logout()
     }
 
     fun getAppSecurityType(): Int {
         return sharedPreferences.getInt(SignInPreference.FIELDS.CURRENT_SECURITY_TYPE, -1)
     }
-
-
 }
 
 class PasswordControl(private val context: Context) {
@@ -76,6 +106,10 @@ class PasswordControl(private val context: Context) {
 
 abstract class SecurityDialog(open val context: Context) {
     protected abstract var value: String
+        protected set
+
+    var loginStatus:Int = SecurityController.LOGIN_DENIDE
+        protected set
 
     protected abstract fun clickAction()
     protected fun setKeyboardListener(view: View) {
@@ -122,6 +156,8 @@ abstract class SecurityDialog(open val context: Context) {
     }
 
     abstract fun showSecurityDialog()
+    abstract fun dismissDialog()
+    abstract fun logout()
 
     /**
      * @param view with sign in input fields for authorization
@@ -148,6 +184,7 @@ class LoginPinDialog(
     private val rejectAction: (loginPinDialog: LoginPinDialog) -> Unit = {}
 ) : SecurityDialog(context) {
 
+
     public override var value = ""
     private var authFailedCounter: Int = 10
 
@@ -162,6 +199,14 @@ class LoginPinDialog(
     private val pinPoints =
         listOf(R.id.pin_point_1, R.id.pin_point_2, R.id.pin_point_3, R.id.pin_point_4)
 
+    override fun dismissDialog() {
+        securityDialog.dismiss()
+    }
+
+    override fun logout() {
+        value = ""
+        loginStatus = SecurityController.LOGIN_NOT_SUBMIT
+    }
 
     override fun showSecurityDialog() {
         securityDialog = getSecurityDialog(getPinView()!!)
@@ -181,11 +226,13 @@ class LoginPinDialog(
             val passwordControl = PasswordControl(context)
             if (passwordControl.checkPassword(value)) {
                 securityDialog.cancel()
+                super.loginStatus = SecurityController.LOGIN_DONE
                 acceptAction(this)
             } else {
                 authFailedCounter--
                 clearPinPoints()
                 setMessage(context.getString(R.string.incorrect_pin))
+                super.loginStatus = SecurityController.LOGIN_DENIDE
                 rejectAction(this)
             }
             value = ""
@@ -219,6 +266,7 @@ class EstablishPinDialog(
     private val acceptAction: (loginPinDialog: EstablishPinDialog) -> Unit = {}
 ) : SecurityDialog(context) {
 
+
     public override var value = ""
 
     /**
@@ -232,6 +280,14 @@ class EstablishPinDialog(
     private val pinPoints =
         listOf(R.id.pin_point_1, R.id.pin_point_2, R.id.pin_point_3, R.id.pin_point_4)
 
+    override fun dismissDialog() {
+        securityDialog.dismiss()
+    }
+
+    override fun logout() {
+        value = ""
+        loginStatus = SecurityController.LOGIN_NOT_SUBMIT
+    }
 
     override fun showSecurityDialog() {
         securityDialog = getSecurityDialog(getPinView()!!)

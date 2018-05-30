@@ -20,6 +20,8 @@ import kotlinx.android.synthetic.main.preview_images_grid_fragment.view.*
  *
  * Created by AksCorp on 11.03.2018.
  */
+
+val PREVIEW_LIST_FRAGMENT = "PREVIEW_LIST_FRAGMENT"
 class PreviewListFragment : Fragment()
 {
     

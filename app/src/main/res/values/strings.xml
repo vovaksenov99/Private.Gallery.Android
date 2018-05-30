@@ -10,7 +10,10 @@
     <string name="navigation_drawer_close" translatable="false" />
     <string name="navigation_drawer_open" translatable="false" />
     <string name="add_album">Add album</string>
+    <string name="album_name">Album name</string>
+
     <string name="submit_pincode">Submit PIN</string>
     <string name="incorrect_pin">Incorrect PIN</string>
-
+    <string name="internal_error">Internal error</string>
+    <string name="click_back_to_exit">Please click BACK again to exit</string>
 </resources>

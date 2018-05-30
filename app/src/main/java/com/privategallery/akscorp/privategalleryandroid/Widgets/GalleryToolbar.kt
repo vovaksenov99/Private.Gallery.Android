@@ -10,8 +10,10 @@ import android.support.v7.widget.Toolbar
 import android.util.AttributeSet
 import android.view.Gravity
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
+import com.privategallery.akscorp.privategalleryandroid.Adapters.LocalStorageGridAdapter
 import com.privategallery.akscorp.privategalleryandroid.R
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.local_storage_grid_fragment.*
 import org.jetbrains.anko.find
 
 /**
@@ -35,17 +37,20 @@ class GalleryToolbar : android.support.v7.widget.Toolbar
         defStyleAttr)
     
     private fun getBaseContext() = ((context as ContextWrapper).baseContext as MainActivity)
-    
+
+    var status = COMMON
+    private set
+
+
     @SuppressLint("ResourceType", "PrivateResource")
     fun setState(state: Int)
     {
+        status = state
         when (state)
         {
             COMMON ->
             {
                 removeAllViews()
-                menu.setGroupVisible(R.id
-                    .popup_menu_group, true)
                 setBackgroundColor(ContextCompat
                     .getColor(context, R
                         .color.colorPrimary))
@@ -62,6 +67,9 @@ class GalleryToolbar : android.support.v7.widget.Toolbar
                 )
                 getBaseContext().main_activity_drawer.addDrawerListener(toggle)
                 toggle.syncState()
+
+                menu.setGroupVisible(R.id
+                    .popup_menu_group, true)
             }
             LOCK_FILES ->
             {
@@ -69,12 +77,13 @@ class GalleryToolbar : android.support.v7.widget.Toolbar
                 setBackgroundColor(ContextCompat
                     .getColor(context, R
                         .color.toolbarSelectColor))
-                val b = LockImageButton(context);
+                val b = LockImageButton(
+                    context)
                 b.id = 12
                 val l1 = Toolbar.LayoutParams(Toolbar.LayoutParams.WRAP_CONTENT,
-                    Toolbar.LayoutParams.WRAP_CONTENT);
-                l1.gravity = Gravity.END;
-                b.layoutParams = l1;
+                    Toolbar.LayoutParams.WRAP_CONTENT)
+                l1.gravity = Gravity.END
+                b.layoutParams = l1
                 b.background = null
                 b.setImageResource(R.drawable.ic_done_black_24dp)
                 addView(b)

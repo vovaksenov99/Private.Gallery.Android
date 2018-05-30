@@ -63,7 +63,7 @@ class UnlockImageButton : ImageButton, View.OnClickListener
         fragment.arguments = bundle
         fragmentManager.beginTransaction()
             .replace(R.id.main_activity_constraint_layout_album, fragment)
-            .commit()
+            .commitAllowingStateLoss()
     }
     
     private fun getImagePath(image: Image) =

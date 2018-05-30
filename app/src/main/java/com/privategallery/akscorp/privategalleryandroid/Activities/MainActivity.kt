@@ -3,8 +3,11 @@ package com.privategallery.akscorp.privategalleryandroid.Activities
 import android.Manifest
 import android.annotation.TargetApi
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.PersistableBundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.GravityCompat
@@ -13,8 +16,11 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.Toast
 import com.privategallery.akscorp.privategalleryandroid.Adapters.AlbumsAdapter
 import com.privategallery.akscorp.privategalleryandroid.Database.LocalDatabaseAPI
@@ -31,17 +37,51 @@ import kotlinx.android.synthetic.main.nav_view_menu.*
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.launch
 import org.jetbrains.anko.alert
+import android.text.InputFilter
+import com.privategallery.akscorp.privategalleryandroid.Application
+import com.privategallery.akscorp.privategalleryandroid.Fragments.PreviewListFragment
+import com.privategallery.akscorp.privategalleryandroid.Widgets.COMMON
+import java.io.Serializable
+
 
 class MainActivity : AppCompatActivity() {
     private val localDatabaseApi: LocalDatabaseAPI = LocalDatabaseAPI(this)
     private lateinit var albums: List<Album>
-    public lateinit var currentAlbum: Album
+    var currentAlbum: Album = Album()
+    lateinit var app: Application
+    var doubleBackToExitPressedOnce = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        loginDialog()
+        app = application as Application
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (app.securityController.loginStatus == SecurityController.LOGIN_DONE) {
+            if (currentAlbum.id != -1L)
+                fab.visibility = View.VISIBLE
+            loadAlbums()
+        } else {
+            loginDialog()
+        }
+    }
+
+
+    override fun onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            super.onBackPressed()
+            app.securityController.logout()
+            return
+        }
+
+        this.doubleBackToExitPressedOnce = true
+        Toast.makeText(this, getString(R.string.click_back_to_exit), Toast.LENGTH_SHORT).show()
+
+        Handler().postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -54,26 +94,35 @@ class MainActivity : AppCompatActivity() {
             R.id.add_album -> {
 
                 alert {
-                    title = "Alert"
-                    val albumName = EditText(this@MainActivity)
-                    albumName.layoutParams = ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams
-                            .MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
-                    )
+                    title = getString(R.string.add_album)
 
+                    val container = FrameLayout(this@MainActivity)
+                    val albumName = EditText(this@MainActivity)
+                    albumName.hint = getString(R.string.album_name)
+                    //max string length
+                    albumName.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(30))
+                    val params = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams
+                            .MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
+                    container.setPadding(50, 0, 50, 0)
+                    container.layoutParams = params
+                    container.addView(albumName)
                     positiveButton(getString(R.string.ok)) {
                         localDatabaseApi.insertAlbumInDatabase(Album(name = albumName.text.toString()))
                         loadAlbums()
-
                         it.cancel()
-
                         checkPermission()
                     }
+
+
                     negativeButton(getString(R.string.cancel)) { it.cancel() }
-                    this.customView = albumName
+                    this.customView = container
                 }.show()
             }
             R.id.unlock_images -> {
+                if (currentAlbum.id == -1L)
+                    return true
                 toolbar.setState(UNLOCK_FILES)
                 var fragmentManager = supportFragmentManager
 
@@ -98,11 +147,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loginDialog() {
-        val securityController = SecurityController(this)
 
-        when (securityController.getAppSecurityType()) {
-            -1 -> securityController.showSecurityDialog(EstablishPinDialog(this))
-            PIN -> securityController.showSecurityDialog(LoginPinDialog(this, { initStartUI() }))
+        when (app.securityController.getAppSecurityType()) {
+            -1 -> app.securityController.showSecurityDialog(EstablishPinDialog(this))
+            PIN -> app.securityController.showSecurityDialog(
+                LoginPinDialog(
+                    this,
+                    { initStartUI() })
+            )
         }
     }
 
@@ -154,7 +206,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initAlbums() {
+    fun initAlbums() {
         val layoutManager = LinearLayoutManager(this)
         albums_rv.setHasFixedSize(true)
         albums_rv.layoutManager = layoutManager
@@ -162,6 +214,20 @@ class MainActivity : AppCompatActivity() {
         val adapter = AlbumsAdapter(this, albums)
         albums_rv.adapter = adapter
     }
+
+    fun showAlbumContent(album: Album) {
+        var fragmentManager = supportFragmentManager
+
+        val bundle = Bundle()
+        val fragment = PreviewListFragment()
+        bundle.putSerializable("album", album as Serializable)
+        fragment.arguments = bundle
+        fragmentManager.beginTransaction()
+            .replace(R.id.main_activity_constraint_layout_album, fragment)
+            .commit()
+        main_activity_drawer.closeDrawer(GravityCompat.START)
+    }
+
 
 
     override fun onRequestPermissionsResult(
