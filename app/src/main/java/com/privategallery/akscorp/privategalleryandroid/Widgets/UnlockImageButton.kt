@@ -28,55 +28,50 @@ import java.io.Serializable
  * web site aksenov-vladimir.herokuapp.com
  */
 
-class UnlockImageButton : ImageButton, View.OnClickListener
-{
+class UnlockImageButton : ImageButton, View.OnClickListener {
     val db = LocalDatabaseAPI(getBaseContext())
-    
-    init
-    {
+
+    init {
         setOnClickListener(this)
     }
-    
+
     private fun getBaseContext() = ((context as ContextWrapper).baseContext as MainActivity)
-    
-    override fun onClick(v: View?)
-    {
+
+    override fun onClick(v: View?) {
         getBaseContext().toolbar.setState(COMMON)
         val unlockPreviewGridAdapter = getBaseContext().main_preview_rv_grid.adapter as
                 UnlockPreviewGridAdapter
-        
-        for (image in unlockPreviewGridAdapter.used)
-        {
-            
-            Utilities.moveFile(getImagePath(image),
+
+        for (image in unlockPreviewGridAdapter.used) {
+
+            Utilities.moveFile(
+                getImagePath(image),
                 Environment.getExternalStorageDirectory().absolutePath +
                         "/" + Environment.DIRECTORY_DCIM + "/PrivateGalleryFiles",
-                getImageName(image))
-                db.removeImageFromDatabase(image)
+                getImageName(image)
+            )
+            db.removeImageFromDatabase(image)
+            getBaseContext().currentAlbum.images.remove(image)
         }
-    
-        var fragmentManager = getBaseContext().supportFragmentManager
-    
-        val fragment = PreviewListFragment()
-        val bundle = Bundle()
-        bundle.putSerializable("album",getBaseContext().currentAlbum as Serializable)
-        fragment.arguments = bundle
-        fragmentManager.beginTransaction()
-            .replace(R.id.main_activity_constraint_layout_album, fragment)
-            .commitAllowingStateLoss()
+        getBaseContext().fab.visibility = View.VISIBLE
+        getBaseContext().showAlbumContent(getBaseContext().currentAlbum)
     }
-    
+
     private fun getImagePath(image: Image) =
         ContextWrapper(context).filesDir.path + "/Images/${image.id}.${image.extension}"
-    
-    private fun getImageName(image: Image) = image.localPath!!.substring(image.localPath!!
-        .lastIndexOf('/') + 1, image.localPath!!.length)
-    
+
+    private fun getImageName(image: Image) = image.localPath!!.substring(
+        image.localPath!!
+            .lastIndexOf('/') + 1, image.localPath!!.length
+    )
+
     constructor(context: Context) : super(context)
-    
+
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
-    
-    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context,
+
+    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(
+        context,
         attrs,
-        defStyleAttr)
+        defStyleAttr
+    )
 }

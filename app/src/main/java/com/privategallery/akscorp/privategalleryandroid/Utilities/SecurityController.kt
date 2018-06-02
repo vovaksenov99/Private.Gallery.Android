@@ -16,6 +16,7 @@ import kotlinx.android.synthetic.main.pin_dialog.view.*
  * [PIN] - use 4 number for access
  */
 val PIN = 0
+val NONE = -1
 
 
 class SecurityController(val context: Context) {
@@ -36,9 +37,8 @@ class SecurityController(val context: Context) {
     lateinit var securityDialog: SecurityDialog
 
     val loginStatus: Int
-        get()
-        {
-            if(::securityDialog.isInitialized)
+        get() {
+            if (::securityDialog.isInitialized)
                 return securityDialog.loginStatus
             else
                 return LOGIN_NOT_SUBMIT
@@ -57,12 +57,13 @@ class SecurityController(val context: Context) {
     }
 
     fun dismissSecurityDialog() {
-        securityDialog.dismissDialog()
+        if(::securityDialog.isInitialized)
+            securityDialog.dismissDialog()
     }
 
-    fun logout()
-    {
-        securityDialog.logout()
+    fun logout() {
+        if(::securityDialog.isInitialized)
+            securityDialog.logout()
     }
 
     fun getAppSecurityType(): Int {
@@ -108,7 +109,7 @@ abstract class SecurityDialog(open val context: Context) {
     protected abstract var value: String
         protected set
 
-    var loginStatus:Int = SecurityController.LOGIN_DENIDE
+    var loginStatus: Int = SecurityController.LOGIN_DENIDE
         protected set
 
     protected abstract fun clickAction()
@@ -328,6 +329,38 @@ class EstablishPinDialog(
         val view = LayoutInflater.from(context).inflate(R.layout.pin_dialog, null)
         setKeyboardListener(view)
         return view
+    }
+}
+
+
+/**
+ * @param acceptAction - action which will be called when PIN will be correct
+ */
+class EstablishNoneDialog(
+    override val context: Context,
+    private val acceptAction: (establishNoneDialog: EstablishNoneDialog) -> Unit = {}
+) : SecurityDialog(context) {
+
+
+    public override var value = ""
+
+    override fun dismissDialog() {
+    }
+
+    override fun logout() {
+        value = ""
+        loginStatus = SecurityController.LOGIN_DONE
+    }
+
+    override fun showSecurityDialog() {
+        val passwordControl = PasswordControl(context)
+        passwordControl.savePassword(value, NONE)
+        acceptAction(this)
+        loginStatus = SecurityController.LOGIN_DONE
+    }
+
+    override fun clickAction() {
+
     }
 }
 

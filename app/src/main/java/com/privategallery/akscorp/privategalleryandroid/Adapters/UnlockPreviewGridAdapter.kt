@@ -7,11 +7,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.RelativeLayout
+import android.widget.TextView
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Image
 import com.privategallery.akscorp.privategalleryandroid.R
 import com.privategallery.akscorp.privategalleryandroid.Utilities.GlideApp
 import kotlinx.android.synthetic.main.local_storage_rv_item.view.*
+import org.jetbrains.anko.find
 
 /**
  * Created by AksCorp on 03.04.2018.
@@ -21,18 +24,21 @@ import kotlinx.android.synthetic.main.local_storage_rv_item.view.*
 class UnlockPreviewGridAdapter(private val context: Context, val images: List<Image>) :
     RecyclerView.Adapter<UnlockPreviewGridAdapter.previewHolder>()
 {
+    var used: MutableSet<Image> = mutableSetOf()
+
+    init {
+        used = mutableSetOf()
+    }
     override fun getItemCount(): Int
     {
         return images.size
     }
-    val used: MutableSet<Image> = mutableSetOf()
-    
+
     override fun onCreateViewHolder(parent: ViewGroup,
         viewType: Int): UnlockPreviewGridAdapter.previewHolder
     {
-        val context = parent.context
         val inflater = LayoutInflater.from(context)
-        val photoView = inflater.inflate(R.layout.local_storage_rv_item, parent, false)
+        val photoView = inflater.inflate(R.layout.unlock_rv_item, null, false)
         return previewHolder(photoView)
     }
     
@@ -51,6 +57,14 @@ class UnlockPreviewGridAdapter(private val context: Context, val images: List<Im
             .into(imageView)
         
         val image = images[position]
+
+        if (used.contains(image))
+        {
+            holder.toggle.visibility = View.VISIBLE
+        } else
+        {
+            holder.toggle.visibility = View.INVISIBLE
+        }
         
         holder.itemView.setOnClickListener {
             if (used.contains(image))

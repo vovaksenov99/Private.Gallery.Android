@@ -54,7 +54,7 @@ class PreviewListFragment : Fragment()
         view.main_preview_rv_grid.adapter = adapter
     }
     
-    fun getImagesFromDatabase(album: Album):List<Image>
+    fun getImagesFromDatabase(album: Album):MutableList<Image>
     {
         val db = LocalDatabaseAPI(activity!!)
         return db.getImagesFromDatabase(album.id)
@@ -84,7 +84,6 @@ class UnlockListFragment : Fragment()
         view.main_preview_rv_grid.setHasFixedSize(true)
         view.main_preview_rv_grid.layoutManager = layoutManager
         view.main_preview_rv_grid.isNestedScrollingEnabled = true
-        view.main_preview_rv_grid.setItemViewCacheSize(20)
         view.main_preview_rv_grid.isDrawingCacheEnabled = true
         view.main_preview_rv_grid.drawingCacheQuality = View.DRAWING_CACHE_QUALITY_LOW
         val adapter = UnlockPreviewGridAdapter(context!!, (activity as MainActivity).currentAlbum.images)

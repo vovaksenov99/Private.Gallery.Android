@@ -19,7 +19,7 @@ import kotlinx.android.synthetic.main.local_storage_grid_fragment.view.*
  * Created by AksCorp on 11.03.2018.
  */
 
-val LOCAL_STORAGE_FRAGMENT = "LOCAL_STORAGE_FRAGMENT"
+val LOCAL_STORAGE_FRAGMENT_TAG = "LOCAL_STORAGE_FRAGMENT_TAG"
 class LocalStorageFragment : Fragment()
 {
     

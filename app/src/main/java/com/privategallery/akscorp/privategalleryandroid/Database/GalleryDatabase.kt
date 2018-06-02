@@ -18,7 +18,7 @@ import org.jetbrains.anko.db.dropTable
  * Start database initializations
  */
 
-const val DATABASE_NAME = "GalleryDatabase"
+const val DATABASE_NAME = "GalleryDatabase.db"
 const val DATABASE_VERSION = 1
 
 /**

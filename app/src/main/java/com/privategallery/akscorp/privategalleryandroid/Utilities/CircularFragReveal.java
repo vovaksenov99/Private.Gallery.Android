@@ -180,7 +180,6 @@ public class CircularFragReveal {
             this.rootView = rootView;
             this.revealInterpolator = new DecelerateInterpolator(2f);
             this.unrevealInterpolator = new AnticipateInterpolator(2f);
-            this.revealBgColor = Color.BLACK;
         }
 
         public Builder setRevealTime(int duration) {

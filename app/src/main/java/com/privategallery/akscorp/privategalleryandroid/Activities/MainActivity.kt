@@ -1,23 +1,15 @@
 package com.privategallery.akscorp.privategalleryandroid.Activities
 
 import android.Manifest
-import android.annotation.TargetApi
 import android.content.pm.PackageManager
-import android.content.res.Configuration
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.os.PersistableBundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -26,8 +18,6 @@ import com.privategallery.akscorp.privategalleryandroid.Adapters.AlbumsAdapter
 import com.privategallery.akscorp.privategalleryandroid.Database.LocalDatabaseAPI
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Album
 import com.privategallery.akscorp.privategalleryandroid.Fragments.UnlockListFragment
-import com.privategallery.akscorp.privategalleryandroid.PERMISSIONS_REQUEST
-import com.privategallery.akscorp.privategalleryandroid.R
 import com.privategallery.akscorp.privategalleryandroid.R.string.navigation_drawer_close
 import com.privategallery.akscorp.privategalleryandroid.R.string.navigation_drawer_open
 import com.privategallery.akscorp.privategalleryandroid.Utilities.*
@@ -38,9 +28,9 @@ import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.launch
 import org.jetbrains.anko.alert
 import android.text.InputFilter
-import com.privategallery.akscorp.privategalleryandroid.Application
+import android.view.*
+import com.privategallery.akscorp.privategalleryandroid.*
 import com.privategallery.akscorp.privategalleryandroid.Fragments.PreviewListFragment
-import com.privategallery.akscorp.privategalleryandroid.Widgets.COMMON
 import java.io.Serializable
 
 
@@ -56,15 +46,15 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         app = application as Application
-
     }
 
     override fun onResume() {
         super.onResume()
+
         if (app.securityController.loginStatus == SecurityController.LOGIN_DONE) {
             if (currentAlbum.id != -1L)
                 fab.visibility = View.VISIBLE
-            loadAlbums()
+            initStartUI()
         } else {
             loginDialog()
         }
@@ -105,7 +95,7 @@ class MainActivity : AppCompatActivity() {
                         LinearLayout.LayoutParams
                             .MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
                     )
-                    container.setPadding(50, 0, 50, 0)
+                    container.setPadding(45, 0, 45, 0)
                     container.layoutParams = params
                     container.addView(albumName)
                     positiveButton(getString(R.string.ok)) {
@@ -123,6 +113,7 @@ class MainActivity : AppCompatActivity() {
             R.id.unlock_images -> {
                 if (currentAlbum.id == -1L)
                     return true
+                fab.visibility = View.INVISIBLE
                 toolbar.setState(UNLOCK_FILES)
                 var fragmentManager = supportFragmentManager
 
@@ -149,7 +140,7 @@ class MainActivity : AppCompatActivity() {
     private fun loginDialog() {
 
         when (app.securityController.getAppSecurityType()) {
-            -1 -> app.securityController.showSecurityDialog(EstablishPinDialog(this))
+            -1 -> initStartUI()
             PIN -> app.securityController.showSecurityDialog(
                 LoginPinDialog(
                     this,
@@ -178,12 +169,16 @@ class MainActivity : AppCompatActivity() {
         toggle.syncState()
 
         loadAlbums()
+
+        nav_view_settings.setOnClickListener {
+            val dialog = SettingsDialog()
+            dialog.show(supportFragmentManager, SETTINGS_DIALOG_TAG)
+        }
     }
 
     /**
      * Displays the permissions dialog box. Show once
      */
-    @TargetApi(Build.VERSION_CODES.M)
     private fun checkPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
             != PackageManager.PERMISSION_GRANTED ||

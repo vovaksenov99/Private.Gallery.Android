@@ -67,7 +67,7 @@ class LocalStorageGridAdapter(private val context: Context, var files: MutableLi
         val fileName = holder.name
         
         val file = files[position]
-        fileName.text = file.nameWithoutExtension
+        fileName.text = file.name
         
         
         if (used.contains(file.absolutePath))
