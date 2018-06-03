@@ -18,7 +18,7 @@ import org.jetbrains.anko.db.dropTable
  * Start database initializations
  */
 
-const val DATABASE_NAME = "GalleryDatabase"
+const val DATABASE_NAME = "GalleryDatabase.db"
 const val DATABASE_VERSION = 1
 
 /**
@@ -55,7 +55,9 @@ class GalleryDatabase(context: Context) :
         db.createTable(Images.NAME, true,
             Images.FIELDS._ID to INTEGER + PRIMARY_KEY + AUTOINCREMENT,
             Images.FIELDS.NAME to TEXT,
-            Images.FIELDS.LOCAL_PATH to TEXT)
+            Images.FIELDS.LOCAL_PATH to TEXT,
+            Images.FIELDS.ALBUM_ID to INTEGER,
+            Images.FIELDS.EXTENSION to TEXT)
     }
     
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int)

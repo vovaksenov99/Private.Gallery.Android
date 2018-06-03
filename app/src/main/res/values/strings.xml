@@ -4,9 +4,34 @@
     <string name="settings">Settings</string>
     <string name="cancel">Cancel</string>
     <string name="ok">Ok</string>
+    <string name="unlock_images">Unlock images</string>
     <string name="up">Up</string>
+    <string name="done">Done</string>
+    <string name="in_progress">In progress...</string>
+
 
     <string name="navigation_drawer_close" translatable="false" />
     <string name="navigation_drawer_open" translatable="false" />
     <string name="add_album">Add album</string>
+    <string name="album_name">Album name</string>
+
+    <string name="submit_pincode">Submit PIN</string>
+    <string name="incorrect_pin">Incorrect PIN</string>
+    <string name="internal_error">Internal error</string>
+    <string name="click_back_to_exit">Please click BACK again to exit</string>
+    <string name="login_option">Login options</string>
+    <string name="security_options">Security options</string>
+    <string name="security_options_summary">Setup your login screen</string>
+
+    <string name="none">None</string>
+    <string name="pin">PIN</string>
+    <string name="pin_summary">Enter 4 numbers to unlock</string>
+    <string name="none_summary">Lock is not used</string>
+    <string name="select_security_type">Select security type</string>
+
+
+
+    <string name="setup_login_pref">setup_login_pref</string>
+    <string name="pin_pref">pin_pref</string>
+    <string name="none_pref">none_pref</string>
 </resources>

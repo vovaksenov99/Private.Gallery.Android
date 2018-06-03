@@ -2,6 +2,7 @@ package com.privategallery.akscorp.privategalleryandroid.Adapters
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView
+import android.text.InputFilter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +21,7 @@ import java.io.File
  * akscorp2014@gmail.com
  * web site aksenov-vladimir.herokuapp.com
  */
-class LocalStorageGridAdapter(private val context: Context, private var files: MutableList<File>,
+class LocalStorageGridAdapter(private val context: Context, var files: MutableList<File>,
     private val startDirectory: String) :
     RecyclerView.Adapter<LocalStorageGridAdapter.previewHolder>()
 {
@@ -28,7 +29,7 @@ class LocalStorageGridAdapter(private val context: Context, private var files: M
     /**
      * Selected image paths
      */
-    public val used: MutableSet<String> = mutableSetOf()
+    val used: MutableSet<String> = mutableSetOf()
     
     private var lastDirectory: File
     
@@ -65,9 +66,10 @@ class LocalStorageGridAdapter(private val context: Context, private var files: M
         
         val imageView = holder.preview
         val fileName = holder.name
+        fileName.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(30))
         
         val file = files[position]
-        fileName.text = file.nameWithoutExtension
+        fileName.text = file.name
         
         
         if (used.contains(file.absolutePath))

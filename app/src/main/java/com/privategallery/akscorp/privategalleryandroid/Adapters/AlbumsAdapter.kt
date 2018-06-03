@@ -12,6 +12,7 @@ import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Album
 import com.privategallery.akscorp.privategalleryandroid.Fragments.PreviewListFragment
 import com.privategallery.akscorp.privategalleryandroid.R
+import com.privategallery.akscorp.privategalleryandroid.R.id.fab
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.album_rv_item.view.*
 import java.io.Serializable
@@ -24,6 +25,16 @@ import java.io.Serializable
 class AlbumsAdapter(private val context: Context, val albums: List<Album>) :
     RecyclerView.Adapter<AlbumsAdapter.AlbumHolder>()
 {
+    init
+    {
+        if (albums.isNotEmpty())
+        {
+            (context as MainActivity).currentAlbum = albums[0]
+            (context as MainActivity).showAlbumContent(albums[0])
+            (context as MainActivity).fab.visibility = View.VISIBLE
+        }
+    }
+    
     override fun getItemCount(): Int
     {
         return albums.size
@@ -47,7 +58,8 @@ class AlbumsAdapter(private val context: Context, val albums: List<Album>) :
         text.text = albums[position].name
         
         holder.itemView.setOnClickListener {
-            showAlbumContent(albums[position])
+            (context as MainActivity).showAlbumContent(albums[position])
+            (context as MainActivity).currentAlbum = albums[position]
         }
     }
     
@@ -56,17 +68,5 @@ class AlbumsAdapter(private val context: Context, val albums: List<Album>) :
         val text: TextView = itemView.album_name as TextView
     }
     
-    private fun showAlbumContent(album: Album)
-    {
-        var fragmentManager = (context as MainActivity).supportFragmentManager
-        
-        val bundle = Bundle()
-        val fragment = PreviewListFragment()
-        bundle.putSerializable("album", album as Serializable)
-        fragment.arguments = bundle
-        fragmentManager.beginTransaction()
-            .replace(R.id.main_activity_constraint_layout_album, fragment)
-            .commit()
-        context.main_activity_drawer.closeDrawer(GravityCompat.START)
-    }
+
 }

@@ -20,3 +20,4 @@ const val PERMISSIONS_REQUEST = 200
  * Column text RV grid view quantity
  */
 const val SPAN_PREVIEW_RV_COUNT = 4
+

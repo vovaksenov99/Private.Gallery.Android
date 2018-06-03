@@ -29,5 +29,7 @@ object Images
         val _ID = "_id"
         val NAME = "name"
         val LOCAL_PATH = "localPath"
+        val ALBUM_ID = "albumId"
+        val EXTENSION = "extension"
     }
 }

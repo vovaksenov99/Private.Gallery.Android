@@ -10,5 +10,5 @@ import java.io.Serializable
 
 data class Album(var id: Long = -1,
     var name: String? = null,
-    var images: List<Image> = mutableListOf(),
+    var images: MutableList<Image> = mutableListOf(),
     var coverPath: String? = null) : Serializable
