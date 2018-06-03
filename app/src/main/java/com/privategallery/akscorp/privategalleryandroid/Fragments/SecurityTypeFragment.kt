@@ -8,9 +8,8 @@ import android.support.v7.preference.Preference
 import android.support.v7.preference.PreferenceFragmentCompat
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Database.SignInPreference
-import com.privategallery.akscorp.privategalleryandroid.Database.SignInPreference.FIELDS.CURRENT_SECURITY_TYPE
 import com.privategallery.akscorp.privategalleryandroid.R
-import com.privategallery.akscorp.privategalleryandroid.SETTINGS_DIALOG_TAG
+import com.privategallery.akscorp.privategalleryandroid.Dialogs.SETTINGS_DIALOG_TAG
 import com.privategallery.akscorp.privategalleryandroid.Utilities.*
 
 

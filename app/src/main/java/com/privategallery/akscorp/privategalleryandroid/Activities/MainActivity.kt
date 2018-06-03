@@ -30,7 +30,10 @@ import org.jetbrains.anko.alert
 import android.text.InputFilter
 import android.view.*
 import com.privategallery.akscorp.privategalleryandroid.*
+import com.privategallery.akscorp.privategalleryandroid.Dialogs.SETTINGS_DIALOG_TAG
+import com.privategallery.akscorp.privategalleryandroid.Dialogs.SettingsDialog
 import com.privategallery.akscorp.privategalleryandroid.Fragments.PreviewListFragment
+import com.privategallery.akscorp.privategalleryandroid.Widgets.COMMON
 import java.io.Serializable
 
 
@@ -76,6 +79,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.popup_menu, menu)
+
+        if(toolbar!=null && toolbar.status != COMMON)
+            menu!!.setGroupVisible(R.id
+                .popup_menu_group, false)
         return true
     }
 
@@ -172,8 +179,13 @@ class MainActivity : AppCompatActivity() {
 
         nav_view_settings.setOnClickListener {
             val dialog = SettingsDialog()
-            dialog.show(supportFragmentManager, SETTINGS_DIALOG_TAG)
+            dialog.show(supportFragmentManager,
+                SETTINGS_DIALOG_TAG
+            )
         }
+
+        toolbar.setState(toolbar.status)
+
     }
 
     /**

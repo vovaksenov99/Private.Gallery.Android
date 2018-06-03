@@ -78,7 +78,7 @@ class Utilities() {
                 // delete the original file
                 File(inputPath).delete()
             } catch (fnfe1: FileNotFoundException) {
-                Log.e("tag", fnfe1.toString())
+                throw fnfe1
             } catch (e: Exception) {
                 Log.e("tag", e.message)
             }

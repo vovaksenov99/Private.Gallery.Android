@@ -6,6 +6,9 @@
     <string name="ok">Ok</string>
     <string name="unlock_images">Unlock images</string>
     <string name="up">Up</string>
+    <string name="done">Done</string>
+    <string name="in_progress">In progress...</string>
+
 
     <string name="navigation_drawer_close" translatable="false" />
     <string name="navigation_drawer_open" translatable="false" />

@@ -1,4 +1,4 @@
-package com.privategallery.akscorp.privategalleryandroid
+package com.privategallery.akscorp.privategalleryandroid.Dialogs
 
 import android.support.v4.app.DialogFragment;
 import android.os.Bundle
@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Fragments.GeneralSettingsFragment
+import com.privategallery.akscorp.privategalleryandroid.R
 import kotlinx.android.synthetic.main.setting_dialog.view.*
 
 val SETTINGS_DIALOG_TAG = "SETTINGS_DIALOG_TAG"
@@ -17,13 +18,16 @@ class SettingsDialog : DialogFragment() {
     lateinit var mfragmentManager: FragmentManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setStyle(DialogFragment.STYLE_NORMAL, R.style.FullscreenDialog)
+        setStyle(DialogFragment.STYLE_NORMAL,
+            R.style.FullscreenDialog
+        )
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         dialog.window
-            .attributes.windowAnimations = R.style.DialogAnimation;
+            .attributes.windowAnimations =
+                R.style.DialogAnimation;
     }
 
     override fun onStart() {
@@ -42,7 +46,8 @@ class SettingsDialog : DialogFragment() {
 
                 view!!.settings_toolbar.navigationIcon = ContextCompat.getDrawable(
                     activity as MainActivity,
-                    R.drawable.ic_arrow_back_black_24dp)
+                    R.drawable.ic_arrow_back_black_24dp
+                )
 
                 view!!.settings_toolbar.setNavigationOnClickListener {
                     this.dismiss()

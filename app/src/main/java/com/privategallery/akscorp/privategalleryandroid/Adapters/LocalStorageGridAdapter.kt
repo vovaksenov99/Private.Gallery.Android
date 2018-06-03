@@ -2,6 +2,7 @@ package com.privategallery.akscorp.privategalleryandroid.Adapters
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView
+import android.text.InputFilter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -65,6 +66,7 @@ class LocalStorageGridAdapter(private val context: Context, var files: MutableLi
         
         val imageView = holder.preview
         val fileName = holder.name
+        fileName.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(30))
         
         val file = files[position]
         fileName.text = file.name

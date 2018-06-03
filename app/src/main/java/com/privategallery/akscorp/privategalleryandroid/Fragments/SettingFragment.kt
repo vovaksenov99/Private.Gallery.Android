@@ -1,15 +1,12 @@
 package com.privategallery.akscorp.privategalleryandroid.Fragments
 
-import android.R.xml
 import android.os.Bundle
 import android.support.v4.app.FragmentManager
-import android.support.v4.content.ContextCompat
 import android.support.v7.preference.Preference
 import android.support.v7.preference.PreferenceFragmentCompat
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.R
-import com.privategallery.akscorp.privategalleryandroid.SETTINGS_DIALOG_TAG
-import kotlinx.android.synthetic.main.setting_dialog.view.*
+import com.privategallery.akscorp.privategalleryandroid.Dialogs.SETTINGS_DIALOG_TAG
 
 
 val SETTING_FRAGMENT_TAG = "SETTING_FRAGMENT_TAG"

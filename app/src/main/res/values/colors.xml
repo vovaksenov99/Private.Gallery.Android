@@ -8,4 +8,6 @@
     <color name="darkGrey">#1a1a1a</color>
     <color name="toolbarSelectColor">#5ebae4</color>
     <color name="transparent">#00ffffff</color>
+    <color name="green">#1de9b6</color>
+
 </resources>
