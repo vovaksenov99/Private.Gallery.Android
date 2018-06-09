@@ -9,5 +9,6 @@
     <color name="toolbarSelectColor">#5ebae4</color>
     <color name="transparent">#00ffffff</color>
     <color name="green">#1de9b6</color>
+    <color name="black">#000000</color>
 
 </resources>

@@ -1,8 +1,8 @@
 package com.privategallery.akscorp.privategalleryandroid.Adapters
 
+import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Bundle
-import android.support.v4.view.GravityCompat
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -10,12 +10,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Album
-import com.privategallery.akscorp.privategalleryandroid.Fragments.PreviewListFragment
 import com.privategallery.akscorp.privategalleryandroid.R
-import com.privategallery.akscorp.privategalleryandroid.R.id.fab
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.album_rv_item.view.*
-import java.io.Serializable
 
 /**
  * Created by AksCorp on 03.04.2018.
@@ -25,13 +22,17 @@ import java.io.Serializable
 class AlbumsAdapter(private val context: Context, val albums: List<Album>) :
     RecyclerView.Adapter<AlbumsAdapter.AlbumHolder>()
 {
+    lateinit var lastChoose:ViewGroup
+    val activity = context as MainActivity
+
     init
     {
         if (albums.isNotEmpty())
         {
-            (context as MainActivity).currentAlbum = albums[0]
-            (context as MainActivity).showAlbumContent(albums[0])
-            (context as MainActivity).fab.visibility = View.VISIBLE
+            activity.currentAlbum = albums[0]
+            activity.toolbar.title =albums[0].name
+            activity.showAlbumContent(albums[0])
+            activity.fab.visibility = View.VISIBLE
         }
     }
     
@@ -52,15 +53,28 @@ class AlbumsAdapter(private val context: Context, val albums: List<Album>) :
     /**
      * Load image by [GlideApp] library from local folder
      */
+    @SuppressLint("ResourceAsColor")
     override fun onBindViewHolder(holder: AlbumsAdapter.AlbumHolder, position: Int)
     {
         val text = holder.text
         text.text = albums[position].name
         
         holder.itemView.setOnClickListener {
-            (context as MainActivity).showAlbumContent(albums[position])
-            (context as MainActivity).currentAlbum = albums[position]
+            selectCurrentAlbum(holder)
+
+            activity.showAlbumContent(albums[position])
+            activity.toolbar.title = albums[position].name
+            activity.currentAlbum = albums[position]
         }
+    }
+
+
+    fun selectCurrentAlbum(holder: AlbumHolder)
+    {
+        if(::lastChoose.isInitialized)
+            lastChoose.background = ContextCompat.getDrawable(context, R.drawable.ripple_selector_common)
+        (holder.itemView as ViewGroup).background = ContextCompat.getDrawable(context, R.drawable.ripple_selector_selected)
+        lastChoose = holder.itemView
     }
     
     inner class AlbumHolder(itemView: View) : RecyclerView.ViewHolder(itemView)

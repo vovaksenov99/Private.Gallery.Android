@@ -2,8 +2,10 @@ package com.privategallery.akscorp.privategalleryandroid.Activities
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.support.annotation.RequiresApi
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.GravityCompat
@@ -32,12 +34,14 @@ import android.view.*
 import com.privategallery.akscorp.privategalleryandroid.*
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.SETTINGS_DIALOG_TAG
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.SettingsDialog
+import com.privategallery.akscorp.privategalleryandroid.Fragments.LOCAL_STORAGE_FRAGMENT_TAG
 import com.privategallery.akscorp.privategalleryandroid.Fragments.PreviewListFragment
 import com.privategallery.akscorp.privategalleryandroid.Widgets.COMMON
+import com.privategallery.akscorp.privategalleryandroid.Widgets.LOCK_FILES
 import java.io.Serializable
 
 
-class MainActivity : AppCompatActivity() {
+open class MainActivity : AppCompatActivity() {
     private val localDatabaseApi: LocalDatabaseAPI = LocalDatabaseAPI(this)
     private lateinit var albums: List<Album>
     var currentAlbum: Album = Album()
@@ -55,8 +59,7 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
 
         if (app.securityController.loginStatus == SecurityController.LOGIN_DONE) {
-            if (currentAlbum.id != -1L)
-                fab.visibility = View.VISIBLE
+            if (currentAlbum.id != -1L) fab.visibility = View.VISIBLE
             initStartUI()
         } else {
             loginDialog()
@@ -64,7 +67,13 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onBackPressed() {
+        if (toolbar.status == LOCK_FILES) {
+            fab.clickAction()
+            return
+        }
+
         if (doubleBackToExitPressedOnce) {
             super.onBackPressed()
             app.securityController.logout()
@@ -80,9 +89,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.popup_menu, menu)
 
-        if(toolbar!=null && toolbar.status != COMMON)
-            menu!!.setGroupVisible(R.id
-                .popup_menu_group, false)
+        if (toolbar != null && toolbar.status != COMMON) menu!!.setGroupVisible(
+            R.id.popup_menu_group, false)
         return true
     }
 
@@ -99,9 +107,8 @@ class MainActivity : AppCompatActivity() {
                     //max string length
                     albumName.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(30))
                     val params = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams
-                            .MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
-                    )
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT)
                     container.setPadding(45, 0, 45, 0)
                     container.layoutParams = params
                     container.addView(albumName)
@@ -111,23 +118,19 @@ class MainActivity : AppCompatActivity() {
                         it.cancel()
                         checkPermission()
                     }
-
-
                     negativeButton(getString(R.string.cancel)) { it.cancel() }
                     this.customView = container
                 }.show()
             }
             R.id.unlock_images -> {
-                if (currentAlbum.id == -1L)
-                    return true
+                if (currentAlbum.id == -1L) return true
                 fab.visibility = View.INVISIBLE
                 toolbar.setState(UNLOCK_FILES)
-                var fragmentManager = supportFragmentManager
+                val fragmentManager = supportFragmentManager
 
                 val fragment = UnlockListFragment()
                 fragmentManager.beginTransaction()
-                    .replace(R.id.main_activity_constraint_layout_album, fragment)
-                    .commit()
+                    .replace(R.id.main_activity_constraint_layout_album, fragment).commit()
                 main_activity_drawer.closeDrawer(GravityCompat.START)
             }
 
@@ -148,11 +151,8 @@ class MainActivity : AppCompatActivity() {
 
         when (app.securityController.getAppSecurityType()) {
             -1 -> initStartUI()
-            PIN -> app.securityController.showSecurityDialog(
-                LoginPinDialog(
-                    this,
-                    { initStartUI() })
-            )
+            PIN -> app.securityController.showSecurityDialog(LoginPinDialog(this,
+                { initStartUI() }))
         }
     }
 
@@ -164,14 +164,8 @@ class MainActivity : AppCompatActivity() {
     private fun initStartUI() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
-
         val toggle = ActionBarDrawerToggle(
-            this,
-            main_activity_drawer,
-            toolbar,
-            navigation_drawer_open,
-            navigation_drawer_close
-        )
+            this, main_activity_drawer, toolbar, navigation_drawer_open, navigation_drawer_close)
         main_activity_drawer.addDrawerListener(toggle)
         toggle.syncState()
 
@@ -179,9 +173,7 @@ class MainActivity : AppCompatActivity() {
 
         nav_view_settings.setOnClickListener {
             val dialog = SettingsDialog()
-            dialog.show(supportFragmentManager,
-                SETTINGS_DIALOG_TAG
-            )
+            dialog.show(supportFragmentManager, SETTINGS_DIALOG_TAG)
         }
 
         toolbar.setState(toolbar.status)
@@ -192,24 +184,21 @@ class MainActivity : AppCompatActivity() {
      * Displays the permissions dialog box. Show once
      */
     private fun checkPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(this, Manifest.permission.INTERNET)
-            != PackageManager.PERMISSION_GRANTED ||
-            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_NETWORK_STATE)
-            != PackageManager.PERMISSION_GRANTED
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                this, Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED
         ) {
             ActivityCompat.requestPermissions(
                 this, arrayOf(
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
                     Manifest.permission.ACCESS_NETWORK_STATE,
-                    Manifest.permission.INTERNET
-                ),
-                PERMISSIONS_REQUEST
-            )
+                    Manifest.permission.INTERNET), PERMISSIONS_REQUEST)
         }
     }
 
@@ -223,23 +212,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun showAlbumContent(album: Album) {
-        var fragmentManager = supportFragmentManager
+        val fragmentManager = supportFragmentManager
 
         val bundle = Bundle()
         val fragment = PreviewListFragment()
         bundle.putSerializable("album", album as Serializable)
         fragment.arguments = bundle
         fragmentManager.beginTransaction()
-            .replace(R.id.main_activity_constraint_layout_album, fragment)
-            .commit()
+            .replace(R.id.main_activity_constraint_layout_album, fragment).commit()
         main_activity_drawer.closeDrawer(GravityCompat.START)
     }
 
 
-
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>, grantResults: IntArray
+        requestCode: Int, permissions: Array<String>, grantResults: IntArray
     ) {
         when (requestCode) {
             PERMISSIONS_REQUEST -> {
@@ -247,9 +233,7 @@ class MainActivity : AppCompatActivity() {
 
                 } else {
                     Toast.makeText(
-                        this, getString(R.string.permission_denied), Toast
-                            .LENGTH_LONG
-                    ).show()
+                        this, getString(R.string.permission_denied), Toast.LENGTH_LONG).show()
                 }
             }
         }

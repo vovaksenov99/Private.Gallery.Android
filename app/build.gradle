@@ -11,7 +11,7 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.privategallery.akscorp.privategalleryandroid"
-        minSdkVersion 17
+        minSdkVersion 21
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
@@ -42,14 +42,17 @@ dependencies {
     }
     kapt 'com.github.bumptech.glide:compiler:4.6.1'
     implementation 'com.android.support:gridlayout-v7:27.1.1'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5'
+
     implementation 'com.android.support:recyclerview-v7:27.1.1'
     implementation 'com.android.support:design:27.1.1'
     implementation 'com.android.support:preference-v14:27.1.1'
 
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:0.22.2"
+
+
     implementation "org.jetbrains.anko:anko-sqlite:$anko_version"
     implementation "org.jetbrains.anko:anko-commons:$anko_version"
-    implementation 'com.github.codex-team:hawk.kotlin:v1.0.3'
+    implementation "com.github.codex-team:hawk.kotlin:v1.0.4"
 
 }
 kotlin {
