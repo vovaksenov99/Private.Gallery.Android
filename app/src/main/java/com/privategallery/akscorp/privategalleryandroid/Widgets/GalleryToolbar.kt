@@ -3,6 +3,7 @@ package com.privategallery.akscorp.privategalleryandroid.Widgets
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.ContextWrapper
+import android.graphics.Color
 import android.support.v4.content.ContextCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
@@ -25,109 +26,95 @@ const val COMMON = 1
 const val LOCK_FILES = 2
 const val UNLOCK_FILES = 3
 
-class GalleryToolbar : android.support.v7.widget.Toolbar
-{
-    
-    constructor(context: Context) : super(context)
-    
-    constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
-    
-    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context,
-        attrs,
-        defStyleAttr)
-    
-    private fun getBaseContext() = ((context as ContextWrapper).baseContext as MainActivity)
+class GalleryToolbar : android.support.v7.widget.Toolbar {
 
     var status = COMMON
-    private set
+        private set
 
+    constructor(context: Context) : super(context)
+
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
+
+    constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(
+        context, attrs, defStyleAttr)
+
+    private fun getBaseContext() = ((context as ContextWrapper).baseContext as MainActivity)
 
     @SuppressLint("ResourceType", "PrivateResource")
-    fun setState(state: Int)
-    {
+    fun setState(state: Int) {
         status = state
-        when (state)
-        {
-            COMMON ->
-            {
+        when (state) {
+            COMMON -> {
                 removeAllViews()
-                setBackgroundColor(ContextCompat
-                    .getColor(context, R
-                        .color.colorPrimary))
-                
-                getBaseContext().main_activity_drawer
-                    .setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-                
+                setBackgroundColor(
+                    ContextCompat.getColor(
+                        context, R.color.colorPrimary))
+                setTitleTextColor(ContextCompat.getColor(getBaseContext(), R.color.darkGrey))
+                getBaseContext().main_activity_drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+
                 val toggle = ActionBarDrawerToggle(
                     getBaseContext(),
                     getBaseContext().main_activity_drawer,
                     this,
                     R.string.navigation_drawer_open,
-                    R.string.navigation_drawer_close
-                )
+                    R.string.navigation_drawer_close)
                 getBaseContext().main_activity_drawer.addDrawerListener(toggle)
                 toggle.syncState()
 
-                menu.setGroupVisible(R.id
-                    .popup_menu_group, true)
+                menu.setGroupVisible(
+                    R.id.popup_menu_group, true)
             }
-            LOCK_FILES ->
-            {
+            LOCK_FILES -> {
                 removeAllViews()
-                setBackgroundColor(ContextCompat
-                    .getColor(context, R
-                        .color.toolbarSelectColor))
+                setBackgroundColor(
+                    ContextCompat.getColor(
+                        context, R.color.toolbarSelectColor))
                 val b = LockImageButton(
                     context)
+                setTitleTextColor(Color.WHITE)
                 b.id = 12
-                val l1 = Toolbar.LayoutParams(Toolbar.LayoutParams.WRAP_CONTENT,
-                    Toolbar.LayoutParams.WRAP_CONTENT)
+                val l1 = Toolbar.LayoutParams(
+                    Toolbar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT)
                 l1.gravity = Gravity.END
                 b.layoutParams = l1
                 b.background = null
                 b.setImageResource(R.drawable.ic_done_black_24dp)
                 addView(b)
-                menu.setGroupVisible(R.id
-                    .popup_menu_group, false)
-                
+                menu.setGroupVisible(
+                    R.id.popup_menu_group, false)
+
                 navigationIcon = null
-                getBaseContext().main_activity_drawer
-                    .setDrawerLockMode(
-                        DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                getBaseContext().main_activity_drawer.setDrawerLockMode(
+                    DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             }
-            UNLOCK_FILES ->
-            {
+            UNLOCK_FILES -> {
                 removeAllViews()
-                setBackgroundColor(ContextCompat
-                    .getColor(context, R
-                        .color.toolbarSelectColor))
+                setBackgroundColor(
+                    ContextCompat.getColor(
+                        context, R.color.toolbarSelectColor))
+                setTitleTextColor(Color.WHITE)
                 val b = UnlockImageButton(context);
                 b.id = 14
-                val l1 = Toolbar.LayoutParams(Toolbar.LayoutParams.WRAP_CONTENT,
-                    Toolbar.LayoutParams.WRAP_CONTENT);
+                val l1 = Toolbar.LayoutParams(
+                    Toolbar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT);
                 l1.gravity = Gravity.END;
                 b.layoutParams = l1
                 b.background = null
                 b.setImageResource(R.drawable.ic_done_black_24dp)
                 addView(b)
-                menu.setGroupVisible(R.id
-                    .popup_menu_group, false)
-        
+                menu.setGroupVisible(
+                    R.id.popup_menu_group, false)
+
                 navigationIcon = null
-                getBaseContext().main_activity_drawer
-                    .setDrawerLockMode(
-                        DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                getBaseContext().main_activity_drawer.setDrawerLockMode(
+                    DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             }
         }
     }
-    
+
     @SuppressLint("ResourceType")
-    override fun removeAllViews()
-    {
-        if(findViewById<LockImageButton>(12)!=null)
-            removeView(find(12))
-        if(findViewById<LockImageButton>(14)!=null)
-            removeView(find(14))
-    
+    override fun removeAllViews() {
+        if (findViewById<LockImageButton>(12) != null) removeView(find(12))
+        if (findViewById<LockImageButton>(14) != null) removeView(find(14))
     }
 }

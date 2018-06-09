@@ -15,8 +15,6 @@ import com.privategallery.akscorp.privategalleryandroid.R
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
 import android.view.ViewAnimationUtils
-import android.os.Build
-import android.support.annotation.RequiresApi
 import android.support.design.widget.CoordinatorLayout
 import android.widget.FrameLayout
 
@@ -41,8 +39,12 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener {
         setOnClickListener(this)
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onClick(v: View?) {
+        clickAction()
+    }
+
+    fun clickAction()
+    {
         if (isAnimationRunning)
             return
 
@@ -50,9 +52,8 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener {
 
 
         try {
-            //runGalleryAction()
-            viewMenu()
-            showAnimation()
+            showMenuWithRevealAnim()
+            showButtonAnimation()
         } catch (e: Exception) {
             isAnimationRunning = false
             isButtonShowGallery = false
@@ -62,7 +63,7 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener {
         isButtonShowGallery = !isButtonShowGallery
     }
 
-    private fun showAnimation() {
+    private fun showButtonAnimation() {
         var from = 0f
         var to = 45f
         if (isButtonShowGallery)
@@ -76,8 +77,7 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener {
 
 
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun viewMenu() {
+    private fun showMenuWithRevealAnim() {
         val fabCenter = Point(fab.x.toInt() + fab.width / 2, fab.y.toInt() + fab.height / 2)
 
         contentLayout = (context as MainActivity).main_activity_coordinator_layout
@@ -160,6 +160,8 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener {
             })
             anim.duration = 800
             anim.start()
+
+            (context as MainActivity).showAlbumContent((context as MainActivity).currentAlbum)
         }
     }
 

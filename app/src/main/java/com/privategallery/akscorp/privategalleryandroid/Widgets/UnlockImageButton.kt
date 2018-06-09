@@ -24,6 +24,7 @@ import com.privategallery.akscorp.privategalleryandroid.Utilities.Utilities
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.local_storage_grid_fragment.*
 import kotlinx.android.synthetic.main.preview_images_grid_fragment.*
+import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import java.io.FileNotFoundException
 import java.io.Serializable
@@ -43,41 +44,22 @@ class UnlockImageButton : ImageButton, View.OnClickListener {
 
     private fun getBaseContext() = ((context as ContextWrapper).baseContext as MainActivity)
 
-
-    private fun progressBroadcastReceiverInit(progressDialog: LoadDialog)
-    {
-        val intentFilter = IntentFilter(PROGRESS_BROADCAST_RECEIVER_TAG)
-        val mReceiver =
-            ProgressBroadcastReceiver(
-                progressDialog
-            )
-        context.registerReceiver(mReceiver, intentFilter)
-    }
-
-    private fun sentProgressToReceiver(progress: Int)
-    {
-        val intent = Intent()
-        intent.action =
-                PROGRESS_BROADCAST_RECEIVER_TAG
-        intent.putExtra(
-            CURRENT_PROGRESS_BROADCAST_RECEIVER,progress)
-        getBaseContext().sendBroadcast(intent)
-    }
-
     override fun onClick(v: View?) {
         getBaseContext().toolbar.setState(COMMON)
 
-        val unlockPreviewGridAdapter = getBaseContext().main_preview_rv_grid.adapter as
-                UnlockPreviewGridAdapter
+        val unlockPreviewGridAdapter =
+            getBaseContext().main_preview_rv_grid.adapter as UnlockPreviewGridAdapter
 
-        if(unlockPreviewGridAdapter.used.size == 0)
+        if (unlockPreviewGridAdapter.used.size == 0) {
+            getBaseContext().fab.visibility = View.VISIBLE
             return
+        }
 
         val dialog = LoadDialog()
-        dialog.showNow(getBaseContext().supportFragmentManager,
-            LOAD_DIALOG_TAG)
+        dialog.showNow(
+            getBaseContext().supportFragmentManager, LOAD_DIALOG_TAG)
 
-        progressBroadcastReceiverInit(dialog)
+        dialog.progressBroadcastReceiverInit(dialog)
 
         launch {
 
@@ -91,23 +73,20 @@ class UnlockImageButton : ImageButton, View.OnClickListener {
                 try {
                     Utilities.moveFile(
                         getImagePath(image),
-                        Environment.getExternalStorageDirectory().absolutePath +
-                                "/" + Environment.DIRECTORY_DCIM + "/PrivateGalleryFiles",
+                        Environment.getExternalStorageDirectory().absolutePath + "/" + Environment.DIRECTORY_DCIM + "/PrivateGalleryFiles",
                         getImageName(image))
                     db.removeImageFromDatabase(image)
                     getBaseContext().currentAlbum.images.remove(image)
-                }
-                catch (e: FileNotFoundException)
-                {
+                } catch (e: FileNotFoundException) {
                     db.removeImageFromDatabase(image)
                     getBaseContext().currentAlbum.images.remove(image)
                 }
 
-                sentProgressToReceiver((counter / filesCount * 100.0).toInt())
+                dialog.sentProgressToReceiver((counter / filesCount * 100.0).toInt())
 
             }
 
-            getBaseContext().runOnUiThread{
+            launch(UI) {
                 Handler().postDelayed({
                     dialog.dismiss()
                     getBaseContext().fab.visibility = View.VISIBLE
@@ -122,17 +101,12 @@ class UnlockImageButton : ImageButton, View.OnClickListener {
         ContextWrapper(context).filesDir.path + "/Images/${image.id}.${image.extension}"
 
     private fun getImageName(image: Image) = image.localPath!!.substring(
-        image.localPath!!
-            .lastIndexOf('/') + 1, image.localPath!!.length
-    )
+        image.localPath!!.lastIndexOf('/') + 1, image.localPath!!.length)
 
     constructor(context: Context) : super(context)
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
 
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(
-        context,
-        attrs,
-        defStyleAttr
-    )
+        context, attrs, defStyleAttr)
 }

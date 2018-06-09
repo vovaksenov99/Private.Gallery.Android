@@ -1,9 +1,8 @@
 package com.privategallery.akscorp.privategalleryandroid
 
 import android.app.Application
-import android.content.ContextWrapper
+import android.support.v7.app.AppCompatDelegate
 import com.hawkcatcherkotlin.akscorp.hawkcatcherkotlin.HawkExceptionCatcher
-import com.privategallery.akscorp.privategalleryandroid.Database.LocalDatabaseAPI
 import com.privategallery.akscorp.privategalleryandroid.Utilities.SecurityController
 
 /**
@@ -14,24 +13,24 @@ import com.privategallery.akscorp.privategalleryandroid.Utilities.SecurityContro
 
 
 class Application : Application() {
-    
+
     /**
      * Hawk catcher
      */
     private lateinit var exceptionCatcher: HawkExceptionCatcher
-    lateinit var securityController:SecurityController
+    lateinit var securityController: SecurityController
 
 
     override fun onCreate() {
         super.onCreate()
-    
+
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
+
         exceptionCatcher = HawkExceptionCatcher(this, HAWK_TOKEN)
         securityController = SecurityController(this.baseContext)
-        try
-        {
+        try {
             exceptionCatcher.start()
-        } catch (e: Exception)
-        {
+        } catch (e: Exception) {
             e.printStackTrace()
         }
     }

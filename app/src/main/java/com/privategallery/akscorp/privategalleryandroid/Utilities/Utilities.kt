@@ -1,14 +1,18 @@
 package com.privategallery.akscorp.privategalleryandroid.Utilities
 
+import android.os.Build
+import android.support.annotation.RequiresApi
 import android.util.Log
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.InputStream
-import java.io.OutputStream
 import java.security.MessageDigest
 import java.util.*
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.io.*
+
 
 /**
  * Created by AksCorp on 30.03.2018.
@@ -18,13 +22,13 @@ import java.util.*
 
 class Utilities() {
     companion object {
+
         fun getFilesFromFolder(path: String): MutableList<File> {
             val listFile: List<File>
             val file = File(path)
 
             if (file.isDirectory) {
                 listFile = file.listFiles().toMutableList()
-
                 Collections.sort(listFile, SortFolder())
                 return listFile
             }
