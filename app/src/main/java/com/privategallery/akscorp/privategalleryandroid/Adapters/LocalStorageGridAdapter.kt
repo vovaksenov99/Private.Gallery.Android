@@ -41,7 +41,7 @@ class LocalStorageGridAdapter(
     }
 
     /**
-     * Selected image paths
+     * Selected imageData paths
      */
     val used: MutableSet<String> = mutableSetOf()
 
@@ -98,7 +98,7 @@ class LocalStorageGridAdapter(
     }
 
     /**
-     * Load image by [GlideApp] library from local folder
+     * Load imageData by [GlideApp] library from local folder
      */
     override fun onBindViewHolder(holder: LocalStorageGridAdapter.previewHolder, position: Int) {
 

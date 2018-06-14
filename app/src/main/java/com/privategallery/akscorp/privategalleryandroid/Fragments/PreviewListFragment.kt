@@ -1,11 +1,13 @@
 package com.privategallery.akscorp.privategalleryandroid.Fragments
 
 import android.os.Bundle
+import android.os.Handler
 import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Adapters.PreviewGridAdapter
 import com.privategallery.akscorp.privategalleryandroid.Adapters.UnlockPreviewGridAdapter
@@ -15,6 +17,9 @@ import com.privategallery.akscorp.privategalleryandroid.Essentials.Image
 import com.privategallery.akscorp.privategalleryandroid.R
 import com.privategallery.akscorp.privategalleryandroid.SPAN_PREVIEW_RV_COUNT
 import kotlinx.android.synthetic.main.preview_images_grid_fragment.view.*
+import android.view.ViewTreeObserver
+
+
 
 /**
  *
@@ -33,11 +38,17 @@ class PreviewListFragment : Fragment()
     {
         val view = inflater.inflate(R.layout.preview_images_grid_fragment, container, false)
         initPreviewGrid(view)
+
         return view
     }
-    
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+    }
+
+
     /**
-     * Init Grid RV with image text
+     * Init Grid RV with imageData text
      */
     private fun initPreviewGrid(view: View)
     {
@@ -76,7 +87,7 @@ class UnlockListFragment : Fragment()
     }
     
     /**
-     * Init Grid RV with image text
+     * Init Grid RV with imageData text
      */
     private fun initPreviewGrid(view: View)
     {

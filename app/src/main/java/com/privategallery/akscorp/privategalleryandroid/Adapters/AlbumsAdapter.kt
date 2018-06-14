@@ -20,45 +20,40 @@ import kotlinx.android.synthetic.main.album_rv_item.view.*
  * web site aksenov-vladimir.herokuapp.com
  */
 class AlbumsAdapter(private val context: Context, val albums: List<Album>) :
-    RecyclerView.Adapter<AlbumsAdapter.AlbumHolder>()
-{
-    lateinit var lastChoose:ViewGroup
+    RecyclerView.Adapter<AlbumsAdapter.AlbumHolder>() {
+    lateinit var lastChoose: ViewGroup
     val activity = context as MainActivity
 
-    init
-    {
-        if (albums.isNotEmpty())
-        {
+    init {
+        if (albums.isNotEmpty()) {
             activity.currentAlbum = albums[0]
-            activity.toolbar.title =albums[0].name
+            activity.toolbar.title = albums[0].name
             activity.showAlbumContent(albums[0])
             activity.fab.visibility = View.VISIBLE
         }
     }
-    
-    override fun getItemCount(): Int
-    {
+
+    override fun getItemCount(): Int {
         return albums.size
     }
-    
-    override fun onCreateViewHolder(parent: ViewGroup,
-        viewType: Int): AlbumsAdapter.AlbumHolder
-    {
+
+    override fun onCreateViewHolder(
+        parent: ViewGroup, viewType: Int
+    ): AlbumsAdapter.AlbumHolder {
         val context = parent.context
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.album_rv_item, parent, false)
         return AlbumHolder(view)
     }
-    
+
     /**
-     * Load image by [GlideApp] library from local folder
+     * Load imageData by [GlideApp] library from local folder
      */
     @SuppressLint("ResourceAsColor")
-    override fun onBindViewHolder(holder: AlbumsAdapter.AlbumHolder, position: Int)
-    {
+    override fun onBindViewHolder(holder: AlbumsAdapter.AlbumHolder, position: Int) {
         val text = holder.text
         text.text = albums[position].name
-        
+
         holder.itemView.setOnClickListener {
             selectCurrentAlbum(holder)
 
@@ -69,18 +64,17 @@ class AlbumsAdapter(private val context: Context, val albums: List<Album>) :
     }
 
 
-    fun selectCurrentAlbum(holder: AlbumHolder)
-    {
-        if(::lastChoose.isInitialized)
-            lastChoose.background = ContextCompat.getDrawable(context, R.drawable.ripple_selector_common)
-        (holder.itemView as ViewGroup).background = ContextCompat.getDrawable(context, R.drawable.ripple_selector_selected)
+    fun selectCurrentAlbum(holder: AlbumHolder) {
+        if (::lastChoose.isInitialized) lastChoose.background =
+                ContextCompat.getDrawable(context, R.drawable.ripple_selector_common)
+        (holder.itemView as ViewGroup).background =
+                ContextCompat.getDrawable(context, R.drawable.ripple_selector_selected)
         lastChoose = holder.itemView
     }
-    
-    inner class AlbumHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
-    {
+
+    inner class AlbumHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val text: TextView = itemView.album_name as TextView
     }
-    
+
 
 }

@@ -12,11 +12,15 @@ import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Fragments.LOCAL_STORAGE_FRAGMENT_TAG
 import com.privategallery.akscorp.privategalleryandroid.Fragments.LocalStorageFragment
 import com.privategallery.akscorp.privategalleryandroid.R
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_main.view.*
 import android.view.ViewAnimationUtils
 import android.support.design.widget.CoordinatorLayout
+import android.support.transition.Fade
+import android.util.Log
 import android.widget.FrameLayout
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.view.*
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 
 
 /**
@@ -24,23 +28,31 @@ import android.widget.FrameLayout
  * akscorp2014@gmail.com
  * web site aksenov-vladimir.herokuapp.com
  */
-class GalleryFAB : FloatingActionButton, View.OnClickListener {
+class GalleryFAB : FloatingActionButton, View.OnClickListener
+{
     private var isButtonShowGallery = false
     private var isAnimationRunning = false
 
+    private val ANIMATION_DURATION = 500L
+
     private var currentFragment: LocalStorageFragment? = null
 
-    lateinit var toolbar: Toolbar
+    lateinit var toolbar: GalleryToolbar
+
 
     private var contentLayout: CoordinatorLayout? = null
     private var revealMask: FrameLayout? = null
 
-    init {
+    init
+    {
         setOnClickListener(this)
     }
 
-    override fun onClick(v: View?) {
+    override fun onClick(v: View?)
+    {
+        toolbar = (context as MainActivity).toolbar
         clickAction()
+
     }
 
     fun clickAction()
@@ -51,10 +63,12 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener {
         isAnimationRunning = true
 
 
-        try {
+        try
+        {
             showMenuWithRevealAnim()
             showButtonAnimation()
-        } catch (e: Exception) {
+        } catch (e: Exception)
+        {
             isAnimationRunning = false
             isButtonShowGallery = false
             return
@@ -63,65 +77,80 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener {
         isButtonShowGallery = !isButtonShowGallery
     }
 
-    private fun showButtonAnimation() {
+    private fun showButtonAnimation()
+    {
         var from = 0f
         var to = 45f
         if (isButtonShowGallery)
             from = to.also { to = from }
 
         val animation1 = RotateAnimation(from, to, width / 2f, height / 2f)
-        animation1.duration = 700
+        animation1.duration = ANIMATION_DURATION
         animation1.fillAfter = true
         startAnimation(animation1)
     }
 
 
-
-    private fun showMenuWithRevealAnim() {
+    private fun showMenuWithRevealAnim()
+    {
         val fabCenter = Point(fab.x.toInt() + fab.width / 2, fab.y.toInt() + fab.height / 2)
 
         contentLayout = (context as MainActivity).main_activity_coordinator_layout
         revealMask = (context as MainActivity).reveal
-        if (!isButtonShowGallery) {
-            revealMask!!.visibility = View.VISIBLE
+        if (!isButtonShowGallery)
+        {
+            launch {
 
-            (context as MainActivity).toolbar.setState(LOCK_FILES)
-            currentFragment =  establishFragment()
+                currentFragment = establishFragment()
 
-            val startRadius = 0
-            val endRadius = Math.hypot(contentLayout!!.width.toDouble(),
-                contentLayout!!.height.toDouble()
-            ).toInt()
+                launch(UI) {
+                    revealMask!!.visibility = View.VISIBLE
 
-            val anim = ViewAnimationUtils.createCircularReveal(
-                revealMask,
-                fabCenter.x,
-                fabCenter.y,
-                startRadius.toFloat(),
-                endRadius.toFloat())
-            anim.duration = 800
+                    val startRadius = 0
+                    val endRadius = Math.hypot(contentLayout!!.width.toDouble(),
+                        contentLayout!!.height.toDouble()
+                    ).toInt()
 
-            anim.addListener(object : Animator.AnimatorListener {
-                override fun onAnimationStart(animator: Animator) {
+                    val anim = ViewAnimationUtils.createCircularReveal(
+                        revealMask,
+                        fabCenter.x,
+                        fabCenter.y,
+                        startRadius.toFloat(),
+                        endRadius.toFloat())
+                    anim.duration = ANIMATION_DURATION
 
+                    anim.addListener(object : Animator.AnimatorListener
+                    {
+                        override fun onAnimationStart(animator: Animator)
+                        {
+
+                        }
+
+                        override fun onAnimationEnd(animator: Animator)
+                        {
+                            launch(UI) {
+                                isAnimationRunning = false
+                                toolbar.setState(LOCK_FILES)
+                            }
+                        }
+
+                        override fun onAnimationCancel(animator: Animator)
+                        {
+
+                        }
+
+                        override fun onAnimationRepeat(animator: Animator)
+                        {
+
+                        }
+                    })
+
+                    anim.start()
                 }
+            }
 
-                override fun onAnimationEnd(animator: Animator) {
-                    isAnimationRunning = false
-                }
-
-                override fun onAnimationCancel(animator: Animator) {
-
-                }
-
-                override fun onAnimationRepeat(animator: Animator) {
-
-                }
-            })
-
-            anim.start()
-
-        } else {
+        } else
+        {
 
             val startRadius = Math.hypot(contentLayout!!.width.toDouble(),
                 contentLayout!!.height.toDouble()
@@ -135,50 +164,65 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener {
                 startRadius.toFloat(),
                 endRadius.toFloat())
 
-            anim.addListener(object : Animator.AnimatorListener {
-                override fun onAnimationStart(animator: Animator) {
+            anim.addListener(object : Animator.AnimatorListener
+            {
+                override fun onAnimationStart(animator: Animator)
+                {
 
                 }
 
-                override fun onAnimationEnd(animator: Animator) {
-                    (context as MainActivity).toolbar.setState(COMMON)
+                override fun onAnimationEnd(animator: Animator)
+                {
+                    try
+                    {
+                        (context as MainActivity).toolbar.setState(COMMON)
 
-                    (context as MainActivity).supportFragmentManager.beginTransaction()
-                        .remove(currentFragment).commit()
-                    revealMask!!.visibility = View.INVISIBLE
+                        (context as MainActivity).supportFragmentManager.beginTransaction()
+                            .remove(currentFragment).commit()
+                        revealMask!!.visibility = View.INVISIBLE
+                    } catch (e: Exception)
+                    {
 
+                    }
                     isAnimationRunning = false
                 }
 
-                override fun onAnimationCancel(animator: Animator) {
+                override fun onAnimationCancel(animator: Animator)
+                {
 
                 }
 
-                override fun onAnimationRepeat(animator: Animator) {
+                override fun onAnimationRepeat(animator: Animator)
+                {
 
                 }
             })
-            anim.duration = 800
+            anim.duration = ANIMATION_DURATION
             anim.start()
-
             (context as MainActivity).showAlbumContent((context as MainActivity).currentAlbum)
         }
     }
 
-    private fun establishFragment(): LocalStorageFragment {
+    private fun establishFragment(): LocalStorageFragment
+    {
+
         val fragment = LocalStorageFragment()
 
         val fragmentManager = (context as MainActivity).supportFragmentManager
-
+        fragment.enterTransition = Fade()
+        fragment.exitTransition = Fade()
         val fragmentTransaction = fragmentManager.beginTransaction()
             .replace(R.id.reveal, fragment, LOCAL_STORAGE_FRAGMENT_TAG)
 
-        fragmentTransaction.commitNow()
+        launch(UI) {
+            fragmentTransaction.commit()
+        }
 
         return fragment
     }
 
-    constructor(context: Context) : super(context) {
+    constructor(context: Context) : super(context)
+    {
     }
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)

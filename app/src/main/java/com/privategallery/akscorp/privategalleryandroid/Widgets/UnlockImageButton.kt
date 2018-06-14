@@ -88,9 +88,14 @@ class UnlockImageButton : ImageButton, View.OnClickListener {
 
             launch(UI) {
                 Handler().postDelayed({
-                    dialog.dismiss()
-                    getBaseContext().fab.visibility = View.VISIBLE
-                    getBaseContext().showAlbumContent(getBaseContext().currentAlbum)
+                    try {
+                        dialog.dismiss()
+                        getBaseContext().fab.visibility = View.VISIBLE
+                        getBaseContext().showAlbumContent(getBaseContext().currentAlbum)
+                    }
+                    catch (e:Exception){
+                        return@postDelayed
+                    }
                 }, 1500)
             }
 

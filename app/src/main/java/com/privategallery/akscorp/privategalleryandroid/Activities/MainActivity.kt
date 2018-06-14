@@ -2,10 +2,8 @@ package com.privategallery.akscorp.privategalleryandroid.Activities
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.support.annotation.RequiresApi
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.GravityCompat
@@ -32,9 +30,10 @@ import org.jetbrains.anko.alert
 import android.text.InputFilter
 import android.view.*
 import com.privategallery.akscorp.privategalleryandroid.*
+import com.privategallery.akscorp.privategalleryandroid.Adapters.lastSelectedImagePosition
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.SETTINGS_DIALOG_TAG
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.SettingsDialog
-import com.privategallery.akscorp.privategalleryandroid.Fragments.LOCAL_STORAGE_FRAGMENT_TAG
+import com.privategallery.akscorp.privategalleryandroid.Fragments.PREVIEW_LIST_FRAGMENT
 import com.privategallery.akscorp.privategalleryandroid.Fragments.PreviewListFragment
 import com.privategallery.akscorp.privategalleryandroid.Widgets.COMMON
 import com.privategallery.akscorp.privategalleryandroid.Widgets.LOCK_FILES
@@ -67,8 +66,12 @@ open class MainActivity : AppCompatActivity() {
     }
 
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onBackPressed() {
+        if (lastSelectedImagePosition != -1) {
+            super.onBackPressed()
+            return
+        }
+
         if (toolbar.status == LOCK_FILES) {
             fab.clickAction()
             return
@@ -219,7 +222,8 @@ open class MainActivity : AppCompatActivity() {
         bundle.putSerializable("album", album as Serializable)
         fragment.arguments = bundle
         fragmentManager.beginTransaction()
-            .replace(R.id.main_activity_constraint_layout_album, fragment).commit()
+            .replace(R.id.main_activity_constraint_layout_album, fragment, PREVIEW_LIST_FRAGMENT)
+            .commit()
         main_activity_drawer.closeDrawer(GravityCompat.START)
     }
 

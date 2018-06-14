@@ -26,36 +26,35 @@ class UnlockPreviewGridAdapter(private val context: Context, val images: List<Im
 {
     var used: MutableSet<Image> = mutableSetOf()
 
-    init {
+    init
+    {
         used = mutableSetOf()
     }
+
     override fun getItemCount(): Int
     {
         return images.size
     }
 
     override fun onCreateViewHolder(parent: ViewGroup,
-        viewType: Int): UnlockPreviewGridAdapter.previewHolder
+                                    viewType: Int): UnlockPreviewGridAdapter.previewHolder
     {
         val inflater = LayoutInflater.from(context)
         val photoView = inflater.inflate(R.layout.unlock_rv_item, null, false)
         return previewHolder(photoView)
     }
-    
+
     /**
-     * Load image by [GlideApp] library from local folder
+     * Load imageData by [GlideApp] library from local folder
      */
     override fun onBindViewHolder(holder: UnlockPreviewGridAdapter.previewHolder, position: Int)
     {
         val imageView = holder.preview
-        
-        GlideApp.with(context)
-            .load(getImagePath(images[position]))
-            .placeholder(R.color.placeholder)
+
+        GlideApp.with(context).load(getImagePath(images[position])).placeholder(R.color.placeholder)
             .error(R.drawable.placeholder_image_error)
-            .transition(DrawableTransitionOptions.withCrossFade(500))
-            .into(imageView)
-        
+            .transition(DrawableTransitionOptions.withCrossFade(500)).into(imageView)
+
         val image = images[position]
 
         if (used.contains(image))
@@ -65,7 +64,7 @@ class UnlockPreviewGridAdapter(private val context: Context, val images: List<Im
         {
             holder.toggle.visibility = View.INVISIBLE
         }
-        
+
         holder.itemView.setOnClickListener {
             if (used.contains(image))
             {
@@ -78,8 +77,10 @@ class UnlockPreviewGridAdapter(private val context: Context, val images: List<Im
             }
         }
     }
-    private fun getImagePath(image: Image) = ContextWrapper(context).filesDir.path + "/Images/${image.id}.${image.extension}"
-    
+
+    private fun getImagePath(image: Image) =
+        ContextWrapper(context).filesDir.path + "/Images/${image.id}.${image.extension}"
+
     inner class previewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
     {
         val preview: ImageView = itemView.preview_iv as ImageView

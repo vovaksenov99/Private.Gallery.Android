@@ -35,7 +35,7 @@ class LocalStorageFragment : Fragment()
     }
     
     /**
-     * Init Grid RV with image text
+     * Init Grid RV with imageData text
      */
     private fun initPreviewGrid(view: View)
     {
