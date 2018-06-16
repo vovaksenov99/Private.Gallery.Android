@@ -8,11 +8,19 @@ import android.view.ViewGroup
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Image
 import com.privategallery.akscorp.privategalleryandroid.R
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.support.v4.app.Fragment
 import android.support.v4.view.ViewCompat
+import android.widget.ImageView
+import com.bumptech.glide.annotation.GlideType
+import com.bumptech.glide.load.resource.gif.*
 import com.privategallery.akscorp.privategalleryandroid.Adapters.lastImage
+import com.privategallery.akscorp.privategalleryandroid.Adapters.lastSelectedImagePosition
 import com.privategallery.akscorp.privategalleryandroid.Adapters.previews
+import com.privategallery.akscorp.privategalleryandroid.Utilities.GlideApp
 import kotlinx.android.synthetic.main.detail_fragment.view.*
 
 
@@ -42,7 +50,11 @@ class DetailDialog() : Fragment()
 
     override fun onDestroyView()
     {
-        lastImage = view!!.image.drawable
+        if (view!!.image.drawable is GifDrawable)
+        {
+            lastImage = previews[lastSelectedImagePosition  ]
+        } else
+            lastImage = (view!!.image.drawable.current as BitmapDrawable).bitmap
         super.onDestroyView()
     }
 
@@ -55,7 +67,7 @@ class DetailDialog() : Fragment()
 
         val v = activity!!.layoutInflater.inflate(R.layout.detail_fragment, parent, false)
 
-        v.image.setImageDrawable(lastImage)
+        v.image.setImageBitmap(lastImage)
 
         ViewCompat.setTransitionName(v.image, trasitionName)
 

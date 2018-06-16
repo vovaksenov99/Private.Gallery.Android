@@ -1,6 +1,7 @@
 package com.privategallery.akscorp.privategalleryandroid.Widgets
 
 import android.animation.Animator
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Point
 import android.support.design.widget.FloatingActionButton
@@ -32,6 +33,8 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener
 {
     private var isButtonShowGallery = false
     private var isAnimationRunning = false
+    private var startHeight = -1
+
 
     private val ANIMATION_DURATION = 500L
 
@@ -46,6 +49,13 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener
     init
     {
         setOnClickListener(this)
+    }
+
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int)
+    {
+        super.onLayout(changed, left, top, right, bottom)
+        if (startHeight == -1)
+            startHeight = height
     }
 
     override fun onClick(v: View?)
@@ -88,6 +98,32 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener
         animation1.duration = ANIMATION_DURATION
         animation1.fillAfter = true
         startAnimation(animation1)
+    }
+
+    override fun hide()
+    {
+
+        val am = ValueAnimator.ofInt(startHeight, 0)
+        am.addUpdateListener {
+            layoutParams.height = it.animatedValue as Int
+            layoutParams.width = it.animatedValue as Int
+            requestLayout()
+        }
+        am.start()
+
+    }
+
+    override fun show()
+    {
+
+        val am = ValueAnimator.ofInt(0, startHeight)
+        am.addUpdateListener {
+            layoutParams.height = it.animatedValue as Int
+            layoutParams.width = it.animatedValue as Int
+            requestLayout()
+        }
+        am.start()
+
     }
 
 
@@ -152,9 +188,9 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener
         } else
         {
 
-            val startRadius = Math.hypot(contentLayout!!.width.toDouble(),
-                contentLayout!!.height.toDouble()
-            ).toInt()
+            val startRadius =
+                Math.hypot(contentLayout!!.width.toDouble(), contentLayout!!.height.toDouble())
+                    .toInt()
             val endRadius = 0
 
             val anim = ViewAnimationUtils.createCircularReveal(
@@ -210,7 +246,7 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener
 
         val fragmentManager = (context as MainActivity).supportFragmentManager
         fragment.enterTransition = Fade()
-        fragment.exitTransition = Fade()
+
         val fragmentTransaction = fragmentManager.beginTransaction()
             .replace(R.id.reveal, fragment, LOCAL_STORAGE_FRAGMENT_TAG)
 

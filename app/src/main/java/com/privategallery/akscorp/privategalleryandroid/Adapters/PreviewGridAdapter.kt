@@ -1,8 +1,10 @@
 package com.privategallery.akscorp.privategalleryandroid.Adapters
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -15,12 +17,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.AccelerateInterpolator
 import android.widget.ImageView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.Priority
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
+import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy.AT_LEAST
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Image
 import com.privategallery.akscorp.privategalleryandroid.R
 import com.privategallery.akscorp.privategalleryandroid.Utilities.GlideApp
@@ -37,7 +43,9 @@ import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.DETAIL_DIALOG_TAG
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.DetailDialog
 import com.privategallery.akscorp.privategalleryandroid.Fragments.PREVIEW_LIST_FRAGMENT
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.detail_fragment.view.*
+import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import java.io.Serializable
 
@@ -48,8 +56,10 @@ import java.io.Serializable
  * web site aksenov-vladimir.herokuapp.com
  */
 
-var lastImage: Drawable? = null
-val previews: MutableList<Drawable?> = mutableListOf()
+var lastImage: Bitmap? = null
+val previews: MutableList<Bitmap?> = mutableListOf()
+val previewsUsed: MutableList<Boolean?> = mutableListOf()
+
 
 var lastSelectedImagePosition = -1
 
@@ -58,8 +68,15 @@ class PreviewGridAdapter(private val context: Context, val images: List<Image>) 
 {
     init
     {
-        for (i in 1..images.size)
-            previews.add(null)
+        //lastSelectedImagePosition = -1
+        //previews.clear()
+        //previewsUsed.clear()
+        if (previews.size == 0)
+            for (i in 0..images.size)
+            {
+                previews.add(null)
+                previewsUsed.add(false)
+            }
     }
 
     override fun getItemCount(): Int
@@ -85,50 +102,39 @@ class PreviewGridAdapter(private val context: Context, val images: List<Image>) 
         val imageView = holder.preview
 
         if (previews[position] == null)
-            GlideApp.with(context)
-                .asBitmap()
-                .load(getImagePath(images[position]))
-                .placeholder(R.color.placeholder)
-                .error(R.drawable.placeholder_image_error)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .listener(object : RequestListener<Bitmap>
-                {
-                    override fun onLoadFailed(e: GlideException?, model: Any?,
-                                              target: Target<Bitmap>?,
-                                              isFirstResource: Boolean): Boolean
-                    {
-
-                        return true
-                    }
-
-                    override fun onResourceReady(resource: Bitmap?, model: Any?,
-                                                 target: Target<Bitmap>?, dataSource: DataSource?,
-                                                 isFirstResource: Boolean): Boolean
-                    {
-                        previews[position] = BitmapDrawable(context.resources, resource);
+        {
+            if (previewsUsed[position] == false)
+            {
+                previewsUsed[position] = true
+                imageView.setImageResource(R.color.placeholder)
+                launch {
+                    val bmOptions = BitmapFactory.Options()
+                    if (images[position].extension!!.toUpperCase() != "GIF")
+                        bmOptions.inSampleSize = 4
+                    var bitmap = BitmapFactory.decodeFile(getImagePath(images[position]), bmOptions)
+                    previews[position] = bitmap
+                    //bitmap = Bitmap.createScaledBitmap(bitmap, holder.itemView.width, holder.itemView.height, true)
+                    launch(UI) {
                         imageView.scaleType = ImageView.ScaleType.CENTER_CROP
-                        imageView.setImageDrawable(previews[position])
-
-
-                        //lastImageCrop = imageView.drawable
-                        return true
+                        imageView.setImageBitmap(bitmap)
                     }
+                }
+            } else
+            {
+                imageView.setImageResource(R.color.placeholder)
+            }
 
-                })
-                .transition(BitmapTransitionOptions.withCrossFade(500))
-                .apply(RequestOptions().disallowHardwareConfig())
-                .into(imageView)
-        else
+        } else
         {
             if (position == lastSelectedImagePosition)
-                imageView.setImageDrawable(lastImage)
+                imageView.setImageBitmap(lastImage)
             else
-                imageView.setImageDrawable(previews[position])
+                imageView.setImageBitmap(previews[position])
             imageView.scaleType = ImageView.ScaleType.CENTER_CROP
         }
 
         imageView.setOnClickListener {
-            if(previews[position] == null)
+            if (previews[position] == null)
                 return@setOnClickListener
             lastSelectedImagePosition = position
             lastImage = previews[position]
@@ -137,7 +143,6 @@ class PreviewGridAdapter(private val context: Context, val images: List<Image>) 
 
         ViewCompat.setTransitionName(imageView, "image_" + position.toString());
     }
-
 
 
     fun showDetailDialog(imageView: ImageView, image: Image, position: Int)
@@ -152,19 +157,25 @@ class PreviewGridAdapter(private val context: Context, val images: List<Image>) 
         bundle.putString("transitionName", imageView.transitionName)
         detailDialog.arguments = bundle
 
+        val toolbarHeight = context.toolbar.height
 
         val anim = DetailsTransition()
         anim.addListener(object : Transition.TransitionListener
         {
             override fun onTransitionEnd(transition: Transition)
             {
-                GlideApp.with(context)
-                    .load(getImagePath(image))
-                    .placeholder(previews[position])
-                    .skipMemoryCache(true)
-                    .error(R.drawable.placeholder_image_error)
-                    .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
-                    .into(detailDialog.view!!.image)
+                try
+                {
+                    GlideApp.with(context)
+                        .load(getImagePath(image))
+                        .placeholder(BitmapDrawable(context.resources, previews[position]))
+                        .skipMemoryCache(true)
+                        .error(R.drawable.placeholder_image_error)
+                        .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
+                        .into(detailDialog.view!!.image)
+                } catch (e: Exception)
+                {
+                }
             }
 
             override fun onTransitionResume(transition: Transition)
@@ -181,6 +192,12 @@ class PreviewGridAdapter(private val context: Context, val images: List<Image>) 
 
             override fun onTransitionStart(transition: Transition)
             {
+                context.appbar.animate().translationY(-toolbarHeight.toFloat())
+                    .setInterpolator(
+                        AccelerateInterpolator()).start()
+
+                context.fab.hide()
+
             }
         })
         detailDialog.sharedElementEnterTransition = anim
@@ -195,7 +212,7 @@ class PreviewGridAdapter(private val context: Context, val images: List<Image>) 
         {
             override fun onTransitionEnd(transition: Transition)
             {
-                imageView.setImageDrawable(previews[position])
+
             }
 
             override fun onTransitionResume(transition: Transition)
@@ -212,7 +229,10 @@ class PreviewGridAdapter(private val context: Context, val images: List<Image>) 
 
             override fun onTransitionStart(transition: Transition)
             {
-                //lastImage = detailDialog.view!!.image.drawable
+                (context).appbar.animate().translationY(0f)
+                    .setInterpolator(AccelerateInterpolator()).start()
+
+                context.fab.show()
 
             }
         })
