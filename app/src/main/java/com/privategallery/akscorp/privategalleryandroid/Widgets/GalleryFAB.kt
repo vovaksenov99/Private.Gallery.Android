@@ -102,7 +102,6 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener
 
     override fun hide()
     {
-
         val am = ValueAnimator.ofInt(startHeight, 0)
         am.addUpdateListener {
             layoutParams.height = it.animatedValue as Int
@@ -110,12 +109,10 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener
             requestLayout()
         }
         am.start()
-
     }
 
     override fun show()
     {
-
         val am = ValueAnimator.ofInt(0, startHeight)
         am.addUpdateListener {
             layoutParams.height = it.animatedValue as Int
@@ -123,7 +120,6 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener
             requestLayout()
         }
         am.start()
-
     }
 
 
@@ -185,7 +181,8 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener
                 }
             }
 
-        } else
+        }
+        else
         {
 
             val startRadius =

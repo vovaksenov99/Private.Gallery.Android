@@ -21,3 +21,11 @@ const val PERMISSIONS_REQUEST = 200
  */
 const val SPAN_PREVIEW_RV_COUNT = 4
 
+/**
+ * The sample size is
+ * the number of pixels in either dimension that correspond to a single
+ * pixel in the decoded bitmap. For example, inSampleSize == 4 returns
+ * an image that is 1/4 the width/height of the original, and 1/16 the
+ * number of pixels
+ */
+const val SAMPLE_PREVIEW_COEFFICIENT = 4
