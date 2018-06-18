@@ -38,9 +38,19 @@ import com.privategallery.akscorp.privategalleryandroid.Fragments.PreviewListFra
 import com.privategallery.akscorp.privategalleryandroid.Widgets.COMMON
 import com.privategallery.akscorp.privategalleryandroid.Widgets.LOCK_FILES
 import java.io.Serializable
+import android.support.v4.app.FragmentActivity
+import android.support.v4.app.FragmentManager
 
+
+interface OnBackPressedListener
+{
+    fun doBack()
+}
 
 open class MainActivity : AppCompatActivity() {
+
+    var onBackPressedListener: OnBackPressedListener? = null
+
     private val localDatabaseApi: LocalDatabaseAPI = LocalDatabaseAPI(this)
     private lateinit var albums: List<Album>
     var currentAlbum: Album = Album()
@@ -52,10 +62,6 @@ open class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         app = application as Application
-    }
-
-    override fun onResume() {
-        super.onResume()
 
         if (app.securityController.loginStatus == SecurityController.LOGIN_DONE) {
             if (currentAlbum.id != -1L) fab.visibility = View.VISIBLE
@@ -63,30 +69,26 @@ open class MainActivity : AppCompatActivity() {
         } else {
             loginDialog()
         }
+
+        onBackPressedListener = BaseBackPressedListener()
     }
 
 
-    override fun onBackPressed() {
-        if (lastSelectedImagePosition != -1) {
-            super.onBackPressed()
-            return
-        }
 
+
+    override fun onBackPressed() {
+        if(onBackPressedListener == null)
+            super.onBackPressed()
+        else
+            onBackPressedListener!!.doBack()
+
+        /*
         if (toolbar.status == LOCK_FILES) {
             fab.clickAction()
             return
         }
+        */
 
-        if (doubleBackToExitPressedOnce) {
-            super.onBackPressed()
-            app.securityController.logout()
-            return
-        }
-
-        this.doubleBackToExitPressedOnce = true
-        Toast.makeText(this, getString(R.string.click_back_to_exit), Toast.LENGTH_SHORT).show()
-
-        Handler().postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -240,6 +242,25 @@ open class MainActivity : AppCompatActivity() {
                         this, getString(R.string.permission_denied), Toast.LENGTH_LONG).show()
                 }
             }
+        }
+    }
+
+    inner class BaseBackPressedListener() : OnBackPressedListener
+    {
+
+        override fun doBack()
+        {
+            if (doubleBackToExitPressedOnce) {
+                app.securityController.logout()
+                onBackPressedListener = null
+                onBackPressed()
+                return
+            }
+
+            doubleBackToExitPressedOnce = true
+            Toast.makeText(this@MainActivity, getString(R.string.click_back_to_exit), Toast.LENGTH_SHORT).show()
+
+            Handler().postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
         }
     }
 }

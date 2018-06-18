@@ -9,9 +9,11 @@ import android.graphics.drawable.BitmapDrawable
 import android.support.v4.app.Fragment
 import android.support.v4.view.ViewCompat
 import com.bumptech.glide.load.resource.gif.*
+import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
+import com.privategallery.akscorp.privategalleryandroid.Activities.OnBackPressedListener
 import com.privategallery.akscorp.privategalleryandroid.Adapters.lastImage
-import com.privategallery.akscorp.privategalleryandroid.Adapters.lastSelectedImagePosition
 import com.privategallery.akscorp.privategalleryandroid.Adapters.previews
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.detail_fragment.view.*
 
 
@@ -19,20 +21,21 @@ val DETAIL_FRAGMENT_TAG = "DETAIL_FRAGMENT_TAG"
 
 class DetailFragment() : Fragment()
 {
-
-    lateinit var transitionName: String
+    lateinit var imageName: String
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
 
-        transitionName = arguments!!.getString("transitionName")
+        (activity as MainActivity).onBackPressedListener = BackPressedListener()
+
+        imageName = arguments!!.getString("imageName")
     }
 
     override fun onDestroyView()
     {
         if (view!!.image.drawable is GifDrawable)
         {
-            lastImage = previews[lastSelectedImagePosition]
+            lastImage = previews[imageName]
         } else
             lastImage = (view!!.image.drawable.current as BitmapDrawable).bitmap
 
@@ -46,8 +49,20 @@ class DetailFragment() : Fragment()
         val view = activity!!.layoutInflater.inflate(R.layout.detail_fragment, parent, false)
 
         view.image.setImageBitmap(lastImage)
-        ViewCompat.setTransitionName(view.image, transitionName)
+        ViewCompat.setTransitionName(view.image, imageName)
 
         return view
+    }
+
+    inner class BackPressedListener() : OnBackPressedListener
+    {
+
+        override fun doBack()
+        {
+            val act = activity
+            (act as MainActivity).onBackPressedListener = null
+            (act as MainActivity).onBackPressed()
+            (act as MainActivity).onBackPressedListener = (act as MainActivity).BaseBackPressedListener()
+        }
     }
 }

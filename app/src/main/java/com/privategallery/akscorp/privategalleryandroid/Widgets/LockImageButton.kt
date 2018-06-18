@@ -31,17 +31,20 @@ import java.io.FileNotFoundException
  * web site aksenov-vladimir.herokuapp.com
  */
 
-class LockImageButton : ImageButton, View.OnClickListener {
+class LockImageButton : ImageButton, View.OnClickListener
+{
 
     val db = LocalDatabaseAPI(getBaseContext())
 
-    init {
+    init
+    {
         setOnClickListener(this)
     }
 
     private fun getBaseContext() = ((context as ContextWrapper).baseContext as MainActivity)
 
-    override fun onClick(v: View?) {
+    override fun onClick(v: View?)
+    {
         val logFile = File(ContextWrapper(getBaseContext()).filesDir.path + "/Images")
         logFile.mkdir()
 
@@ -61,7 +64,8 @@ class LockImageButton : ImageButton, View.OnClickListener {
 
         val currentAlbumId = getBaseContext().currentAlbum.id
 
-        if (currentAlbumId == -1L) {
+        if (currentAlbumId == -1L)
+        {
             getBaseContext().toast(getBaseContext().getString(R.string.internal_error))
             return
         }
@@ -73,18 +77,20 @@ class LockImageButton : ImageButton, View.OnClickListener {
             val filesCount = localStorageGridAdapter.used.size.toDouble()
             var counter = 0
 
-            for (el in localStorageGridAdapter.used) {
+            for (el in localStorageGridAdapter.used)
+            {
 
                 counter++
-                try {
+                try
+                {
                     val extension = getFileExtension(el)
                     val id = db.insertImageInDatabase(
-                        Image(
-                            localPath = el, albumId = currentAlbumId, extension = extension))
+                        Image(localPath = el, albumId = currentAlbumId, extension = extension))
 
                     Utilities.moveFile(el, logFile.absolutePath, "$id.$extension")
                     localStorageGridAdapter.files.remove(File(el))
-                } catch (e: FileNotFoundException) {
+                } catch (e: FileNotFoundException)
+                {
                 }
 
                 dialog.sentProgressToReceiver((counter / filesCount * 100.0).toInt())
@@ -104,9 +110,12 @@ class LockImageButton : ImageButton, View.OnClickListener {
     fun getFileExtension(path: String): String =
         path.substring(path.lastIndexOf('.') + 1, path.length)
 
-    constructor(context: Context) : super(context) {}
+    constructor(context: Context) : super(context)
+    {
+    }
 
-    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
+    {
     }
 
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(

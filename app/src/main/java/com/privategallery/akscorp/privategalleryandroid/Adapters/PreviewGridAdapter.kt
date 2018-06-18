@@ -31,6 +31,12 @@ import kotlinx.android.synthetic.main.detail_fragment.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import android.support.design.widget.AppBarLayout
+import java.util.concurrent.Semaphore
+import android.support.v4.view.ViewCompat.animate
+import android.R.attr.bitmap
+import android.animation.Animator
+import android.animation.Animator.AnimatorListener
+import android.support.v4.util.LruCache
 
 
 /**
@@ -40,22 +46,31 @@ import android.support.design.widget.AppBarLayout
  */
 
 var lastImage: Bitmap? = null
-val previews: MutableList<Bitmap?> = mutableListOf()
 val previewsUsed: MutableList<Boolean?> = mutableListOf()
+
+lateinit var previews: LruCache<String, Bitmap?>
 
 var lastSelectedImagePosition = -1
 
 class PreviewGridAdapter(private val context: Context, val images: List<Image>) :
     RecyclerView.Adapter<PreviewGridAdapter.previewHolder>()
 {
+
     init
     {
-        if (previews.size == 0)
-            for (i in 0..images.size)
+        val maxMemory = Runtime.getRuntime().maxMemory().toInt()
+        val cacheSize = maxMemory / 4
+
+        if (!::previews.isInitialized)
+        {
+            previews = object : LruCache<String, Bitmap?>(cacheSize)
             {
-                previews.add(null)
-                previewsUsed.add(false)
+                override fun sizeOf(key: String?, bitmap: Bitmap?): Int
+                {
+                    return bitmap!!.byteCount
+                }
             }
+        }
     }
 
     override fun getItemCount(): Int
@@ -76,50 +91,45 @@ class PreviewGridAdapter(private val context: Context, val images: List<Image>) 
     {
         val imageView = holder.preview
 
-        if (previews[position] == null)
+        val image = images[position]
+        val imageName = "image_" + image.albumId.toString() + "_" + image.id.toString()
+
+        if (previews[imageName] == null)
         {
-            if (previewsUsed[position] == false)
-            {
-                previewsUsed[position] = true
-                imageView.setImageResource(R.color.placeholder)
-                loadImageIntoImageView(images[position], imageView, position)
-            }
-            else
-            {
-                imageView.setImageResource(R.color.placeholder)
-            }
+            imageView.setImageResource(R.color.placeholder)
+            loadImageIntoImageView(image, imageView, imageName)
         }
         else
         {
             if (position == lastSelectedImagePosition)
                 imageView.setImageBitmap(lastImage)
             else
-                imageView.setImageBitmap(previews[position])
+                imageView.setImageBitmap(previews[imageName])
 
             imageView.scaleType = ImageView.ScaleType.CENTER_CROP
         }
 
         imageView.setOnClickListener {
-            if (previews[position] == null)
+            if (previews[imageName] == null)
                 return@setOnClickListener
 
             lastSelectedImagePosition = position
-            lastImage = previews[position]
+            lastImage = previews[imageName]
 
-            showDetailDialog(imageView, images[position], position)
+            showDetailDialog(imageView, images[position], imageName)
         }
 
-        ViewCompat.setTransitionName(imageView, "image_" + position.toString());
+        ViewCompat.setTransitionName(imageView, imageName)
     }
 
-    private fun loadImageIntoImageView(image: Image, imageView: ImageView, position: Int)
+    private fun loadImageIntoImageView(image: Image, imageView: ImageView, imageName: String)
     {
         launch {
             val bmOptions = BitmapFactory.Options()
             if (image.extension!!.toUpperCase() != "GIF")
                 bmOptions.inSampleSize = SAMPLE_PREVIEW_COEFFICIENT
             val bitmap = BitmapFactory.decodeFile(getImagePath(image), bmOptions)
-            previews[position] = bitmap
+            previews.put(imageName, bitmap)
             launch(UI) {
                 imageView.scaleType = ImageView.ScaleType.CENTER_CROP
                 imageView.setImageBitmap(bitmap)
@@ -128,14 +138,14 @@ class PreviewGridAdapter(private val context: Context, val images: List<Image>) 
     }
 
 
-    private fun showDetailDialog(imageView: ImageView, image: Image, position: Int)
+    private fun showDetailDialog(imageView: ImageView, image: Image, imageName: String)
     {
         val fragmentManager = (context as MainActivity).supportFragmentManager
 
         val detailFragment = DetailFragment()
 
         val bundle = Bundle()
-        bundle.putString("transitionName", imageView.transitionName)
+        bundle.putString("imageName", imageName)
         detailFragment.arguments = bundle
 
         val enterTransition = DetailsTransition()
@@ -147,7 +157,7 @@ class PreviewGridAdapter(private val context: Context, val images: List<Image>) 
                 {
                     GlideApp.with(context)
                         .load(getImagePath(image))
-                        .placeholder(BitmapDrawable(context.resources, previews[position]))
+                        .placeholder(BitmapDrawable(context.resources, previews[imageName]))
                         .skipMemoryCache(true)
                         .error(R.drawable.placeholder_image_error)
                         .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
