@@ -2,32 +2,25 @@ package com.privategallery.akscorp.privategalleryandroid.Widgets
 
 import android.content.Context
 import android.content.ContextWrapper
-import android.content.Intent
-import android.content.IntentFilter
-import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
-import android.support.v4.view.GravityCompat
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ImageButton
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
-import com.privategallery.akscorp.privategalleryandroid.Adapters.LocalStorageGridAdapter
 import com.privategallery.akscorp.privategalleryandroid.Adapters.UnlockPreviewGridAdapter
 import com.privategallery.akscorp.privategalleryandroid.Database.LocalDatabaseAPI
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.*
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Image
-import com.privategallery.akscorp.privategalleryandroid.Fragments.PreviewListFragment
-import com.privategallery.akscorp.privategalleryandroid.Fragments.UnlockListFragment
-import com.privategallery.akscorp.privategalleryandroid.R
+import com.privategallery.akscorp.privategalleryandroid.Fragments.PREVIEW_LIST_FRAGMENT_TAG
+import com.privategallery.akscorp.privategalleryandroid.Fragments.UNLOCK_LIST_FRAGMENT_TAG
 import com.privategallery.akscorp.privategalleryandroid.Utilities.Utilities
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.local_storage_grid_fragment.*
 import kotlinx.android.synthetic.main.preview_images_grid_fragment.*
+import kotlinx.android.synthetic.main.preview_images_grid_fragment.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import java.io.FileNotFoundException
-import java.io.Serializable
 
 /**
  * Created by AksCorp on 13.04.2018.
@@ -46,18 +39,20 @@ class UnlockImageButton : ImageButton, View.OnClickListener {
 
     override fun onClick(v: View?) {
         getBaseContext().toolbar.setState(COMMON)
+        val fragment = getBaseContext().supportFragmentManager.findFragmentByTag(
+            UNLOCK_LIST_FRAGMENT_TAG)
 
         val unlockPreviewGridAdapter =
-            getBaseContext().main_preview_rv_grid.adapter as UnlockPreviewGridAdapter
+            fragment.view!!.main_preview_rv_grid.adapter as UnlockPreviewGridAdapter
 
         if (unlockPreviewGridAdapter.used.size == 0) {
             getBaseContext().fab.visibility = View.VISIBLE
+            getBaseContext().mainActivityActions.showAlbumContent(getBaseContext().currentAlbum)
             return
         }
 
         val dialog = LoadDialog()
-        dialog.showNow(
-            getBaseContext().supportFragmentManager, LOAD_DIALOG_TAG)
+        dialog.showNow(getBaseContext().supportFragmentManager, LOAD_DIALOG_TAG)
 
         dialog.progressBroadcastReceiverInit(dialog)
 
@@ -83,14 +78,18 @@ class UnlockImageButton : ImageButton, View.OnClickListener {
                 }
 
                 dialog.sentProgressToReceiver((counter / filesCount * 100.0).toInt())
-
             }
 
             launch(UI) {
                 Handler().postDelayed({
-                    dialog.dismiss()
-                    getBaseContext().fab.visibility = View.VISIBLE
-                    getBaseContext().showAlbumContent(getBaseContext().currentAlbum)
+                    try {
+                        dialog.dismiss()
+                        getBaseContext().fab.visibility = View.VISIBLE
+                        getBaseContext().mainActivityActions.showAlbumContent(getBaseContext().currentAlbum)
+                    }
+                    catch (e:Exception){
+                        return@postDelayed
+                    }
                 }, 1500)
             }
 

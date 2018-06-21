@@ -126,10 +126,10 @@ public class LocalDatabaseAPI(private val context: Context)
     }
     
     /**
-     * Get all image essence from database by album id
+     * Get all imageData essence from database by album id
      *
      * @param albumId album id
-     * @return list image essence
+     * @return list imageData essence
      */
     fun getImagesFromDatabase(albumId: Long): MutableList<Image>
     {
@@ -196,9 +196,9 @@ public class LocalDatabaseAPI(private val context: Context)
     }
     
     /**
-     * Insert image in database
+     * Insert imageData in database
      *
-     * @param image image to add to the database
+     * @param image imageData to add to the database
      */
     fun insertImageInDatabase(image: Image): Long
     {
@@ -226,7 +226,7 @@ public class LocalDatabaseAPI(private val context: Context)
     }
     
     /**
-     * Update image in database
+     * Update imageData in database
      *
      * @param image images to update to the database
      */
@@ -256,7 +256,7 @@ public class LocalDatabaseAPI(private val context: Context)
     }
     
     /**
-     * @param image image to check the existence to the database
+     * @param image imageData to check the existence to the database
      * @return true if exist, or false
      */
     fun isImageExistInDatabase(image: Image): Boolean
@@ -282,7 +282,7 @@ public class LocalDatabaseAPI(private val context: Context)
     
     
     /**
-     * @param image  image to remove in database
+     * @param image  imageData to remove in database
      */
     fun removeImageFromDatabase(image: Image)
     {

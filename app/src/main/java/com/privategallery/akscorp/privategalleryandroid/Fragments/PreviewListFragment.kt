@@ -1,11 +1,13 @@
 package com.privategallery.akscorp.privategalleryandroid.Fragments
 
 import android.os.Bundle
+import android.os.Handler
 import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Adapters.PreviewGridAdapter
 import com.privategallery.akscorp.privategalleryandroid.Adapters.UnlockPreviewGridAdapter
@@ -15,29 +17,37 @@ import com.privategallery.akscorp.privategalleryandroid.Essentials.Image
 import com.privategallery.akscorp.privategalleryandroid.R
 import com.privategallery.akscorp.privategalleryandroid.SPAN_PREVIEW_RV_COUNT
 import kotlinx.android.synthetic.main.preview_images_grid_fragment.view.*
+import android.view.ViewTreeObserver
+import com.privategallery.akscorp.privategalleryandroid.Adapters.lastSelectedImagePosition
+
 
 /**
  *
  * Created by AksCorp on 11.03.2018.
  */
 
-val PREVIEW_LIST_FRAGMENT = "PREVIEW_LIST_FRAGMENT"
+val PREVIEW_LIST_FRAGMENT_TAG = "PREVIEW_LIST_FRAGMENT_TAG"
 class PreviewListFragment : Fragment()
 {
     
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View?
+        savedInstanceState: Bundle?): View?
     {
         val view = inflater.inflate(R.layout.preview_images_grid_fragment, container, false)
         initPreviewGrid(view)
+
         return view
     }
-    
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+    }
+
+
     /**
-     * Init Grid RV with image text
+     * Init Grid RV with imageData text
      */
     private fun initPreviewGrid(view: View)
     {
@@ -50,6 +60,7 @@ class PreviewListFragment : Fragment()
         view.main_preview_rv_grid.drawingCacheQuality = View.DRAWING_CACHE_QUALITY_LOW
         val images = getImagesFromDatabase(arguments!!["album"] as Album)
         (activity as MainActivity).currentAlbum.images = images
+
         val adapter = PreviewGridAdapter(context!!, images)
         view.main_preview_rv_grid.adapter = adapter
     }
@@ -60,6 +71,8 @@ class PreviewListFragment : Fragment()
         return db.getImagesFromDatabase(album.id)
     }
 }
+
+val UNLOCK_LIST_FRAGMENT_TAG = "UNLOCK_LIST_FRAGMENT_TAG"
 
 class UnlockListFragment : Fragment()
 {
@@ -76,7 +89,7 @@ class UnlockListFragment : Fragment()
     }
     
     /**
-     * Init Grid RV with image text
+     * Init Grid RV with imageData text
      */
     private fun initPreviewGrid(view: View)
     {

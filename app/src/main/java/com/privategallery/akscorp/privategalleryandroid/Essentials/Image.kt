@@ -8,7 +8,5 @@ import java.io.Serializable
  * web site aksenov-vladimir.herokuapp.com
  */
 
-data class Image(
-    var id: Long? = null, var name: String? = null, var localPath:
-    String? = null, var albumId: Long? = null, var extension: String? = null
-) : Serializable
+data class Image(var id: Long? = null, var name: String? = null, var localPath:
+    String? = null, var albumId: Long? = null, var extension: String? = null) : Serializable

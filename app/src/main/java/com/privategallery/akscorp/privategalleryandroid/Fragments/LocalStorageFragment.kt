@@ -7,10 +7,13 @@ import android.support.v7.widget.GridLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
+import com.privategallery.akscorp.privategalleryandroid.Activities.IOnBackPressedListener
 import com.privategallery.akscorp.privategalleryandroid.Adapters.LocalStorageGridAdapter
 import com.privategallery.akscorp.privategalleryandroid.R
 import com.privategallery.akscorp.privategalleryandroid.SPAN_PREVIEW_RV_COUNT
 import com.privategallery.akscorp.privategalleryandroid.Utilities.Utilities
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.local_storage_grid_fragment.view.*
 
 /**
@@ -20,9 +23,15 @@ import kotlinx.android.synthetic.main.local_storage_grid_fragment.view.*
  */
 
 val LOCAL_STORAGE_FRAGMENT_TAG = "LOCAL_STORAGE_FRAGMENT_TAG"
+
 class LocalStorageFragment : Fragment()
 {
-    
+    override fun onCreate(savedInstanceState: Bundle?)
+    {
+        super.onCreate(savedInstanceState)
+        (activity as MainActivity).onBackPressedListener = BackPressedListener()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -33,9 +42,9 @@ class LocalStorageFragment : Fragment()
         initPreviewGrid(view)
         return view
     }
-    
+
     /**
-     * Init Grid RV with image text
+     * Init Grid RV with imageData text
      */
     private fun initPreviewGrid(view: View)
     {
@@ -48,5 +57,22 @@ class LocalStorageFragment : Fragment()
         val adapter =
             LocalStorageGridAdapter(context!!, Utilities.getFilesFromFolder(startPath), startPath)
         view.local_storage_rv_grid.adapter = adapter
+    }
+
+    inner class BackPressedListener() : IOnBackPressedListener
+    {
+
+        override fun doBack()
+        {
+            try
+            {
+                val act = activity
+                (act as MainActivity).fab.clickAction()
+                act.onBackPressedListener = act.BaseBackPressedListener()
+            } catch (e: Exception)
+            {
+
+            }
+        }
     }
 }

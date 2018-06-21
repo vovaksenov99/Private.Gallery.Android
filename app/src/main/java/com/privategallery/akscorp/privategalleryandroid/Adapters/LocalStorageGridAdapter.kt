@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.*
@@ -33,21 +34,26 @@ class LocalStorageGridAdapter(
     private val context: Context, var files: MutableList<File>,
     private val startDirectory: String
 ) :
-    RecyclerView.Adapter<LocalStorageGridAdapter.previewHolder>() {
+    RecyclerView.Adapter<LocalStorageGridAdapter.previewHolder>()
+{
 
     val availableExtensions = listOf("PNG", "GIF", "JPEG", "JPG")
-    init {
-       filterFiles()
+
+    init
+    {
+        filterFiles()
     }
 
     /**
-     * Selected image paths
+     * Selected imageData paths
      */
     val used: MutableSet<String> = mutableSetOf()
 
     private var lastDirectory: File
     lateinit var dialog: LoadDialog
-    init {
+
+    init
+    {
         lastDirectory = File(startDirectory)
 
         dialog = LoadDialog()
@@ -63,31 +69,36 @@ class LocalStorageGridAdapter(
         }.toMutableList()
     }
 
-    private fun refresh() {
+    private fun refresh()
+    {
         notifyDataSetChanged()
     }
 
-    override fun getItemCount(): Int {
+    override fun getItemCount(): Int
+    {
         return files.size
     }
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): LocalStorageGridAdapter.previewHolder {
+    ): LocalStorageGridAdapter.previewHolder
+    {
         val context = parent.context
         val inflater = LayoutInflater.from(context)
         val photoView = inflater.inflate(R.layout.local_storage_rv_item, null, false)
         return previewHolder(photoView)
     }
 
-    private fun progressBroadcastReceiverInit(progressDialog: LoadDialog) {
+    private fun progressBroadcastReceiverInit(progressDialog: LoadDialog)
+    {
         val intentFilter = IntentFilter(PROGRESS_BROADCAST_RECEIVER_TAG)
         val mReceiver = ProgressBroadcastReceiver(progressDialog)
         context.registerReceiver(mReceiver, intentFilter)
     }
 
-    private fun sentProgressToReceiver(progress: Int) {
+    private fun sentProgressToReceiver(progress: Int)
+    {
         val intent = Intent()
         intent.action =
                 PROGRESS_BROADCAST_RECEIVER_TAG
@@ -98,9 +109,10 @@ class LocalStorageGridAdapter(
     }
 
     /**
-     * Load image by [GlideApp] library from local folder
+     * Load imageData by [GlideApp] library from local folder
      */
-    override fun onBindViewHolder(holder: LocalStorageGridAdapter.previewHolder, position: Int) {
+    override fun onBindViewHolder(holder: LocalStorageGridAdapter.previewHolder, position: Int)
+    {
 
         val imageView = holder.preview
         val fileName = holder.name
@@ -110,13 +122,17 @@ class LocalStorageGridAdapter(
         fileName.text = file.name
 
 
-        if (used.contains(file.absolutePath)) {
+        if (used.contains(file.absolutePath))
+        {
             holder.toggle.visibility = View.VISIBLE
-        } else {
+        }
+        else
+        {
             holder.toggle.visibility = View.INVISIBLE
         }
 
-        if (file.absolutePath == "/") {
+        if (file.absolutePath == "/")
+        {
             fileName.text = context.getString(R.string.up)
             GlideApp.with(context)
                 .load(R.drawable.ic_folder_open_black_24dp)
@@ -133,7 +149,8 @@ class LocalStorageGridAdapter(
 
             return
         }
-        if (file.isDirectory) {
+        if (file.isDirectory)
+        {
             //holder.setIsRecyclable(false);
             holder.type = 1
             GlideApp.with(context)
@@ -142,9 +159,7 @@ class LocalStorageGridAdapter(
                 .transition(DrawableTransitionOptions.withCrossFade(0))
                 .into(imageView)
             holder.itemView.setOnClickListener {
-                dialog.showNow(
-                    (context as MainActivity).supportFragmentManager,
-                    LOAD_DIALOG_TAG)
+                dialog.showNow((context as MainActivity).supportFragmentManager, LOAD_DIALOG_TAG)
 
                 used.clear()
 
@@ -164,25 +179,34 @@ class LocalStorageGridAdapter(
                 }
 
             }
-        } else {
-            if (availableExtensions.contains(file.extension.toUpperCase())) {
+        }
+        else
+        {
+            if (availableExtensions.contains(file.extension.toUpperCase()))
+            {
                 GlideApp.with(context)
+                    .asBitmap()
                     .load(file.absolutePath)
                     .error(R.drawable.placeholder_image_error)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .transition(DrawableTransitionOptions.withCrossFade(0))
+                    .transition(BitmapTransitionOptions.withCrossFade(0))
                     .into(imageView)
 
                 holder.itemView.setOnClickListener {
-                    if (used.contains(file.absolutePath)) {
+                    if (used.contains(file.absolutePath))
+                    {
                         used.remove(file.absolutePath)
                         holder.toggle.visibility = View.INVISIBLE
-                    } else {
+                    }
+                    else
+                    {
                         used.add(file.absolutePath)
                         holder.toggle.visibility = View.VISIBLE
                     }
                 }
-            } else {
+            }
+            else
+            {
                 GlideApp.with(context)
                     .load(R.drawable.placeholder_image_error)
                     .error(R.drawable.placeholder_image_error)
@@ -195,7 +219,8 @@ class LocalStorageGridAdapter(
         }
     }
 
-    inner class previewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class previewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
+    {
         var type: Int = 0
         val preview: ImageView = itemView.preview_iv as ImageView
         val toggle: ImageView = itemView.toggle as ImageView

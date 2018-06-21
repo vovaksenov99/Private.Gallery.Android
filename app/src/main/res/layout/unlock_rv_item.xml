@@ -28,7 +28,6 @@
             android:layout_marginRight="15dp"
             android:visibility="invisible"
             app:srcCompat="@drawable/ic_check_circle_black_24dp" />
-
     </RelativeLayout>
 
 </LinearLayout>
