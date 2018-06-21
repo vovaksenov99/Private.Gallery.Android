@@ -11,7 +11,7 @@ import android.support.v4.view.ViewCompat
 import android.support.v4.widget.DrawerLayout
 import com.bumptech.glide.load.resource.gif.*
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
-import com.privategallery.akscorp.privategalleryandroid.Activities.OnBackPressedListener
+import com.privategallery.akscorp.privategalleryandroid.Activities.IOnBackPressedListener
 import com.privategallery.akscorp.privategalleryandroid.Adapters.lastImage
 import com.privategallery.akscorp.privategalleryandroid.Adapters.previews
 import kotlinx.android.synthetic.main.activity_main.*
@@ -60,7 +60,7 @@ class DetailFragment() : Fragment()
         return view
     }
 
-    inner class BackPressedListener() : OnBackPressedListener
+    inner class BackPressedListener() : IOnBackPressedListener
     {
 
         override fun doBack()

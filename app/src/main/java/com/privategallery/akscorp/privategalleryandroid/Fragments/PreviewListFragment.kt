@@ -26,7 +26,7 @@ import com.privategallery.akscorp.privategalleryandroid.Adapters.lastSelectedIma
  * Created by AksCorp on 11.03.2018.
  */
 
-val PREVIEW_LIST_FRAGMENT = "PREVIEW_LIST_FRAGMENT"
+val PREVIEW_LIST_FRAGMENT_TAG = "PREVIEW_LIST_FRAGMENT_TAG"
 class PreviewListFragment : Fragment()
 {
     
@@ -71,6 +71,8 @@ class PreviewListFragment : Fragment()
         return db.getImagesFromDatabase(album.id)
     }
 }
+
+val UNLOCK_LIST_FRAGMENT_TAG = "UNLOCK_LIST_FRAGMENT_TAG"
 
 class UnlockListFragment : Fragment()
 {

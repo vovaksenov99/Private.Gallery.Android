@@ -2,40 +2,18 @@ package com.privategallery.akscorp.privategalleryandroid.Adapters
 
 import android.content.Context
 import android.content.ContextWrapper
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
-import android.os.Bundle
-import android.support.design.widget.CoordinatorLayout
-import android.support.transition.*
 import android.support.v4.view.ViewCompat
-import android.support.v4.widget.DrawerLayout
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Image
-import com.privategallery.akscorp.privategalleryandroid.Utilities.GlideApp
-import com.bumptech.glide.request.RequestOptions
 import com.privategallery.akscorp.privategalleryandroid.*
-import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
-import com.privategallery.akscorp.privategalleryandroid.Fragments.DETAIL_FRAGMENT_TAG
-import com.privategallery.akscorp.privategalleryandroid.Fragments.DetailFragment
-import com.privategallery.akscorp.privategalleryandroid.Fragments.PREVIEW_LIST_FRAGMENT
 import com.privategallery.akscorp.privategalleryandroid.R
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.detail_fragment.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
-import android.support.design.widget.AppBarLayout
-import java.util.concurrent.Semaphore
-import android.support.v4.view.ViewCompat.animate
-import android.R.attr.bitmap
-import android.animation.Animator
-import android.animation.Animator.AnimatorListener
-import android.support.v4.util.LruCache
 import kotlinx.android.synthetic.main.unlock_rv_item.view.*
 
 

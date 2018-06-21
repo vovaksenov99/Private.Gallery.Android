@@ -8,7 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
-import com.privategallery.akscorp.privategalleryandroid.Activities.OnBackPressedListener
+import com.privategallery.akscorp.privategalleryandroid.Activities.IOnBackPressedListener
 import com.privategallery.akscorp.privategalleryandroid.Adapters.LocalStorageGridAdapter
 import com.privategallery.akscorp.privategalleryandroid.R
 import com.privategallery.akscorp.privategalleryandroid.SPAN_PREVIEW_RV_COUNT
@@ -59,7 +59,7 @@ class LocalStorageFragment : Fragment()
         view.local_storage_rv_grid.adapter = adapter
     }
 
-    inner class BackPressedListener() : OnBackPressedListener
+    inner class BackPressedListener() : IOnBackPressedListener
     {
 
         override fun doBack()

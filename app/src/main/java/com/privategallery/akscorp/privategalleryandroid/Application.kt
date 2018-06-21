@@ -3,6 +3,7 @@ package com.privategallery.akscorp.privategalleryandroid
 import android.app.Application
 import android.support.v7.app.AppCompatDelegate
 import com.hawkcatcherkotlin.akscorp.hawkcatcherkotlin.HawkExceptionCatcher
+import com.privategallery.akscorp.privategalleryandroid.Database.LocalDatabaseAPI
 import com.privategallery.akscorp.privategalleryandroid.Utilities.SecurityController
 
 /**
@@ -19,6 +20,7 @@ class Application : Application() {
      */
     private lateinit var exceptionCatcher: HawkExceptionCatcher
     lateinit var securityController: SecurityController
+    lateinit var localDatabaseApi: LocalDatabaseAPI
 
 
     override fun onCreate() {
@@ -33,5 +35,7 @@ class Application : Application() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+
+        localDatabaseApi = LocalDatabaseAPI(this)
     }
 }

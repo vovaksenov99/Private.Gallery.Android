@@ -28,7 +28,7 @@ class AlbumsAdapter(private val context: Context, val albums: List<Album>) :
         if (albums.isNotEmpty()) {
             activity.currentAlbum = albums[0]
             activity.toolbar.title = albums[0].name
-            activity.showAlbumContent(albums[0])
+            activity.mainActivityActions.showAlbumContent(albums[0])
             activity.fab.visibility = View.VISIBLE
         }
     }
@@ -56,7 +56,7 @@ class AlbumsAdapter(private val context: Context, val albums: List<Album>) :
         holder.itemView.setOnClickListener {
             selectCurrentAlbum(holder)
             lastSelectedImagePosition = -1
-            activity.showAlbumContent(albums[position])
+            activity.mainActivityActions.showAlbumContent(albums[position])
             activity.toolbar.title = albums[position].name
             activity.currentAlbum = albums[position]
         }
