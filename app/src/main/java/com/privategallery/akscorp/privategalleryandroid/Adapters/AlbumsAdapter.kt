@@ -38,8 +38,7 @@ class AlbumsAdapter(private val context: Context, val albums: List<Album>) :
     }
 
     override fun onCreateViewHolder(
-        parent: ViewGroup, viewType: Int
-    ): AlbumsAdapter.AlbumHolder {
+        parent: ViewGroup, viewType: Int): AlbumsAdapter.AlbumHolder {
         val context = parent.context
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.album_rv_item, parent, false)
@@ -56,7 +55,7 @@ class AlbumsAdapter(private val context: Context, val albums: List<Album>) :
 
         holder.itemView.setOnClickListener {
             selectCurrentAlbum(holder)
-
+            lastSelectedImagePosition = -1
             activity.showAlbumContent(albums[position])
             activity.toolbar.title = albums[position].name
             activity.currentAlbum = albums[position]

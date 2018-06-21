@@ -46,7 +46,6 @@ import android.support.v4.util.LruCache
  */
 
 var lastImage: Bitmap? = null
-val previewsUsed: MutableList<Boolean?> = mutableListOf()
 
 lateinit var previews: LruCache<String, Bitmap?>
 

@@ -8,6 +8,7 @@ import com.privategallery.akscorp.privategalleryandroid.R
 import android.graphics.drawable.BitmapDrawable
 import android.support.v4.app.Fragment
 import android.support.v4.view.ViewCompat
+import android.support.v4.widget.DrawerLayout
 import com.bumptech.glide.load.resource.gif.*
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Activities.OnBackPressedListener
@@ -27,6 +28,8 @@ class DetailFragment() : Fragment()
         super.onCreate(savedInstanceState)
 
         (activity as MainActivity).onBackPressedListener = BackPressedListener()
+        (activity as MainActivity).main_activity_drawer.setDrawerLockMode(
+            DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
 
         imageName = arguments!!.getString("imageName")
     }
@@ -38,6 +41,9 @@ class DetailFragment() : Fragment()
             lastImage = previews[imageName]
         } else
             lastImage = (view!!.image.drawable.current as BitmapDrawable).bitmap
+
+        (activity as MainActivity).main_activity_drawer.setDrawerLockMode(
+            DrawerLayout.LOCK_MODE_UNLOCKED)
 
         super.onDestroyView()
     }

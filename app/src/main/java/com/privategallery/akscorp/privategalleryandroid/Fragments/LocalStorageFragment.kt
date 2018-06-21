@@ -64,8 +64,15 @@ class LocalStorageFragment : Fragment()
 
         override fun doBack()
         {
-            (activity as MainActivity).fab.clickAction()
-            (activity as MainActivity).onBackPressedListener = (activity as MainActivity).BaseBackPressedListener()
+            try
+            {
+                val act = activity
+                (act as MainActivity).fab.clickAction()
+                act.onBackPressedListener = act.BaseBackPressedListener()
+            } catch (e: Exception)
+            {
+
+            }
         }
     }
 }

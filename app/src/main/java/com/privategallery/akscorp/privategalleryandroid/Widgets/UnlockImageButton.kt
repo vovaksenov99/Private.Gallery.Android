@@ -52,6 +52,7 @@ class UnlockImageButton : ImageButton, View.OnClickListener {
 
         if (unlockPreviewGridAdapter.used.size == 0) {
             getBaseContext().fab.visibility = View.VISIBLE
+            getBaseContext().showAlbumContent(getBaseContext().currentAlbum)
             return
         }
 
@@ -83,7 +84,6 @@ class UnlockImageButton : ImageButton, View.OnClickListener {
                 }
 
                 dialog.sentProgressToReceiver((counter / filesCount * 100.0).toInt())
-
             }
 
             launch(UI) {

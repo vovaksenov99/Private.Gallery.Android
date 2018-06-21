@@ -18,7 +18,7 @@ import com.privategallery.akscorp.privategalleryandroid.R
 import com.privategallery.akscorp.privategalleryandroid.SPAN_PREVIEW_RV_COUNT
 import kotlinx.android.synthetic.main.preview_images_grid_fragment.view.*
 import android.view.ViewTreeObserver
-
+import com.privategallery.akscorp.privategalleryandroid.Adapters.lastSelectedImagePosition
 
 
 /**
@@ -33,8 +33,7 @@ class PreviewListFragment : Fragment()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View?
+        savedInstanceState: Bundle?): View?
     {
         val view = inflater.inflate(R.layout.preview_images_grid_fragment, container, false)
         initPreviewGrid(view)
@@ -61,6 +60,7 @@ class PreviewListFragment : Fragment()
         view.main_preview_rv_grid.drawingCacheQuality = View.DRAWING_CACHE_QUALITY_LOW
         val images = getImagesFromDatabase(arguments!!["album"] as Album)
         (activity as MainActivity).currentAlbum.images = images
+
         val adapter = PreviewGridAdapter(context!!, images)
         view.main_preview_rv_grid.adapter = adapter
     }
