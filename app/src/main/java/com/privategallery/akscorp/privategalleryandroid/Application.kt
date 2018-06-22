@@ -2,6 +2,8 @@ package com.privategallery.akscorp.privategalleryandroid
 
 import android.app.Application
 import android.support.v7.app.AppCompatDelegate
+import com.github.piasy.biv.BigImageViewer
+import com.github.piasy.biv.loader.glide.GlideImageLoader
 import com.hawkcatcherkotlin.akscorp.hawkcatcherkotlin.HawkExceptionCatcher
 import com.privategallery.akscorp.privategalleryandroid.Database.LocalDatabaseAPI
 import com.privategallery.akscorp.privategalleryandroid.Utilities.SecurityController
@@ -37,5 +39,7 @@ class Application : Application() {
         }
 
         localDatabaseApi = LocalDatabaseAPI(this)
+
+        BigImageViewer.initialize(GlideImageLoader.with(applicationContext))
     }
 }

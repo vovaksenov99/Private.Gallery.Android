@@ -5,6 +5,7 @@ import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
+import android.net.Uri
 import android.os.Bundle
 import android.support.transition.*
 import android.support.v4.view.ViewCompat
@@ -29,6 +30,8 @@ import kotlinx.android.synthetic.main.detail_fragment.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import android.support.v4.util.LruCache
+import com.github.piasy.biv.loader.ImageLoader
+import java.io.File
 
 
 /**
@@ -137,6 +140,7 @@ class PreviewGridAdapter(private val context: Context, val images: List<Image>) 
 
         val bundle = Bundle()
         bundle.putString("imageName", imageName)
+        bundle.putSerializable("image", image)
         detailFragment.arguments = bundle
 
         val enterTransition = DetailsTransition()
@@ -144,18 +148,23 @@ class PreviewGridAdapter(private val context: Context, val images: List<Image>) 
         {
             override fun onTransitionEnd(transition: Transition)
             {
-                try
-                {
-                    GlideApp.with(context)
-                        .load(getImagePath(image))
-                        .placeholder(BitmapDrawable(context.resources, previews[imageName]))
-                        .skipMemoryCache(true)
-                        .error(R.drawable.placeholder_image_error)
-                        .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
-                        .into(detailFragment.view!!.image)
-                } catch (e: Exception)
-                {
-                }
+                if (image.extension!!.toUpperCase() == "GIF")
+                    try
+                    {
+                        GlideApp.with(context)
+                            .load(getImagePath(image))
+                            .placeholder(BitmapDrawable(context.resources, previews[imageName]))
+                            .skipMemoryCache(true)
+                            .error(R.drawable.placeholder_image_error)
+                            .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
+                            .into(detailFragment.view!!.image2)
+
+                    } catch (e: Exception)
+                    {
+                    }
+                else
+                    detailFragment.view!!.image.showImage(Uri.parse("file://" + getImagePath(image)))
+                return
             }
 
             override fun onTransitionResume(transition: Transition)
