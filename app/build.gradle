@@ -54,6 +54,9 @@ dependencies {
     implementation "org.jetbrains.anko:anko-commons:$anko_version"
     implementation "com.github.codex-team:hawk.kotlin:v1.0.4"
 
+    implementation 'com.github.piasy:BigImageViewer:1.4.6'
+    implementation 'com.github.piasy:GlideImageLoader:1.4.6'
+
 
 
 }

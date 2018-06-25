@@ -5,6 +5,7 @@ import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
+import android.net.Uri
 import android.os.Bundle
 import android.support.transition.*
 import android.support.v4.view.ViewCompat
@@ -20,15 +21,16 @@ import kotlinx.android.synthetic.main.preview_rv_item.view.*
 import com.bumptech.glide.request.RequestOptions
 import com.privategallery.akscorp.privategalleryandroid.*
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
-import com.privategallery.akscorp.privategalleryandroid.Fragments.DETAIL_FRAGMENT_TAG
-import com.privategallery.akscorp.privategalleryandroid.Fragments.DetailFragment
-import com.privategallery.akscorp.privategalleryandroid.Fragments.PREVIEW_LIST_FRAGMENT_TAG
 import com.privategallery.akscorp.privategalleryandroid.R
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.detail_fragment.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import android.support.v4.util.LruCache
+import com.github.piasy.biv.loader.ImageLoader
+import com.privategallery.akscorp.privategalleryandroid.Fragments.*
+import kotlinx.coroutines.experimental.CommonPool
+import java.io.File
 
 
 /**
@@ -40,15 +42,16 @@ import android.support.v4.util.LruCache
 var lastImage: Bitmap? = null
 
 lateinit var previews: LruCache<String, Bitmap?>
-
 var lastSelectedImagePosition = -1
+var used = mutableSetOf<String>()
 
-class PreviewGridAdapter(private val context: Context, val images: List<Image>) :
+class PreviewGridAdapter(val context: Context, val images: List<Image>) :
     RecyclerView.Adapter<PreviewGridAdapter.previewHolder>()
 {
 
     init
     {
+        used = mutableSetOf<String>()
         val maxMemory = Runtime.getRuntime().maxMemory().toInt()
         val cacheSize = maxMemory / 4
 
@@ -84,6 +87,7 @@ class PreviewGridAdapter(private val context: Context, val images: List<Image>) 
 
         val image = images[position]
         val imageName = "image_" + image.albumId.toString() + "_" + image.id.toString()
+        ViewCompat.setTransitionName(imageView, imageName)
 
         if (previews[imageName] == null)
         {
@@ -107,15 +111,21 @@ class PreviewGridAdapter(private val context: Context, val images: List<Image>) 
             lastSelectedImagePosition = position
             lastImage = previews[imageName]
 
-            showDetailDialog(imageView, images[position], imageName)
+            showDetailDialog(imageView, images[position], imageName, position)
+
         }
 
-        ViewCompat.setTransitionName(imageView, imageName)
+        if (!used.contains(imageName))
+        {
+            used.add(imageName)
+            tr.addSharedElement(imageView, imageView.transitionName)
+        }
+
     }
 
     private fun loadImageIntoImageView(image: Image, imageView: ImageView, imageName: String)
     {
-        launch {
+        launch(CommonPool) {
             val bmOptions = BitmapFactory.Options()
             if (image.extension!!.toUpperCase() != "GIF")
                 bmOptions.inSampleSize = SAMPLE_PREVIEW_COEFFICIENT
@@ -128,15 +138,16 @@ class PreviewGridAdapter(private val context: Context, val images: List<Image>) 
         }
     }
 
-
-    private fun showDetailDialog(imageView: ImageView, image: Image, imageName: String)
+    private fun showDetailDialog(imageView: ImageView, image: Image, imageName: String,
+                                 position: Int)
     {
         val fragmentManager = (context as MainActivity).supportFragmentManager
 
-        val detailFragment = DetailFragment()
+        val detailFragment = DetailViewPagerFragment(this, position)
 
         val bundle = Bundle()
         bundle.putString("imageName", imageName)
+        bundle.putSerializable("image", image)
         detailFragment.arguments = bundle
 
         val enterTransition = DetailsTransition()
@@ -146,13 +157,22 @@ class PreviewGridAdapter(private val context: Context, val images: List<Image>) 
             {
                 try
                 {
-                    GlideApp.with(context)
-                        .load(getImagePath(image))
-                        .placeholder(BitmapDrawable(context.resources, previews[imageName]))
-                        .skipMemoryCache(true)
-                        .error(R.drawable.placeholder_image_error)
-                        .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
-                        .into(detailFragment.view!!.image)
+
+                    if (image.extension!!.toUpperCase() == "GIF")
+
+                        GlideApp.with(context)
+                            .load(getImagePath(image))
+                            .placeholder(BitmapDrawable(context.resources, previews[imageName]))
+                            .skipMemoryCache(true)
+                            .error(R.drawable.placeholder_image_error)
+                            .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
+                            .into(detailFragment.view!!.image2)
+                    else
+                        detailFragment.view!!.image.showImage(Uri.parse("file://" + getImagePath(
+                            image)))
+
+
+                    return
                 } catch (e: Exception)
                 {
                 }
@@ -172,7 +192,6 @@ class PreviewGridAdapter(private val context: Context, val images: List<Image>) 
 
             override fun onTransitionStart(transition: Transition)
             {
-
                 hideAppBar(context.appbar)
                 hideFab(context.fab)
             }
@@ -211,11 +230,20 @@ class PreviewGridAdapter(private val context: Context, val images: List<Image>) 
         })
         detailFragment.sharedElementReturnTransition = returnTransition
 
-        fragmentManager.beginTransaction().addSharedElement(imageView, imageView.transitionName)
-            .replace(R.id.main_activity_constraint_layout_album, detailFragment,
-                DETAIL_FRAGMENT_TAG)
-            .addToBackStack(null).commit()
+
+        try
+        {
+
+            tr.replace(R.id.main_activity_constraint_layout_album, detailFragment,
+                DETAIL_VIEW_PAGER_FRAGMENT_TAG).commit()
+        } catch (e: Exception)
+        {
+
+        }
     }
+
+    val tr =
+        (context as MainActivity).supportFragmentManager.beginTransaction().addToBackStack(null)
 
     private fun getImagePath(image: Image) =
         ContextWrapper(context).filesDir.path + "/Images/${image.id}.${image.extension}"

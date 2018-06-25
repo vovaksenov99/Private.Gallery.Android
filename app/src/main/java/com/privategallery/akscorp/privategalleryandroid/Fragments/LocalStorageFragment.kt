@@ -71,7 +71,6 @@ class LocalStorageFragment : Fragment()
                 act.onBackPressedListener = act.BaseBackPressedListener()
             } catch (e: Exception)
             {
-
             }
         }
     }
