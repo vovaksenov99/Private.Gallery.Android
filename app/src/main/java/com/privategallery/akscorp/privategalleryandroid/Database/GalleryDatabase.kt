@@ -27,11 +27,11 @@ const val DATABASE_VERSION = 1
 class GalleryDatabase(context: Context) :
     ManagedSQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION)
 {
-    
+
     companion object
     {
         private var instance: GalleryDatabase? = null
-        
+
         /**
          * Get current database exemplar
          */
@@ -45,7 +45,7 @@ class GalleryDatabase(context: Context) :
             return instance!!
         }
     }
-    
+
     override fun onCreate(db: SQLiteDatabase)
     {
         db.createTable(Albums.NAME, true,
@@ -57,14 +57,17 @@ class GalleryDatabase(context: Context) :
             Images.FIELDS.NAME to TEXT,
             Images.FIELDS.LOCAL_PATH to TEXT,
             Images.FIELDS.ALBUM_ID to INTEGER,
-            Images.FIELDS.EXTENSION to TEXT)
+            Images.FIELDS.EXTENSION to TEXT,
+            Images.FIELDS.HEIGHT to INTEGER,
+            Images.FIELDS.WIDTH to INTEGER,
+            Images.FIELDS.ADDED_TIME to INTEGER)
     }
-    
+
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int)
     {
         db.dropTable(Albums.NAME, true)
         db.dropTable(Images.NAME, true)
-        
+
         onCreate(db)
     }
 }

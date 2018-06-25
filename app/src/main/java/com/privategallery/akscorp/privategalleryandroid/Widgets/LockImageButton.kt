@@ -23,6 +23,7 @@ import kotlinx.android.synthetic.main.local_storage_grid_fragment.*
 import kotlinx.android.synthetic.main.local_storage_grid_fragment.view.*
 import kotlinx.coroutines.experimental.android.UI
 import java.io.FileNotFoundException
+import android.graphics.BitmapFactory
 
 
 /**
@@ -84,8 +85,21 @@ class LockImageButton : ImageButton, View.OnClickListener
                 try
                 {
                     val extension = getFileExtension(el)
+
+                    val options = BitmapFactory.Options()
+                    options.inJustDecodeBounds = true
+                    BitmapFactory.decodeFile(el, options)
+                    val imageHeight = options.outHeight
+                    val imageWidth = options.outWidth
+
+
                     val id = db.insertImageInDatabase(
-                        Image(localPath = el, albumId = currentAlbumId, extension = extension))
+                        Image(localPath = el,
+                            albumId = currentAlbumId,
+                            extension = extension,
+                            height = imageHeight.toLong(),
+                            width = imageWidth.toLong(),
+                            addedTime = System.currentTimeMillis()))
 
                     Utilities.moveFile(el, logFile.absolutePath, "$id.$extension")
                     localStorageGridAdapter.files.remove(File(el))

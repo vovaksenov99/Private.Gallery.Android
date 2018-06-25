@@ -19,6 +19,7 @@
         android:layout_height="match_parent"
         app:failureImage="@drawable/placeholder_image_error"
         app:failureImageInitScaleType="center"
+        app:initScaleType="centerInside"
         app:optimizeDisplay="true">
 
     </com.github.piasy.biv.view.BigImageView>

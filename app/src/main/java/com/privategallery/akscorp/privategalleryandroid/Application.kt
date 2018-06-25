@@ -20,7 +20,8 @@ class Application : Application() {
     /**
      * Hawk catcher
      */
-    private lateinit var exceptionCatcher: HawkExceptionCatcher
+
+    lateinit var exceptionCatcher: HawkExceptionCatcher
     lateinit var securityController: SecurityController
     lateinit var localDatabaseApi: LocalDatabaseAPI
 

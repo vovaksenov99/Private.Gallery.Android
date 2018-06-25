@@ -247,7 +247,7 @@ class MainActivityActions(val context: MainActivity)
                 .replace(R.id.main_activity_constraint_layout_album,
                     fragment,
                     PREVIEW_LIST_FRAGMENT_TAG)
-                .commit()
+                .commitAllowingStateLoss()
             main_activity_drawer.closeDrawer(GravityCompat.START)
         }
     }

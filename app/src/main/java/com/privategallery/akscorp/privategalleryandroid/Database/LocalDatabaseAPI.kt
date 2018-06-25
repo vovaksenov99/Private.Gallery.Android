@@ -20,7 +20,7 @@ import org.jetbrains.anko.db.insertOrThrow
  */
 public class LocalDatabaseAPI(private val context: Context)
 {
-    
+
     /**
      * Insert essence if it's not exist in database
      */
@@ -36,7 +36,7 @@ public class LocalDatabaseAPI(private val context: Context)
                     insertImagesInDatabase(listOf(el))
         }
     }
-    
+
     /**
      * Get album essence from database by id
      *
@@ -55,15 +55,15 @@ public class LocalDatabaseAPI(private val context: Context)
             {
                 throw Exception("Table ${Albums.NAME} doesn't exist")
             }
-            
+
             cursor.moveToFirst()
             if (cursor.count > 1)
                 throw Exception("Wrong database. ${cursor.count} album with ID = $albumId")
             if (cursor.count == 0)
                 throw Exception("Album with ID = $albumId doesn't exist")
-            
+
             val album = Album()
-            
+
             var pos = 0;
             for (columnName in cursor.columnNames)
             {
@@ -78,7 +78,7 @@ public class LocalDatabaseAPI(private val context: Context)
             return@use album
         }
     }
-    
+
     /**
      * Get all albums essence from database by id
      *
@@ -96,14 +96,14 @@ public class LocalDatabaseAPI(private val context: Context)
             {
                 throw Exception("Table ${Albums.NAME} doesn't exist")
             }
-            
+
             cursor.moveToFirst()
-            
+
             val albums = mutableListOf<Album>()
-            
+
             if (cursor.count == 0)
                 return@use albums
-            
+
             do
             {
                 val album = Album()
@@ -120,11 +120,11 @@ public class LocalDatabaseAPI(private val context: Context)
                 }
                 albums.add(album)
             } while (cursor.moveToNext())
-            
+
             return@use albums
         }
     }
-    
+
     /**
      * Get all imageData essence from database by album id
      *
@@ -134,10 +134,10 @@ public class LocalDatabaseAPI(private val context: Context)
     fun getImagesFromDatabase(albumId: Long): MutableList<Image>
     {
         return GalleryDatabase.getInstance(context).use {
-            var cursor: Cursor
+            val cursor: Cursor
             try
             {
-                
+
                 cursor = query(Images.NAME,
                     null,
                     "${Images.FIELDS.ALBUM_ID} = \"$albumId\"",
@@ -150,15 +150,15 @@ public class LocalDatabaseAPI(private val context: Context)
                 return@use mutableListOf<Image>()
             }
             cursor.moveToFirst()
-            
+
             val images = mutableListOf<Image>()
-            
+
             if (cursor.count == 0)
                 return@use images
-            
+
             do
             {
-                
+
                 val image = Image()
                 for ((pos, columnName) in cursor.columnNames.withIndex())
                 {
@@ -169,15 +169,18 @@ public class LocalDatabaseAPI(private val context: Context)
                         Images.FIELDS.LOCAL_PATH -> image.localPath = cursor.getString(pos)
                         Images.FIELDS.ALBUM_ID -> image.albumId = cursor.getString(pos).toLong()
                         Images.FIELDS.EXTENSION -> image.extension = cursor.getString(pos)
+                        Images.FIELDS.HEIGHT -> image.height = cursor.getString(pos).toLong()
+                        Images.FIELDS.WIDTH -> image.width = cursor.getString(pos).toLong()
+                        Images.FIELDS.ADDED_TIME -> image.addedTime = cursor.getString(pos).toLong()
                     }
                 }
                 images.add(image)
             } while (cursor.moveToNext())
-            
+
             return@use images
         }
     }
-    
+
     /**
      * Insert images in database
      *
@@ -190,11 +193,16 @@ public class LocalDatabaseAPI(private val context: Context)
             {
                 insertOrThrow(Images.NAME,
                     Images.FIELDS.LOCAL_PATH to image.localPath,
-                    Images.FIELDS.NAME to image.name)
+                    Images.FIELDS.NAME to image.name,
+                    Images.FIELDS.ALBUM_ID to image.albumId,
+                    Images.FIELDS.EXTENSION to image.extension,
+                    Images.FIELDS.HEIGHT to image.height,
+                    Images.FIELDS.WIDTH to image.width,
+                    Images.FIELDS.ADDED_TIME to image.addedTime)
             }
         }
     }
-    
+
     /**
      * Insert imageData in database
      *
@@ -207,10 +215,13 @@ public class LocalDatabaseAPI(private val context: Context)
                 Images.FIELDS.LOCAL_PATH to image.localPath,
                 Images.FIELDS.NAME to image.name,
                 Images.FIELDS.ALBUM_ID to image.albumId,
-                Images.FIELDS.EXTENSION to image.extension)
+                Images.FIELDS.EXTENSION to image.extension,
+                Images.FIELDS.HEIGHT to image.height,
+                Images.FIELDS.WIDTH to image.width,
+                Images.FIELDS.ADDED_TIME to image.addedTime)
         }
     }
-    
+
     /**
      * Insert album in database
      *
@@ -224,7 +235,7 @@ public class LocalDatabaseAPI(private val context: Context)
                 Albums.FIELDS.NAME to album.name)
         }
     }
-    
+
     /**
      * Update imageData in database
      *
@@ -239,7 +250,7 @@ public class LocalDatabaseAPI(private val context: Context)
             update(Images.NAME, imageValues, "${Images.FIELDS._ID} = \"${image.id}\"", null)
         }
     }
-    
+
     /**
      * Update album in database
      *
@@ -254,7 +265,7 @@ public class LocalDatabaseAPI(private val context: Context)
             update(Albums.NAME, albumValues, "${Albums.FIELDS._ID} = \"${album.id}\"", null)
         }
     }
-    
+
     /**
      * @param image imageData to check the existence to the database
      * @return true if exist, or false
@@ -279,18 +290,18 @@ public class LocalDatabaseAPI(private val context: Context)
             return@use cursor.count > 0
         }
     }
-    
-    
+
+
     /**
      * @param image  imageData to remove in database
      */
     fun removeImageFromDatabase(image: Image)
     {
         GalleryDatabase.getInstance(context).use {
-            delete(Images.NAME,"${Images.FIELDS._ID} = ${image.id}")
+            delete(Images.NAME, "${Images.FIELDS._ID} = ${image.id}")
         }
     }
-    
+
     /**
      * @param album album to check the existence to the database
      * @return true if exist, or false
@@ -315,7 +326,7 @@ public class LocalDatabaseAPI(private val context: Context)
             return@use cursor.count > 0
         }
     }
-    
+
     fun deleteDatabase()
     {
         context.deleteDatabase(DATABASE_NAME);

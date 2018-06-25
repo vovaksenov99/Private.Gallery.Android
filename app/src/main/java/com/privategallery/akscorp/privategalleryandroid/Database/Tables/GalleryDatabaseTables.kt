@@ -32,5 +32,7 @@ object Images
         val ALBUM_ID = "albumId"
         val EXTENSION = "extension"
         val ADDED_TIME = "addedTime"
+        val HEIGHT = "height"
+        val WIDTH = "width"
     }
 }
