@@ -1,4 +1,4 @@
-package com.privategallery.akscorp.privategalleryandroid.Widgets
+package com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons
 
 import android.content.Context
 import android.content.ContextWrapper
@@ -13,14 +13,11 @@ import com.privategallery.akscorp.privategalleryandroid.Utilities.Utilities
 import kotlinx.coroutines.experimental.launch
 import org.jetbrains.anko.toast
 import java.io.File
-import android.content.Intent
-import android.content.IntentFilter
 import android.os.Handler
 import com.privategallery.akscorp.privategalleryandroid.*
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.*
 import com.privategallery.akscorp.privategalleryandroid.Fragments.LOCAL_STORAGE_FRAGMENT_TAG
 import kotlinx.android.synthetic.main.local_storage_grid_fragment.*
-import kotlinx.android.synthetic.main.local_storage_grid_fragment.view.*
 import kotlinx.coroutines.experimental.android.UI
 import java.io.FileNotFoundException
 import android.graphics.BitmapFactory

@@ -17,6 +17,8 @@ import com.privategallery.akscorp.privategalleryandroid.Activities.IOnBackPresse
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Adapters.*
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Image
+import com.privategallery.akscorp.privategalleryandroid.showAppBar
+import com.privategallery.akscorp.privategalleryandroid.showFab
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.detail_fragment.view.*
 import kotlinx.android.synthetic.main.detail_view_pager.view.*
@@ -128,6 +130,9 @@ class DetailViewPagerFragment(val previewGridAdapter: PreviewGridAdapter, val po
                 (activity as MainActivity).onBackPressedListener = null
                 return
             }
+
+            showAppBar((activity as MainActivity).appbar)
+            showFab((activity as MainActivity).fab)
 
             val act = activity
             (act as MainActivity).onBackPressedListener = null

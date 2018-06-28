@@ -1,11 +1,10 @@
-package com.privategallery.akscorp.privategalleryandroid.Widgets
+package com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons
 
 import android.animation.Animator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Point
 import android.support.design.widget.FloatingActionButton
-import android.support.v7.widget.Toolbar
 import android.util.AttributeSet
 import android.view.View
 import android.view.animation.RotateAnimation
@@ -16,8 +15,10 @@ import com.privategallery.akscorp.privategalleryandroid.R
 import android.view.ViewAnimationUtils
 import android.support.design.widget.CoordinatorLayout
 import android.support.transition.Fade
-import android.util.Log
 import android.widget.FrameLayout
+import com.privategallery.akscorp.privategalleryandroid.Widgets.COMMON
+import com.privategallery.akscorp.privategalleryandroid.Widgets.GalleryToolbar
+import com.privategallery.akscorp.privategalleryandroid.Widgets.LOCK_FILES
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
 import kotlinx.coroutines.experimental.android.UI

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Bundle
@@ -27,6 +28,7 @@ import kotlinx.android.synthetic.main.detail_fragment.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import android.support.v4.util.LruCache
+import android.util.Log
 import com.github.piasy.biv.loader.ImageLoader
 import com.privategallery.akscorp.privategalleryandroid.Fragments.*
 import kotlinx.coroutines.experimental.CommonPool
@@ -48,6 +50,8 @@ var used = mutableSetOf<String>()
 class PreviewGridAdapter(val context: Context, val images: List<Image>) :
     RecyclerView.Adapter<PreviewGridAdapter.previewHolder>()
 {
+
+    val coroutinePool = mutableSetOf<String>()
 
     init
     {
@@ -83,6 +87,9 @@ class PreviewGridAdapter(val context: Context, val images: List<Image>) :
 
     override fun onBindViewHolder(holder: PreviewGridAdapter.previewHolder, position: Int)
     {
+
+        holder.setIsRecyclable(false)
+
         val imageView = holder.preview
 
         val image = images[position]
@@ -92,14 +99,19 @@ class PreviewGridAdapter(val context: Context, val images: List<Image>) :
         if (previews[imageName] == null)
         {
             imageView.setImageResource(R.color.placeholder)
-            loadImageIntoImageView(image, imageView, imageName)
+            loadImageIntoImageView(image, holder, imageName, {
+                imageView.scaleType = ImageView.ScaleType.CENTER_CROP
+                imageView.setImageBitmap(previews[imageName])
+            })
         }
         else
         {
             if (position == lastSelectedImagePosition)
                 imageView.setImageBitmap(lastImage)
             else
+            {
                 imageView.setImageBitmap(previews[imageName])
+            }
 
             imageView.scaleType = ImageView.ScaleType.CENTER_CROP
         }
@@ -112,7 +124,6 @@ class PreviewGridAdapter(val context: Context, val images: List<Image>) :
             lastImage = previews[imageName]
 
             showDetailDialog(imageView, images[position], imageName, position)
-
         }
 
         if (!used.contains(imageName))
@@ -123,17 +134,22 @@ class PreviewGridAdapter(val context: Context, val images: List<Image>) :
 
     }
 
-    private fun loadImageIntoImageView(image: Image, imageView: ImageView, imageName: String)
+    private fun loadImageIntoImageView(image: Image, previewHolder: previewHolder,
+                                       imageName: String,
+                                       action: () -> Unit)
     {
+
         launch(CommonPool) {
             val bmOptions = BitmapFactory.Options()
-            if (image.extension!!.toUpperCase() != "GIF")
-                bmOptions.inSampleSize = SAMPLE_PREVIEW_COEFFICIENT
+            if (previewHolder.itemView.measuredHeight == 0)
+                bmOptions.inSampleSize = 6
+            else
+                bmOptions.inSampleSize = ((Math.max(image.width!!,
+                    image.height!!) / (previewHolder.itemView.measuredHeight))).toInt()
             val bitmap = BitmapFactory.decodeFile(getImagePath(image), bmOptions)
             previews.put(imageName, bitmap)
             launch(UI) {
-                imageView.scaleType = ImageView.ScaleType.CENTER_CROP
-                imageView.setImageBitmap(bitmap)
+                action()
             }
         }
     }
@@ -204,32 +220,7 @@ class PreviewGridAdapter(val context: Context, val images: List<Image>) :
 
 
         val returnTransition = DetailsTransition()
-        returnTransition.addListener(object : Transition.TransitionListener
-        {
-            override fun onTransitionEnd(transition: Transition)
-            {
-            }
-
-            override fun onTransitionResume(transition: Transition)
-            {
-            }
-
-            override fun onTransitionPause(transition: Transition)
-            {
-            }
-
-            override fun onTransitionCancel(transition: Transition)
-            {
-            }
-
-            override fun onTransitionStart(transition: Transition)
-            {
-                showAppBar(context.appbar)
-                showFab(context.fab)
-            }
-        })
         detailFragment.sharedElementReturnTransition = returnTransition
-
 
         try
         {

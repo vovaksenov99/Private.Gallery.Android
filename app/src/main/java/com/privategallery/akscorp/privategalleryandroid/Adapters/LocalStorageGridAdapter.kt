@@ -74,6 +74,18 @@ class LocalStorageGridAdapter(
         notifyDataSetChanged()
     }
 
+    fun selectAll()
+    {
+        for (image in files)
+        {
+            if (!image.isDirectory && availableExtensions.contains(image.extension.toUpperCase()) &&
+                !used.contains(image.absolutePath))
+                used.add(image.absolutePath)
+        }
+
+        notifyDataSetChanged()
+    }
+
     override fun getItemCount(): Int
     {
         return files.size
@@ -121,7 +133,6 @@ class LocalStorageGridAdapter(
         val file = files[position]
         fileName.text = file.name
 
-
         if (used.contains(file.absolutePath))
         {
             holder.toggle.visibility = View.VISIBLE
@@ -141,6 +152,7 @@ class LocalStorageGridAdapter(
             holder.itemView.setOnClickListener {
                 lastDirectory = lastDirectory.parentFile
                 files = Utilities.getFilesFromFolder(lastDirectory.absolutePath)
+                filterFiles()
                 if (lastDirectory.absolutePath != startDirectory)
                     files.add(0, File(""))
                 used.clear()

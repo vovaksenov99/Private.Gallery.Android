@@ -1,4 +1,4 @@
-package com.privategallery.akscorp.privategalleryandroid.Widgets
+package com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons
 
 import android.content.Context
 import android.os.Build

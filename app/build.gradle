@@ -7,7 +7,14 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 android {
-
+    signingConfigs {
+        config {
+            keyAlias 'akscorp'
+            keyPassword 'lgoptimussol'
+            storeFile file('D:/Desktop/Enterprise/Projects/Private.Gallery.Android/key.jks')
+            storePassword 'lgoptimussol'
+        }
+    }
     compileSdkVersion 27
     defaultConfig {
         applicationId "com.privategallery.akscorp.privategalleryandroid"
@@ -17,7 +24,7 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
-
+        signingConfig signingConfigs.config
     }
     buildTypes {
         release {
@@ -25,6 +32,8 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             debuggable true
         }
+    }
+    productFlavors {
     }
 }
 
@@ -42,23 +51,15 @@ dependencies {
     }
     kapt 'com.github.bumptech.glide:compiler:4.7.1'
     implementation 'com.android.support:gridlayout-v7:27.1.1'
-
     implementation 'com.android.support:recyclerview-v7:27.1.1'
     implementation 'com.android.support:design:27.1.1'
     implementation 'com.android.support:preference-v14:27.1.1'
-
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:0.22.2"
-
-
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:0.22.2'
     implementation "org.jetbrains.anko:anko-sqlite:$anko_version"
     implementation "org.jetbrains.anko:anko-commons:$anko_version"
-    implementation "com.github.codex-team:hawk.kotlin:v1.0.4"
-
+    implementation 'com.github.codex-team:hawk.kotlin:v1.0.4'
     implementation 'com.github.piasy:BigImageViewer:1.4.6'
     implementation 'com.github.piasy:GlideImageLoader:1.4.6'
-
-
-
 }
 kotlin {
     experimental {
