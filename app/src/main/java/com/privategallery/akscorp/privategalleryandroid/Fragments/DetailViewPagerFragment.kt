@@ -35,6 +35,8 @@ class DetailViewPagerFragment(val previewGridAdapter: PreviewGridAdapter, val po
 
     lateinit var imageName: String
     lateinit var image: Image
+
+
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
@@ -93,16 +95,6 @@ class DetailViewPagerFragment(val previewGridAdapter: PreviewGridAdapter, val po
 
                 lastSelectedImagePosition = position
 
-                val currentDetailFragment =
-                    mchildFragmentManager.findFragmentByTag("android:switcher:" + view.detailViewPager.id + ":" + lastSelectedImagePosition) as DetailFragment
-
-                if (currentDetailFragment.view!!.image2.drawable is GifDrawable)
-                {
-                    lastImage = previews[currentDetailFragment.imageName]
-                }
-                else
-                    lastImage =
-                            (currentDetailFragment.view!!.image2.drawable.current as BitmapDrawable).bitmap
             }
         })
         return view
@@ -115,15 +107,25 @@ class DetailViewPagerFragment(val previewGridAdapter: PreviewGridAdapter, val po
         override fun doBack()
         {
 
+
             try
             {
                 val image = previewGridAdapter.images[lastSelectedImagePosition]
                 val imageName = "image_" + image.albumId + "_" + image.id
 
-                val fragment =
+                val currentDetailFragment =
                     mchildFragmentManager.findFragmentByTag("android:switcher:" + view!!.detailViewPager.id + ":" + lastSelectedImagePosition) as DetailFragment
 
-                ViewCompat.setTransitionName(fragment.view!!.image2, imageName)
+                ViewCompat.setTransitionName(currentDetailFragment.view!!.image2, imageName)
+
+                if (currentDetailFragment.view!!.image2.drawable is GifDrawable)
+                {
+                    lastImage = previews[currentDetailFragment.imageName]
+                }
+                else
+                    lastImage =
+                            (currentDetailFragment.view!!.image2.drawable.current as BitmapDrawable).bitmap
+
             } catch (e: Exception)
             {
                 (activity as MainActivity).app.exceptionCatcher.logException(e)

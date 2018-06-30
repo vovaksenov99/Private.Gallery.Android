@@ -32,6 +32,7 @@ import com.privategallery.akscorp.privategalleryandroid.Utilities.GlideApp
 import java.io.File
 import java.text.FieldPosition
 import android.util.DisplayMetrics
+import com.squareup.picasso.Picasso
 
 
 val DETAIL_FRAGMENT_TAG = "DETAIL_FRAGMENT_TAG"
@@ -41,15 +42,12 @@ class DetailFragment(val position: Int) : Fragment()
 {
     lateinit var imageName: String
     lateinit var image: Image
-    var fromViewPagerAdapter: Boolean = false
-
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
 
         imageName = arguments!!.getString("imageName")
         image = arguments!!.getSerializable("image") as Image
-        fromViewPagerAdapter = arguments!!.getBoolean("fromViewPagerAdapter")
 
     }
 
@@ -59,33 +57,68 @@ class DetailFragment(val position: Int) : Fragment()
 
         val view = activity!!.layoutInflater.inflate(R.layout.detail_fragment, parent, false)
 
-        if (fromViewPagerAdapter)
+        if (position == lastSelectedImagePosition)
         {
-            view.image2.setImageBitmap(lastImage)
+            view.image2.setImageBitmap(previews[imageName])
             ViewCompat.setTransitionName(view!!.image2, imageName)
         }
         else
+            establishImage(view)
+
+        return view
+    }
+
+    fun establishImage(view: View)
+    {
+        val metrics = DisplayMetrics()
+        activity!!.windowManager.defaultDisplay.getMetrics(metrics)
+
+        view.image2.setImageBitmap(previews[imageName])
+
+        if (image.extension!!.toUpperCase() == "GIF")
+            try
+            {
+                GlideApp.with(context!!)
+                    .load(getImagePath(image))
+                    .placeholder(BitmapDrawable(context!!.resources, previews[imageName]))
+                    .skipMemoryCache(true)
+                    .error(R.drawable.placeholder_image_error)
+                    .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
+                    .into(view.image2)
+
+                view.image.alpha = 0f
+
+            } catch (e: Exception)
+            {
+            }
+        else
         {
-            view.image2.setImageBitmap(previews[imageName])
-            if (image.extension!!.toUpperCase() == "GIF")
+            if (image.width!!.toInt() >= metrics.widthPixels || image.height!!.toInt() >= metrics.heightPixels)
+                view.image.showImage(Uri.parse("file://" + getImagePath(image)))
+            else
+            {
                 try
                 {
+                    Picasso.get().load("file://" + getImagePath(image)).placeholder(BitmapDrawable(context!!.resources, previews[imageName]))
+                        .into(view.image2)
+                    /*
                     GlideApp.with(context!!)
                         .load(getImagePath(image))
-                        .placeholder(BitmapDrawable(context!!.resources, previews[imageName]))
                         .skipMemoryCache(true)
-                        .error(R.drawable.placeholder_image_error)
+                        .placeholder(BitmapDrawable(context!!.resources, previews[imageName]))
                         .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
+                        .error(R.drawable.placeholder_image_error)
                         .into(view.image2)
-
-                } catch (e: Exception)
-                {
+                    */
+                    view.image.alpha = 0f
                 }
-            else
-                view.image.showImage(Uri.parse("file://" + getImagePath(image)))
+                catch (e:Exception)
+                {
+                    e.printStackTrace()
+                }
+            }
 
         }
-        return view
     }
 
     private fun getImagePath(image: Image) =

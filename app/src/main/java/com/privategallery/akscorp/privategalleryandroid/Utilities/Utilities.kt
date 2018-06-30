@@ -1,5 +1,6 @@
 package com.privategallery.akscorp.privategalleryandroid.Utilities
 
+import android.annotation.SuppressLint
 import android.util.Log
 import java.security.MessageDigest
 import java.util.*
@@ -7,6 +8,11 @@ import java.io.File;
 import java.io.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import android.os.Build
+import android.view.View
+import android.view.ViewTreeObserver
+
+
 
 
 /**
@@ -104,6 +110,32 @@ class Utilities()
                 string += (random.nextInt() % maxSymbolNum).toChar()
             }
             return string
+        }
+
+
+        fun notifyWhenMeasured(view: View, listener: ViewTreeObserver.OnGlobalLayoutListener)
+        {
+            val vto = view.viewTreeObserver
+            vto.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener
+            {
+                @SuppressLint("ObsoleteSdkInt")
+                override fun onGlobalLayout()
+                {
+                    listener.onGlobalLayout()
+
+                    // Need to get a fresh ViewTreeObserver
+                    val freshVto = view.viewTreeObserver
+                    if (Build.VERSION.SDK_INT < 16)
+                    {
+                        // Deprecated because it was inconsistently named
+                        freshVto.removeGlobalOnLayoutListener(this)
+                    }
+                    else
+                    {
+                        freshVto.removeOnGlobalLayoutListener(this)
+                    }
+                }
+            })
         }
 
     }

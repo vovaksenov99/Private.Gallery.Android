@@ -82,7 +82,7 @@ class MainActivity : AppCompatActivity()
     {
         menuInflater.inflate(R.menu.popup_menu, menu)
 
-        mainActivityActions.onCreateOptionsMenu(menu)
+        mainActivityActions.onCreateOptionsMenuInit(menu)
         return true
     }
 
@@ -163,18 +163,26 @@ class MainActivityActions(val context: MainActivity)
             val fragmentManager = supportFragmentManager
             val fragment = UnlockListFragment()
             fragmentManager.beginTransaction()
-                .replace(R.id.main_activity_constraint_layout_album, fragment,UNLOCK_LIST_FRAGMENT_TAG).commit()
+                .replace(R.id.main_activity_constraint_layout_album,
+                    fragment,
+                    UNLOCK_LIST_FRAGMENT_TAG).commit()
         }
         return true
     }
 
-    fun loadAlbums()
+    fun loadAlbums(callback: () -> Unit = {})
     {
         context.apply {
             launch {
                 albums = app.localDatabaseApi.getAllAlbumsFromDatabase()
                 launch(UI) {
-                    mainActivityActions.initAlbums()
+                    initAlbums()
+                    if (!albums.isEmpty() && currentAlbum == Album())
+                    {
+                        fab.visibility = View.VISIBLE
+                        switchAlbum(albums[0])
+                    }
+                    callback()
                 }
             }
         }
@@ -243,12 +251,14 @@ class MainActivityActions(val context: MainActivity)
             val fragment = PreviewListFragment()
             bundle.putSerializable("album", album as Serializable)
             fragment.arguments = bundle
+
             fragmentManager.beginTransaction()
+                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
                 .replace(R.id.main_activity_constraint_layout_album,
                     fragment,
                     PREVIEW_LIST_FRAGMENT_TAG)
-                .commitAllowingStateLoss()
-            main_activity_drawer.closeDrawer(GravityCompat.START)
+                .commit()
+            //main_activity_drawer.closeDrawer(Gravity.START)
         }
     }
 
@@ -300,12 +310,18 @@ class MainActivityActions(val context: MainActivity)
                 val params = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT)
-                container.setPadding(45, 0, 45, 0)
+                container.setPadding(resources.getDimensionPixelSize(R.dimen.dialog_padding),
+                    0,
+                    resources.getDimensionPixelSize(R.dimen.dialog_padding),
+                    0)
+
                 container.layoutParams = params
                 container.addView(albumName)
                 positiveButton(getString(R.string.ok)) {
-                    app.localDatabaseApi.insertAlbumInDatabase(Album(name = albumName.text.toString()))
-                    loadAlbums()
+                    val album = Album(name = albumName.text.toString())
+                    val id = app.localDatabaseApi.insertAlbumInDatabase(album)
+                    album.id = id
+                    loadAlbums({ switchAlbum(album) })
                     it.cancel()
                     checkPermission()
 
@@ -316,7 +332,44 @@ class MainActivityActions(val context: MainActivity)
         }
     }
 
-    fun onCreateOptionsMenu(menu: Menu?)
+    fun switchAlbum(id: Long)
+    {
+        context.apply {
+            for (album in albums)
+                if (album.id == id)
+                {
+                    switchAlbum(album)
+                    return@apply
+                }
+        }
+    }
+
+    fun switchAlbum(album: Album?)
+    {
+
+        if (album == null)
+            return
+        context.apply {
+
+            currentAlbum = album
+            toolbar.title = album.name
+
+            var i = 0
+            for (mAlbum in albums)
+            {
+                if (mAlbum.id == album.id)
+                {
+                    (albums_rv.adapter as AlbumsAdapter)
+                        .selectCurrentAlbum(i)
+                    break
+                }
+                i++
+            }
+            showAlbumContent(album)
+        }
+    }
+
+    fun onCreateOptionsMenuInit(menu: Menu?)
     {
         context.apply {
             if (toolbar != null && toolbar.status != COMMON)

@@ -233,7 +233,7 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener
             })
             anim.duration = ANIMATION_DURATION
             anim.start()
-            (context as MainActivity).mainActivityActions.showAlbumContent((context as MainActivity).currentAlbum)
+            (context as MainActivity).mainActivityActions.switchAlbum((context as MainActivity).currentAlbum)
         }
     }
 

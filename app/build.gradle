@@ -60,6 +60,8 @@ dependencies {
     implementation 'com.github.codex-team:hawk.kotlin:v1.0.4'
     implementation 'com.github.piasy:BigImageViewer:1.4.6'
     implementation 'com.github.piasy:GlideImageLoader:1.4.6'
+    implementation 'com.squareup.picasso:picasso:2.71828'
+
 }
 kotlin {
     experimental {

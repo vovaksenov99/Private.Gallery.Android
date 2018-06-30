@@ -46,7 +46,7 @@ class UnlockImageButton : ImageButton, View.OnClickListener {
 
         if (unlockPreviewGridAdapter.used.size == 0) {
             getBaseContext().fab.visibility = View.VISIBLE
-            getBaseContext().mainActivityActions.showAlbumContent(getBaseContext().currentAlbum)
+            getBaseContext().mainActivityActions.switchAlbum(getBaseContext().currentAlbum)
             return
         }
 
@@ -84,7 +84,7 @@ class UnlockImageButton : ImageButton, View.OnClickListener {
                     try {
                         dialog.dismiss()
                         getBaseContext().fab.visibility = View.VISIBLE
-                        getBaseContext().mainActivityActions.showAlbumContent(getBaseContext().currentAlbum)
+                        getBaseContext().mainActivityActions.switchAlbum(getBaseContext().currentAlbum)
                     }
                     catch (e:Exception){
                         return@postDelayed

@@ -16,7 +16,7 @@
             </item>
 
             <item>
-                <color android:color="#FAFAFA" />
+                <color android:color="#EEEEEE" />
             </item>
         </selector>
     </item>
