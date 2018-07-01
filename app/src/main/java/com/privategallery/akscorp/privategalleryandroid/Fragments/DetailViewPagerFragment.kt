@@ -1,6 +1,9 @@
 package com.privategallery.akscorp.privategalleryandroid.Fragments
 
 import android.annotation.SuppressLint
+import android.content.ContextWrapper
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -17,6 +20,7 @@ import com.privategallery.akscorp.privategalleryandroid.Activities.IOnBackPresse
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Adapters.*
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Image
+import com.privategallery.akscorp.privategalleryandroid.Utilities.GlideApp
 import com.privategallery.akscorp.privategalleryandroid.showAppBar
 import com.privategallery.akscorp.privategalleryandroid.showFab
 import kotlinx.android.synthetic.main.activity_main.*
@@ -100,6 +104,8 @@ class DetailViewPagerFragment(val previewGridAdapter: PreviewGridAdapter, val po
         return view
     }
 
+    private fun getImagePath(image: Image) =
+        ContextWrapper(context).filesDir.path + "/Images/${image.id}.${image.extension}"
 
     inner class BackPressedListener() : IOnBackPressedListener
     {
@@ -120,7 +126,8 @@ class DetailViewPagerFragment(val previewGridAdapter: PreviewGridAdapter, val po
 
                 if (currentDetailFragment.view!!.image2.drawable is GifDrawable)
                 {
-                    lastImage = previews[currentDetailFragment.imageName]
+                    currentDetailFragment.view!!.image2.setImageBitmap(previews[imageName])
+                    lastImage =  (currentDetailFragment.view!!.image2.drawable.current as BitmapDrawable).bitmap
                 }
                 else
                     lastImage =

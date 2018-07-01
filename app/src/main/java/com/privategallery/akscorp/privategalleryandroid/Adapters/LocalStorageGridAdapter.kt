@@ -18,6 +18,7 @@ import com.privategallery.akscorp.privategalleryandroid.Dialogs.*
 import com.privategallery.akscorp.privategalleryandroid.R
 import com.privategallery.akscorp.privategalleryandroid.Utilities.GlideApp
 import com.privategallery.akscorp.privategalleryandroid.Utilities.Utilities
+import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.SelectAll
 import kotlinx.android.synthetic.main.local_storage_rv_item.view.*
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.android.UI

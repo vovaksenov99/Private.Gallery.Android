@@ -13,7 +13,9 @@ import com.privategallery.akscorp.privategalleryandroid.Essentials.Album
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Image
 import com.privategallery.akscorp.privategalleryandroid.R
 import com.privategallery.akscorp.privategalleryandroid.SPAN_PREVIEW_RV_COUNT
+import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.SelectAll
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.preview_images_grid_fragment.*
 import kotlinx.android.synthetic.main.preview_images_grid_fragment.view.*
 
 
@@ -74,7 +76,7 @@ class PreviewListFragment : Fragment()
 
 val UNLOCK_LIST_FRAGMENT_TAG = "UNLOCK_LIST_FRAGMENT_TAG"
 
-class UnlockListFragment : Fragment()
+class UnlockListFragment : Fragment(), SelectAll
 {
 
     override fun onCreateView(
@@ -86,6 +88,11 @@ class UnlockListFragment : Fragment()
         val view = inflater.inflate(R.layout.preview_images_grid_fragment, container, false)
         initPreviewGrid(view)
         return view
+    }
+
+    override fun selectAll()
+    {
+        (main_preview_rv_grid.adapter as UnlockPreviewGridAdapter).selectAll()
     }
 
     /**

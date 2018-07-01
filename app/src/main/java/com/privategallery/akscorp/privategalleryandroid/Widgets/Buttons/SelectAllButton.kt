@@ -13,6 +13,7 @@ import com.privategallery.akscorp.privategalleryandroid.Adapters.UnlockPreviewGr
 import com.privategallery.akscorp.privategalleryandroid.Database.LocalDatabaseAPI
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.*
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Image
+import com.privategallery.akscorp.privategalleryandroid.Fragments.DetailFragment
 import com.privategallery.akscorp.privategalleryandroid.Fragments.LOCAL_STORAGE_FRAGMENT_TAG
 import com.privategallery.akscorp.privategalleryandroid.Fragments.UNLOCK_LIST_FRAGMENT_TAG
 import com.privategallery.akscorp.privategalleryandroid.Utilities.Utilities
@@ -30,8 +31,16 @@ import java.io.FileNotFoundException
  * web site aksenov-vladimir.herokuapp.com
  */
 
+interface SelectAll
+{
+    fun selectAll()
+}
+
 class SelectAllButton : ImageButton, View.OnClickListener
 {
+
+    var fragmentTag = ""
+
     init
     {
         setOnClickListener(this)
@@ -43,12 +52,17 @@ class SelectAllButton : ImageButton, View.OnClickListener
     {
 
         val fragment =
-            getBaseContext().supportFragmentManager.findFragmentByTag(LOCAL_STORAGE_FRAGMENT_TAG)
+            getBaseContext().supportFragmentManager.findFragmentByTag(fragmentTag)
 
         val localStorageGridAdapter =
-            fragment.activity!!.local_storage_rv_grid.adapter as LocalStorageGridAdapter
+            fragment as SelectAll
 
         localStorageGridAdapter.selectAll()
+    }
+
+    constructor(context: Context, fragmentTag: String) : super(context)
+    {
+        this.fragmentTag = fragmentTag
     }
 
     constructor(context: Context) : super(context)

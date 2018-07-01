@@ -59,7 +59,7 @@ class LoadDialog : DialogFragment()
     {
         super.onCreateView(inflater, parent, state)
 
-        return activity!!.layoutInflater.inflate(R.layout.progress_dialog, null, false)
+        return activity!!.layoutInflater.inflate(R.layout.progress_dialog, null)
     }
 
     fun progressBroadcastReceiverInit(progressDialog: LoadDialog)

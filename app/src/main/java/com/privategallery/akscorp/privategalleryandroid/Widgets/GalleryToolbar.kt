@@ -11,6 +11,8 @@ import android.support.v7.widget.Toolbar
 import android.util.AttributeSet
 import android.view.Gravity
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
+import com.privategallery.akscorp.privategalleryandroid.Fragments.LOCAL_STORAGE_FRAGMENT_TAG
+import com.privategallery.akscorp.privategalleryandroid.Fragments.UNLOCK_LIST_FRAGMENT_TAG
 import com.privategallery.akscorp.privategalleryandroid.R
 import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.LockImageButton
 import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.SelectAllButton
@@ -85,7 +87,7 @@ class GalleryToolbar : android.support.v7.widget.Toolbar
                 lockImageButton.setImageResource(R.drawable.ic_done_black_24dp)
                 addView(lockImageButton)
 
-                val selectAllButton = SelectAllButton(context)
+                val selectAllButton = SelectAllButton(context, LOCAL_STORAGE_FRAGMENT_TAG)
                 selectAllButton.id = 15
                 selectAllButton.layoutParams = l1
                 selectAllButton.background = null
@@ -106,17 +108,24 @@ class GalleryToolbar : android.support.v7.widget.Toolbar
                     ContextCompat.getColor(
                         context, R.color.toolbarSelectColor))
                 setTitleTextColor(Color.WHITE)
-                val b =
-                    UnlockImageButton(
-                        context);
+
+                val b = UnlockImageButton(context)
                 b.id = 14
                 val l1 = Toolbar.LayoutParams(
-                    Toolbar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT);
-                l1.gravity = Gravity.END;
+                    Toolbar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT)
+                l1.gravity = Gravity.END
                 b.layoutParams = l1
                 b.background = null
                 b.setImageResource(R.drawable.ic_done_black_24dp)
                 addView(b)
+
+                val selectAllButton = SelectAllButton(context, UNLOCK_LIST_FRAGMENT_TAG)
+                selectAllButton.id = 15
+                selectAllButton.layoutParams = l1
+                selectAllButton.background = null
+                selectAllButton.setImageResource(R.drawable.ic_select_all_black_24dp)
+                addView(selectAllButton)
+
                 menu.setGroupVisible(
                     R.id.popup_menu_group, false)
 

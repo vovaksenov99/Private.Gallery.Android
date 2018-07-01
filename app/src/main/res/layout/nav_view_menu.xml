@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginTop="?android:attr/actionBarSize"
+    android:background="@color/nav_view_background"
     android:fillViewport="true"
     android:isScrollContainer="true"
     android:overScrollMode="always">

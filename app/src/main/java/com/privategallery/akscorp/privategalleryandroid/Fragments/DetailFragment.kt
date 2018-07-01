@@ -76,6 +76,7 @@ class DetailFragment(val position: Int) : Fragment()
         view.image2.setImageBitmap(previews[imageName])
 
         if (image.extension!!.toUpperCase() == "GIF")
+        {
             try
             {
                 GlideApp.with(context!!)
@@ -91,31 +92,18 @@ class DetailFragment(val position: Int) : Fragment()
             } catch (e: Exception)
             {
             }
+        }
         else
         {
             if (image.width!!.toInt() >= metrics.widthPixels || image.height!!.toInt() >= metrics.heightPixels)
                 view.image.showImage(Uri.parse("file://" + getImagePath(image)))
             else
             {
-                try
-                {
-                    Picasso.get().load("file://" + getImagePath(image)).placeholder(BitmapDrawable(context!!.resources, previews[imageName]))
-                        .into(view.image2)
-                    /*
-                    GlideApp.with(context!!)
-                        .load(getImagePath(image))
-                        .skipMemoryCache(true)
-                        .placeholder(BitmapDrawable(context!!.resources, previews[imageName]))
-                        .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
-                        .error(R.drawable.placeholder_image_error)
-                        .into(view.image2)
-                    */
-                    view.image.alpha = 0f
-                }
-                catch (e:Exception)
-                {
-                    e.printStackTrace()
-                }
+                Picasso.get().load("file://" + getImagePath(image))
+                    .placeholder(BitmapDrawable(context!!.resources, previews[imageName]))
+                    .into(view.image2)
+
+                view.image.alpha = 0f
             }
 
         }
