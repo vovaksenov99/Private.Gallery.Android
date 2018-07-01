@@ -18,6 +18,7 @@ import com.privategallery.akscorp.privategalleryandroid.Dialogs.*
 import com.privategallery.akscorp.privategalleryandroid.R
 import com.privategallery.akscorp.privategalleryandroid.Utilities.GlideApp
 import com.privategallery.akscorp.privategalleryandroid.Utilities.Utilities
+import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.SelectAll
 import kotlinx.android.synthetic.main.local_storage_rv_item.view.*
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.android.UI
@@ -74,6 +75,18 @@ class LocalStorageGridAdapter(
         notifyDataSetChanged()
     }
 
+    fun selectAll()
+    {
+        for (image in files)
+        {
+            if (!image.isDirectory && availableExtensions.contains(image.extension.toUpperCase()) &&
+                !used.contains(image.absolutePath))
+                used.add(image.absolutePath)
+        }
+
+        notifyDataSetChanged()
+    }
+
     override fun getItemCount(): Int
     {
         return files.size
@@ -121,7 +134,6 @@ class LocalStorageGridAdapter(
         val file = files[position]
         fileName.text = file.name
 
-
         if (used.contains(file.absolutePath))
         {
             holder.toggle.visibility = View.VISIBLE
@@ -141,6 +153,7 @@ class LocalStorageGridAdapter(
             holder.itemView.setOnClickListener {
                 lastDirectory = lastDirectory.parentFile
                 files = Utilities.getFilesFromFolder(lastDirectory.absolutePath)
+                filterFiles()
                 if (lastDirectory.absolutePath != startDirectory)
                     files.add(0, File(""))
                 used.clear()

@@ -22,6 +22,10 @@
     <string name="login_option">Login options</string>
     <string name="security_options">Security options</string>
     <string name="security_options_summary">Setup your login screen</string>
+    <string name="backup_settings">Backup settings</string>
+    <string name="create_zip_file">Backup files to zip archive</string>
+    <string name="create_zip_file_summary">All files within Private Gallery can be compressed into zip file on the SD card</string>
+
 
     <string name="none">None</string>
     <string name="pin">PIN</string>
@@ -34,4 +38,6 @@
     <string name="setup_login_pref">setup_login_pref</string>
     <string name="pin_pref">pin_pref</string>
     <string name="none_pref">none_pref</string>
+    <string name="setup_backup_zip_pref">setup_backup_zip_pref</string>
+
 </resources>

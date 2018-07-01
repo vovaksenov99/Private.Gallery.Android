@@ -12,4 +12,14 @@
 
     </android.support.v7.preference.PreferenceCategory>
 
+    <android.support.v7.preference.PreferenceCategory
+        android:title="@string/backup_settings">
+
+        <Preference
+            android:key="@string/setup_backup_zip_pref"
+            android:summary="@string/create_zip_file_summary"
+            android:title="@string/create_zip_file" />
+
+    </android.support.v7.preference.PreferenceCategory>
+
 </android.support.v7.preference.PreferenceScreen>

@@ -1,17 +1,18 @@
 package com.privategallery.akscorp.privategalleryandroid.Utilities
 
-import android.os.Build
-import android.support.annotation.RequiresApi
+import android.annotation.SuppressLint
 import android.util.Log
 import java.security.MessageDigest
 import java.util.*
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.io.*
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
+import android.os.Build
+import android.view.View
+import android.view.ViewTreeObserver
+
+
 
 
 /**
@@ -20,14 +21,18 @@ import java.io.*
  * web site aksenov-vladimir.herokuapp.com
  */
 
-class Utilities() {
-    companion object {
+class Utilities()
+{
+    companion object
+    {
 
-        fun getFilesFromFolder(path: String): MutableList<File> {
+        fun getFilesFromFolder(path: String): MutableList<File>
+        {
             val listFile: List<File>
             val file = File(path)
 
-            if (file.isDirectory) {
+            if (file.isDirectory)
+            {
                 listFile = file.listFiles().toMutableList()
                 Collections.sort(listFile, SortFolder())
                 return listFile
@@ -35,8 +40,10 @@ class Utilities() {
             return mutableListOf()
         }
 
-        class SortFolder : Comparator<File> {
-            override fun compare(f1: File, f2: File): Int {
+        class SortFolder : Comparator<File>
+        {
+            override fun compare(f1: File, f2: File): Int
+            {
                 return if (f1.isDirectory == f2.isDirectory)
                     0
                 else if (f1.isDirectory && !f2.isDirectory)
@@ -46,15 +53,18 @@ class Utilities() {
             }
         }
 
-        fun moveFile(inputPath: String, outputPath: String, fileName: String) {
+        fun moveFile(inputPath: String, outputPath: String, fileName: String)
+        {
 
             var `in`: InputStream? = null
             var out: OutputStream? = null
-            try {
+            try
+            {
 
                 //create output directory if it doesn't exist
                 val dir = File(outputPath)
-                if (!dir.exists()) {
+                if (!dir.exists())
+                {
                     dir.mkdirs()
                 }
 
@@ -65,7 +75,8 @@ class Utilities() {
 
                 val buffer = ByteArray(1024)
                 var read: Int = 0
-                while ((read) != -1) {
+                while ((read) != -1)
+                {
                     read = `in`.read(buffer)
                     if (read == -1)
                         break
@@ -81,25 +92,56 @@ class Utilities() {
 
                 // delete the original file
                 File(inputPath).delete()
-            } catch (fnfe1: FileNotFoundException) {
+            } catch (fnfe1: FileNotFoundException)
+            {
                 throw fnfe1
-            } catch (e: Exception) {
+            } catch (e: Exception)
+            {
                 Log.e("tag", e.message)
             }
         }
 
-        fun getRandomString(length: Int, maxSymbolNum: Int): String {
+        fun getRandomString(length: Int, maxSymbolNum: Int): String
+        {
             var string = ""
             val random = Random()
-            for (i in 0..length) {
+            for (i in 0..length)
+            {
                 string += (random.nextInt() % maxSymbolNum).toChar()
             }
             return string
         }
 
 
+        fun notifyWhenMeasured(view: View, listener: ViewTreeObserver.OnGlobalLayoutListener)
+        {
+            val vto = view.viewTreeObserver
+            vto.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener
+            {
+                @SuppressLint("ObsoleteSdkInt")
+                override fun onGlobalLayout()
+                {
+                    listener.onGlobalLayout()
+
+                    // Need to get a fresh ViewTreeObserver
+                    val freshVto = view.viewTreeObserver
+                    if (Build.VERSION.SDK_INT < 16)
+                    {
+                        // Deprecated because it was inconsistently named
+                        freshVto.removeGlobalOnLayoutListener(this)
+                    }
+                    else
+                    {
+                        freshVto.removeOnGlobalLayoutListener(this)
+                    }
+                }
+            })
+        }
+
     }
-    public object HashUtils {
+
+    public object HashUtils
+    {
         fun sha512(input: String) = hashString("SHA-512", input)
 
         fun sha256(input: String) = hashString("SHA-256", input)
@@ -117,7 +159,8 @@ class Utilities() {
          * SHA-384	    1+
          * SHA-512	    1+
          */
-        private fun hashString(type: String, input: String): String {
+        private fun hashString(type: String, input: String): String
+        {
             val HEX_CHARS = "0123456789ABCDEF"
             val bytes = MessageDigest
                 .getInstance(type)

@@ -39,12 +39,7 @@ class DetailViewPagerAdapter(val previewGridAdapter: PreviewGridAdapter,val posi
         val bundle = Bundle()
         bundle.putSerializable("image",image as Serializable)
         bundle.putString("imageName", imageName)
-        if(position == positionRV)
-            bundle.putBoolean("fromViewPagerAdapter", true)
-        else
-            bundle.putBoolean("fromViewPagerAdapter", false)
         detailFragment.arguments = bundle
-
 
         return detailFragment
     }

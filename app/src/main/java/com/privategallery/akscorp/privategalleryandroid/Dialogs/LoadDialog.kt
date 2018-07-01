@@ -14,17 +14,21 @@ import kotlinx.android.synthetic.main.progress_dialog.*
 import android.os.Handler
 import android.support.constraint.ConstraintLayout
 import com.privategallery.akscorp.privategalleryandroid.R
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 import org.jetbrains.anko.runOnUiThread
 
 
 val LOAD_DIALOG_TAG = "LOAD_DIALOG_TAG"
 
-class LoadDialog : DialogFragment() {
+class LoadDialog : DialogFragment()
+{
 
 
     var progressBarShow: Boolean = true
 
-    override fun onStart() {
+    override fun onStart()
+    {
         super.onStart()
 
         dialog.setCancelable(false)
@@ -32,7 +36,8 @@ class LoadDialog : DialogFragment() {
         if (!progressBarShow)
             (dialog.progress_dialog_root as ConstraintLayout).removeView(dialog.progressBar)
 
-        if (dialog != null) {
+        if (dialog != null)
+        {
             dialog.window.setLayout(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
@@ -40,27 +45,33 @@ class LoadDialog : DialogFragment() {
         }
     }
 
-    fun delayDismiss(action: ()->Unit = {}) {
-        Handler().postDelayed({
-            dialog.dismiss()
-            action()
-        }, 1500)
+    fun delayDismiss(action: () -> Unit = {})
+    {
+        launch(UI) {
+            Handler().postDelayed({
+                dialog.dismiss()
+                action()
+            }, 1500)
+        }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, parent: ViewGroup?, state: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, parent: ViewGroup?, state: Bundle?): View?
+    {
         super.onCreateView(inflater, parent, state)
 
-        return activity!!.layoutInflater.inflate(R.layout.progress_dialog, null, false)
+        return activity!!.layoutInflater.inflate(R.layout.progress_dialog, null)
     }
 
-    fun progressBroadcastReceiverInit(progressDialog: LoadDialog) {
+    fun progressBroadcastReceiverInit(progressDialog: LoadDialog)
+    {
         val intentFilter = IntentFilter(PROGRESS_BROADCAST_RECEIVER_TAG)
         val mReceiver = ProgressBroadcastReceiver(
             progressDialog)
         activity!!.registerReceiver(mReceiver, intentFilter)
     }
 
-    fun sentProgressToReceiver(progress: Int) {
+    fun sentProgressToReceiver(progress: Int)
+    {
         val intent = Intent()
         intent.action = PROGRESS_BROADCAST_RECEIVER_TAG
         intent.putExtra(
@@ -72,16 +83,21 @@ class LoadDialog : DialogFragment() {
 val PROGRESS_BROADCAST_RECEIVER_TAG = "PROGRESS_BROADCAST_RECEIVER_TAG"
 val CURRENT_PROGRESS_BROADCAST_RECEIVER = "CURRENT_PROGRESS_BROADCAST_RECEIVER"
 
-class ProgressBroadcastReceiver(val dialog: LoadDialog) : BroadcastReceiver() {
+class ProgressBroadcastReceiver(val dialog: LoadDialog) : BroadcastReceiver()
+{
 
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(context: Context, intent: Intent)
+    {
         context.runOnUiThread {
             val progress = intent.getIntExtra(CURRENT_PROGRESS_BROADCAST_RECEIVER, 100)
-            if (dialog.dialog != null) {
-                if (dialog.dialog.progressBar != null) {
+            if (dialog.dialog != null)
+            {
+                if (dialog.dialog.progressBar != null)
+                {
                     dialog.dialog.progressBar.progress = progress
 
-                    if (progress == 100) {
+                    if (progress == 100)
+                    {
                         val animAccelerate = AnimationUtils.loadAnimation(
                             context,
                             R.anim.done_anim

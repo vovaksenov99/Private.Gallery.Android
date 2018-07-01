@@ -1,13 +1,10 @@
 package com.privategallery.akscorp.privategalleryandroid.Animations
 
-import android.animation.ValueAnimator
 import android.support.design.widget.AppBarLayout
-import android.support.design.widget.FloatingActionButton
 import android.support.transition.*
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AccelerateInterpolator
-import com.privategallery.akscorp.privategalleryandroid.Widgets.GalleryFAB
-import kotlinx.android.synthetic.main.activity_main.*
+import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.GalleryFAB
 
 class DetailsTransition : TransitionSet()
 {

@@ -27,10 +27,14 @@ import kotlinx.android.synthetic.main.detail_fragment.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import android.support.v4.util.LruCache
-import com.github.piasy.biv.loader.ImageLoader
+import android.support.v7.widget.GridLayoutManager
+import android.util.DisplayMetrics
+import android.view.ViewTreeObserver
 import com.privategallery.akscorp.privategalleryandroid.Fragments.*
-import kotlinx.coroutines.experimental.CommonPool
-import java.io.File
+import com.privategallery.akscorp.privategalleryandroid.Utilities.Utilities
+import kotlinx.android.synthetic.main.detail_view_pager.view.*
+import kotlinx.coroutines.experimental.Job
+import java.util.concurrent.Semaphore
 
 
 /**
@@ -45,13 +49,12 @@ lateinit var previews: LruCache<String, Bitmap?>
 var lastSelectedImagePosition = -1
 var used = mutableSetOf<String>()
 
-class PreviewGridAdapter(val context: Context, val images: List<Image>) :
-    RecyclerView.Adapter<PreviewGridAdapter.previewHolder>()
+class PreviewGridAdapter(override val context: Context, override val images: List<Image>) :
+    FastGalleryScrollAdapter<PreviewGridAdapter.previewHolder>(context, images)
 {
-
     init
     {
-        used = mutableSetOf<String>()
+        used = mutableSetOf()
         val maxMemory = Runtime.getRuntime().maxMemory().toInt()
         val cacheSize = maxMemory / 4
 
@@ -66,6 +69,7 @@ class PreviewGridAdapter(val context: Context, val images: List<Image>) :
             }
         }
     }
+
 
     override fun getItemCount(): Int
     {
@@ -83,25 +87,33 @@ class PreviewGridAdapter(val context: Context, val images: List<Image>) :
 
     override fun onBindViewHolder(holder: PreviewGridAdapter.previewHolder, position: Int)
     {
+        holder.setIsRecyclable(false)
+
         val imageView = holder.preview
 
         val image = images[position]
         val imageName = "image_" + image.albumId.toString() + "_" + image.id.toString()
         ViewCompat.setTransitionName(imageView, imageName)
+            holder.preview.setImageResource(R.color.placeholder)
 
         if (previews[imageName] == null)
         {
-            imageView.setImageResource(R.color.placeholder)
-            loadImageIntoImageView(image, imageView, imageName)
+            loadImageIntoImageView(image, imageName, {
+                if (isImageEstablishEnable)
+                {
+                    imageView.setImageBitmap(previews[imageName])
+                }
+            })
+
         }
         else
         {
             if (position == lastSelectedImagePosition)
                 imageView.setImageBitmap(lastImage)
             else
+            {
                 imageView.setImageBitmap(previews[imageName])
-
-            imageView.scaleType = ImageView.ScaleType.CENTER_CROP
+            }
         }
 
         imageView.setOnClickListener {
@@ -111,8 +123,7 @@ class PreviewGridAdapter(val context: Context, val images: List<Image>) :
             lastSelectedImagePosition = position
             lastImage = previews[imageName]
 
-            showDetailDialog(imageView, images[position], imageName, position)
-
+            showDetailDialog(images[position], imageName, position)
         }
 
         if (!used.contains(imageName))
@@ -120,26 +131,9 @@ class PreviewGridAdapter(val context: Context, val images: List<Image>) :
             used.add(imageName)
             tr.addSharedElement(imageView, imageView.transitionName)
         }
-
     }
 
-    private fun loadImageIntoImageView(image: Image, imageView: ImageView, imageName: String)
-    {
-        launch(CommonPool) {
-            val bmOptions = BitmapFactory.Options()
-            if (image.extension!!.toUpperCase() != "GIF")
-                bmOptions.inSampleSize = SAMPLE_PREVIEW_COEFFICIENT
-            val bitmap = BitmapFactory.decodeFile(getImagePath(image), bmOptions)
-            previews.put(imageName, bitmap)
-            launch(UI) {
-                imageView.scaleType = ImageView.ScaleType.CENTER_CROP
-                imageView.setImageBitmap(bitmap)
-            }
-        }
-    }
-
-    private fun showDetailDialog(imageView: ImageView, image: Image, imageName: String,
-                                 position: Int)
+    private fun showDetailDialog(image: Image, imageName: String, position: Int)
     {
         val fragmentManager = (context as MainActivity).supportFragmentManager
 
@@ -157,22 +151,9 @@ class PreviewGridAdapter(val context: Context, val images: List<Image>) :
             {
                 try
                 {
-
-                    if (image.extension!!.toUpperCase() == "GIF")
-
-                        GlideApp.with(context)
-                            .load(getImagePath(image))
-                            .placeholder(BitmapDrawable(context.resources, previews[imageName]))
-                            .skipMemoryCache(true)
-                            .error(R.drawable.placeholder_image_error)
-                            .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.NONE))
-                            .into(detailFragment.view!!.image2)
-                    else
-                        detailFragment.view!!.image.showImage(Uri.parse("file://" + getImagePath(
-                            image)))
-
-
-                    return
+                    val lastDetailFragment =
+                        detailFragment.mchildFragmentManager.findFragmentByTag("android:switcher:" + detailFragment.view!!.detailViewPager.id + ":" + lastSelectedImagePosition) as DetailFragment
+                    lastDetailFragment.establishImage(lastDetailFragment.view!!)
                 } catch (e: Exception)
                 {
                 }
@@ -204,32 +185,7 @@ class PreviewGridAdapter(val context: Context, val images: List<Image>) :
 
 
         val returnTransition = DetailsTransition()
-        returnTransition.addListener(object : Transition.TransitionListener
-        {
-            override fun onTransitionEnd(transition: Transition)
-            {
-            }
-
-            override fun onTransitionResume(transition: Transition)
-            {
-            }
-
-            override fun onTransitionPause(transition: Transition)
-            {
-            }
-
-            override fun onTransitionCancel(transition: Transition)
-            {
-            }
-
-            override fun onTransitionStart(transition: Transition)
-            {
-                showAppBar(context.appbar)
-                showFab(context.fab)
-            }
-        })
         detailFragment.sharedElementReturnTransition = returnTransition
-
 
         try
         {
@@ -245,13 +201,120 @@ class PreviewGridAdapter(val context: Context, val images: List<Image>) :
     val tr =
         (context as MainActivity).supportFragmentManager.beginTransaction().addToBackStack(null)
 
-    private fun getImagePath(image: Image) =
-        ContextWrapper(context).filesDir.path + "/Images/${image.id}.${image.extension}"
-
     inner class previewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
     {
         val preview: ImageView = itemView.preview_iv as ImageView
     }
+
+}
+
+abstract class FastGalleryScrollAdapter<T : RecyclerView.ViewHolder?>(open val context: Context, open val images: List<Image>) :
+    RecyclerView.Adapter<T>()
+{
+    val PRELOAD_IMAGES_COUNT = 20
+
+    private var holderWidth = 100
+    open var lastEndVisiblePosition = 0
+    open var lastStartVisiblePosition = 0
+
+    open var isImageEstablishEnable = true
+
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView)
+    {
+        super.onAttachedToRecyclerView(recyclerView)
+
+        Utilities.notifyWhenMeasured(recyclerView,
+            ViewTreeObserver.OnGlobalLayoutListener {
+                holderWidth = recyclerView.measuredWidth / SPAN_PREVIEW_RV_COUNT
+            })
+        recyclerView.itemAnimator = null
+
+        val layoutManager = (recyclerView.layoutManager as GridLayoutManager)
+
+        recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener()
+        {
+            override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int)
+            {
+                super.onScrollStateChanged(recyclerView, newState)
+                when (newState)
+                {
+                    RecyclerView.SCROLL_STATE_IDLE ->
+                    {
+                        if (images.isEmpty())
+                            return
+
+                        var startVisiblePosition = layoutManager.findFirstVisibleItemPosition()
+                        var endVisiblePosition = layoutManager.findLastVisibleItemPosition()
+
+                        if (startVisiblePosition < lastEndVisiblePosition && lastEndVisiblePosition < endVisiblePosition)
+                        {
+                            startVisiblePosition = lastEndVisiblePosition
+                        }
+                        else if (endVisiblePosition > lastStartVisiblePosition && lastStartVisiblePosition > startVisiblePosition)
+                        {
+                            endVisiblePosition = lastStartVisiblePosition
+                        }
+
+                        isImageEstablishEnable = true
+
+                        for (i in startVisiblePosition..endVisiblePosition)
+                        {
+                            notifyItemChanged(i)
+                        }
+
+                        lastEndVisiblePosition = endVisiblePosition
+                        lastStartVisiblePosition = startVisiblePosition
+
+                        val job = Job()
+                        launch(job) {
+                            for (i in (startVisiblePosition)..(Math.max(0,startVisiblePosition - PRELOAD_IMAGES_COUNT)))
+                            {
+                                val image = images[i]
+                                val imageName =
+                                    "image_" + image.albumId.toString() + "_" + image.id.toString()
+
+                                loadImageIntoImageView(image, imageName, {})
+                            }
+                        }
+                        launch(job) {
+                            for (i in (endVisiblePosition)..(Math.min(images.size - 1,
+                                endVisiblePosition + PRELOAD_IMAGES_COUNT)))
+                            {
+                                val image = images[i]
+                                val imageName =
+                                    "image_" + image.albumId.toString() + "_" + image.id.toString()
+
+                                loadImageIntoImageView(image, imageName, {})
+                            }
+                        }
+                    }
+                    RecyclerView.SCROLL_STATE_DRAGGING -> isImageEstablishEnable = false
+                    RecyclerView.SCROLL_STATE_SETTLING -> isImageEstablishEnable = false
+                }
+            }
+        })
+    }
+
+    protected fun loadImageIntoImageView(image: Image, imageName: String, action: () -> Unit)
+    {
+
+        launch {
+            val bmOptions = BitmapFactory.Options()
+            bmOptions.inSampleSize =
+                    ((Math.max(image.width!!, image.height!!) / (holderWidth))).toInt()
+            val bitmap = BitmapFactory.decodeFile(getImagePath(image), bmOptions)
+            previews.put(imageName, bitmap)
+            launch(UI) {
+                action()
+            }
+        }
+    }
+
+    private fun getImagePath(image: Image) =
+        ContextWrapper(context).filesDir.path + "/Images/${image.id}.${image.extension}"
+
+
 
 }
 

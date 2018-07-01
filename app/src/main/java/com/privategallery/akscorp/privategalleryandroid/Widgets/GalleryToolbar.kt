@@ -11,10 +11,13 @@ import android.support.v7.widget.Toolbar
 import android.util.AttributeSet
 import android.view.Gravity
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
-import com.privategallery.akscorp.privategalleryandroid.Adapters.LocalStorageGridAdapter
+import com.privategallery.akscorp.privategalleryandroid.Fragments.LOCAL_STORAGE_FRAGMENT_TAG
+import com.privategallery.akscorp.privategalleryandroid.Fragments.UNLOCK_LIST_FRAGMENT_TAG
 import com.privategallery.akscorp.privategalleryandroid.R
+import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.LockImageButton
+import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.SelectAllButton
+import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.UnlockImageButton
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.local_storage_grid_fragment.*
 import org.jetbrains.anko.find
 
 /**
@@ -26,7 +29,8 @@ const val COMMON = 1
 const val LOCK_FILES = 2
 const val UNLOCK_FILES = 3
 
-class GalleryToolbar : android.support.v7.widget.Toolbar {
+class GalleryToolbar : android.support.v7.widget.Toolbar
+{
 
     var status = COMMON
         private set
@@ -41,10 +45,13 @@ class GalleryToolbar : android.support.v7.widget.Toolbar {
     private fun getBaseContext() = ((context as ContextWrapper).baseContext as MainActivity)
 
     @SuppressLint("ResourceType", "PrivateResource")
-    fun setState(state: Int) {
+    fun setState(state: Int)
+    {
         status = state
-        when (state) {
-            COMMON -> {
+        when (state)
+        {
+            COMMON ->
+            {
                 removeAllViews()
                 setBackgroundColor(
                     ContextCompat.getColor(
@@ -64,22 +71,29 @@ class GalleryToolbar : android.support.v7.widget.Toolbar {
                 menu.setGroupVisible(
                     R.id.popup_menu_group, true)
             }
-            LOCK_FILES -> {
+            LOCK_FILES ->
+            {
                 removeAllViews()
-                setBackgroundColor(
-                    ContextCompat.getColor(
-                        context, R.color.toolbarSelectColor))
-                val b = LockImageButton(
-                    context)
+                setBackgroundColor(ContextCompat.getColor(context, R.color.toolbarSelectColor))
                 setTitleTextColor(Color.WHITE)
-                b.id = 12
+
+                val lockImageButton = LockImageButton(context)
+                lockImageButton.id = 12
                 val l1 = Toolbar.LayoutParams(
                     Toolbar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT)
                 l1.gravity = Gravity.END
-                b.layoutParams = l1
-                b.background = null
-                b.setImageResource(R.drawable.ic_done_black_24dp)
-                addView(b)
+                lockImageButton.layoutParams = l1
+                lockImageButton.background = null
+                lockImageButton.setImageResource(R.drawable.ic_done_black_24dp)
+                addView(lockImageButton)
+
+                val selectAllButton = SelectAllButton(context, LOCAL_STORAGE_FRAGMENT_TAG)
+                selectAllButton.id = 15
+                selectAllButton.layoutParams = l1
+                selectAllButton.background = null
+                selectAllButton.setImageResource(R.drawable.ic_select_all_black_24dp)
+                addView(selectAllButton)
+
                 menu.setGroupVisible(
                     R.id.popup_menu_group, false)
 
@@ -87,21 +101,31 @@ class GalleryToolbar : android.support.v7.widget.Toolbar {
                 getBaseContext().main_activity_drawer.setDrawerLockMode(
                     DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             }
-            UNLOCK_FILES -> {
+            UNLOCK_FILES ->
+            {
                 removeAllViews()
                 setBackgroundColor(
                     ContextCompat.getColor(
                         context, R.color.toolbarSelectColor))
                 setTitleTextColor(Color.WHITE)
-                val b = UnlockImageButton(context);
+
+                val b = UnlockImageButton(context)
                 b.id = 14
                 val l1 = Toolbar.LayoutParams(
-                    Toolbar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT);
-                l1.gravity = Gravity.END;
+                    Toolbar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT)
+                l1.gravity = Gravity.END
                 b.layoutParams = l1
                 b.background = null
                 b.setImageResource(R.drawable.ic_done_black_24dp)
                 addView(b)
+
+                val selectAllButton = SelectAllButton(context, UNLOCK_LIST_FRAGMENT_TAG)
+                selectAllButton.id = 15
+                selectAllButton.layoutParams = l1
+                selectAllButton.background = null
+                selectAllButton.setImageResource(R.drawable.ic_select_all_black_24dp)
+                addView(selectAllButton)
+
                 menu.setGroupVisible(
                     R.id.popup_menu_group, false)
 
@@ -113,8 +137,10 @@ class GalleryToolbar : android.support.v7.widget.Toolbar {
     }
 
     @SuppressLint("ResourceType")
-    override fun removeAllViews() {
+    override fun removeAllViews()
+    {
         if (findViewById<LockImageButton>(12) != null) removeView(find(12))
         if (findViewById<LockImageButton>(14) != null) removeView(find(14))
+        if (findViewById<LockImageButton>(15) != null) removeView(find(15))
     }
 }

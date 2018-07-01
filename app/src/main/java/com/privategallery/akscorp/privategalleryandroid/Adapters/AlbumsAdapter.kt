@@ -21,17 +21,10 @@ import kotlinx.android.synthetic.main.album_rv_item.view.*
  */
 class AlbumsAdapter(private val context: Context, val albums: List<Album>) :
     RecyclerView.Adapter<AlbumsAdapter.AlbumHolder>() {
-    lateinit var lastChoose: ViewGroup
-    val activity = context as MainActivity
 
-    init {
-        if (albums.isNotEmpty()) {
-            activity.currentAlbum = albums[0]
-            activity.toolbar.title = albums[0].name
-            activity.mainActivityActions.showAlbumContent(albums[0])
-            activity.fab.visibility = View.VISIBLE
-        }
-    }
+    private var lastAlbumChoose: Int = -1
+
+    val activity = context as MainActivity
 
     override fun getItemCount(): Int {
         return albums.size
@@ -48,27 +41,30 @@ class AlbumsAdapter(private val context: Context, val albums: List<Album>) :
     /**
      * Load imageData by [GlideApp] library from local folder
      */
-    @SuppressLint("ResourceAsColor")
     override fun onBindViewHolder(holder: AlbumsAdapter.AlbumHolder, position: Int) {
         val text = holder.text
         text.text = albums[position].name
 
+        if(lastAlbumChoose == position)
+        {
+            (holder.itemView).background =
+                    ContextCompat.getDrawable(context, R.drawable.ripple_selector_selected)
+        }
+        else
+        {
+            (holder.itemView).background = ContextCompat.getDrawable(context, R.drawable.ripple_selector_common)
+        }
+
         holder.itemView.setOnClickListener {
-            selectCurrentAlbum(holder)
             lastSelectedImagePosition = -1
-            activity.mainActivityActions.showAlbumContent(albums[position])
-            activity.toolbar.title = albums[position].name
-            activity.currentAlbum = albums[position]
+
+            activity.mainActivityActions.switchAlbum(albums[position])
         }
     }
 
-
-    fun selectCurrentAlbum(holder: AlbumHolder) {
-        if (::lastChoose.isInitialized) lastChoose.background =
-                ContextCompat.getDrawable(context, R.drawable.ripple_selector_common)
-        (holder.itemView as ViewGroup).background =
-                ContextCompat.getDrawable(context, R.drawable.ripple_selector_selected)
-        lastChoose = holder.itemView
+    fun selectCurrentAlbum(position: Int) {
+        lastAlbumChoose = position
+        notifyDataSetChanged()
     }
 
     inner class AlbumHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

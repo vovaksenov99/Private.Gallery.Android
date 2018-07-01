@@ -227,10 +227,10 @@ public class LocalDatabaseAPI(private val context: Context)
      *
      * @param album album list to add to the database
      */
-    fun insertAlbumInDatabase(album: Album)
+    fun insertAlbumInDatabase(album: Album): Long
     {
-        GalleryDatabase.getInstance(context).use {
-            insertOrThrow(Albums.NAME,
+        return GalleryDatabase.getInstance(context).use {
+            return@use insertOrThrow(Albums.NAME,
                 Albums.FIELDS.COVER_PATH to album.coverPath,
                 Albums.FIELDS.NAME to album.name)
         }

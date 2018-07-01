@@ -13,7 +13,10 @@ import com.privategallery.akscorp.privategalleryandroid.Adapters.LocalStorageGri
 import com.privategallery.akscorp.privategalleryandroid.R
 import com.privategallery.akscorp.privategalleryandroid.SPAN_PREVIEW_RV_COUNT
 import com.privategallery.akscorp.privategalleryandroid.Utilities.Utilities
+import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.SelectAll
+import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.SelectAllButton
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.local_storage_grid_fragment.*
 import kotlinx.android.synthetic.main.local_storage_grid_fragment.view.*
 
 /**
@@ -24,8 +27,13 @@ import kotlinx.android.synthetic.main.local_storage_grid_fragment.view.*
 
 val LOCAL_STORAGE_FRAGMENT_TAG = "LOCAL_STORAGE_FRAGMENT_TAG"
 
-class LocalStorageFragment : Fragment()
+class LocalStorageFragment : Fragment(), SelectAll
 {
+    override fun selectAll()
+    {
+        (local_storage_rv_grid.adapter as LocalStorageGridAdapter).selectAll()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)

@@ -1,4 +1,4 @@
-package com.privategallery.akscorp.privategalleryandroid.Widgets
+package com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons
 
 import android.content.Context
 import android.content.ContextWrapper
@@ -12,11 +12,10 @@ import com.privategallery.akscorp.privategalleryandroid.Adapters.UnlockPreviewGr
 import com.privategallery.akscorp.privategalleryandroid.Database.LocalDatabaseAPI
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.*
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Image
-import com.privategallery.akscorp.privategalleryandroid.Fragments.PREVIEW_LIST_FRAGMENT_TAG
 import com.privategallery.akscorp.privategalleryandroid.Fragments.UNLOCK_LIST_FRAGMENT_TAG
 import com.privategallery.akscorp.privategalleryandroid.Utilities.Utilities
+import com.privategallery.akscorp.privategalleryandroid.Widgets.COMMON
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.preview_images_grid_fragment.*
 import kotlinx.android.synthetic.main.preview_images_grid_fragment.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
@@ -47,7 +46,7 @@ class UnlockImageButton : ImageButton, View.OnClickListener {
 
         if (unlockPreviewGridAdapter.used.size == 0) {
             getBaseContext().fab.visibility = View.VISIBLE
-            getBaseContext().mainActivityActions.showAlbumContent(getBaseContext().currentAlbum)
+            getBaseContext().mainActivityActions.switchAlbum(getBaseContext().currentAlbum)
             return
         }
 
@@ -85,7 +84,7 @@ class UnlockImageButton : ImageButton, View.OnClickListener {
                     try {
                         dialog.dismiss()
                         getBaseContext().fab.visibility = View.VISIBLE
-                        getBaseContext().mainActivityActions.showAlbumContent(getBaseContext().currentAlbum)
+                        getBaseContext().mainActivityActions.switchAlbum(getBaseContext().currentAlbum)
                     }
                     catch (e:Exception){
                         return@postDelayed

@@ -58,7 +58,7 @@
                 </FrameLayout>
             </android.support.constraint.ConstraintLayout>
 
-            <com.privategallery.akscorp.privategalleryandroid.Widgets.GalleryFAB
+            <com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.GalleryFAB
                 android:id="@+id/fab"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

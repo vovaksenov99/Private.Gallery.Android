@@ -1,6 +1,9 @@
 package com.privategallery.akscorp.privategalleryandroid.Fragments
 
 import android.annotation.SuppressLint
+import android.content.ContextWrapper
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -17,6 +20,9 @@ import com.privategallery.akscorp.privategalleryandroid.Activities.IOnBackPresse
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Adapters.*
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Image
+import com.privategallery.akscorp.privategalleryandroid.Utilities.GlideApp
+import com.privategallery.akscorp.privategalleryandroid.showAppBar
+import com.privategallery.akscorp.privategalleryandroid.showFab
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.detail_fragment.view.*
 import kotlinx.android.synthetic.main.detail_view_pager.view.*
@@ -33,6 +39,8 @@ class DetailViewPagerFragment(val previewGridAdapter: PreviewGridAdapter, val po
 
     lateinit var imageName: String
     lateinit var image: Image
+
+
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
@@ -91,21 +99,13 @@ class DetailViewPagerFragment(val previewGridAdapter: PreviewGridAdapter, val po
 
                 lastSelectedImagePosition = position
 
-                val currentDetailFragment =
-                    mchildFragmentManager.findFragmentByTag("android:switcher:" + view.detailViewPager.id + ":" + lastSelectedImagePosition) as DetailFragment
-
-                if (currentDetailFragment.view!!.image2.drawable is GifDrawable)
-                {
-                    lastImage = previews[currentDetailFragment.imageName]
-                }
-                else
-                    lastImage =
-                            (currentDetailFragment.view!!.image2.drawable.current as BitmapDrawable).bitmap
             }
         })
         return view
     }
 
+    private fun getImagePath(image: Image) =
+        ContextWrapper(context).filesDir.path + "/Images/${image.id}.${image.extension}"
 
     inner class BackPressedListener() : IOnBackPressedListener
     {
@@ -113,21 +113,35 @@ class DetailViewPagerFragment(val previewGridAdapter: PreviewGridAdapter, val po
         override fun doBack()
         {
 
+
             try
             {
                 val image = previewGridAdapter.images[lastSelectedImagePosition]
                 val imageName = "image_" + image.albumId + "_" + image.id
 
-                val fragment =
+                val currentDetailFragment =
                     mchildFragmentManager.findFragmentByTag("android:switcher:" + view!!.detailViewPager.id + ":" + lastSelectedImagePosition) as DetailFragment
 
-                ViewCompat.setTransitionName(fragment.view!!.image2, imageName)
+                ViewCompat.setTransitionName(currentDetailFragment.view!!.image2, imageName)
+
+                if (currentDetailFragment.view!!.image2.drawable is GifDrawable)
+                {
+                    currentDetailFragment.view!!.image2.setImageBitmap(previews[imageName])
+                    lastImage =  (currentDetailFragment.view!!.image2.drawable.current as BitmapDrawable).bitmap
+                }
+                else
+                    lastImage =
+                            (currentDetailFragment.view!!.image2.drawable.current as BitmapDrawable).bitmap
+
             } catch (e: Exception)
             {
                 (activity as MainActivity).app.exceptionCatcher.logException(e)
                 (activity as MainActivity).onBackPressedListener = null
                 return
             }
+
+            showAppBar((activity as MainActivity).appbar)
+            showFab((activity as MainActivity).fab)
 
             val act = activity
             (act as MainActivity).onBackPressedListener = null

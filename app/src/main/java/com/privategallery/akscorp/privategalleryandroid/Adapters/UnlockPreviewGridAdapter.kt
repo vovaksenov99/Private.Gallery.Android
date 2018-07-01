@@ -23,8 +23,8 @@ import kotlinx.android.synthetic.main.unlock_rv_item.view.*
  * web site aksenov-vladimir.herokuapp.com
  */
 
-class UnlockPreviewGridAdapter(private val context: Context, val images: List<Image>) :
-    RecyclerView.Adapter<UnlockPreviewGridAdapter.previewHolder>()
+class UnlockPreviewGridAdapter(override val context: Context, override val images: List<Image>) :
+    FastGalleryScrollAdapter<UnlockPreviewGridAdapter.previewHolder>(context, images)
 {
     val used: MutableSet<Image> = mutableSetOf()
 
@@ -47,12 +47,26 @@ class UnlockPreviewGridAdapter(private val context: Context, val images: List<Im
         return previewHolder(photoView)
     }
 
+    fun selectAll()
+    {
+        for (image in images)
+        {
+            if (!used.contains(image))
+                used.add(image)
+        }
+
+        notifyDataSetChanged()
+    }
+
     override fun onBindViewHolder(holder: UnlockPreviewGridAdapter.previewHolder, position: Int)
     {
+        holder.setIsRecyclable(false)
+
         val imageView = holder.preview
 
         val image = images[position]
         val imageName = "image_" + image.albumId.toString() + "_" + image.id.toString()
+        holder.preview.setImageResource(R.color.placeholder)
 
 
         if (used.contains(image))
@@ -66,13 +80,17 @@ class UnlockPreviewGridAdapter(private val context: Context, val images: List<Im
 
         if (previews[imageName] == null)
         {
-            imageView.setImageResource(R.color.placeholder)
-            loadImageIntoImageView(image, imageView, imageName)
+            loadImageIntoImageView(image, imageName, {
+                if (isImageEstablishEnable)
+                {
+                    imageView.setImageBitmap(previews[imageName])
+                }
+            })
+
         }
         else
         {
             imageView.setImageBitmap(previews[imageName])
-            imageView.scaleType = ImageView.ScaleType.CENTER_CROP
         }
 
         imageView.setOnClickListener {
@@ -93,24 +111,6 @@ class UnlockPreviewGridAdapter(private val context: Context, val images: List<Im
 
         ViewCompat.setTransitionName(imageView, imageName)
     }
-
-    private fun loadImageIntoImageView(image: Image, imageView: ImageView, imageName: String)
-    {
-        launch {
-            val bmOptions = BitmapFactory.Options()
-            if (image.extension!!.toUpperCase() != "GIF")
-                bmOptions.inSampleSize = SAMPLE_PREVIEW_COEFFICIENT
-            val bitmap = BitmapFactory.decodeFile(getImagePath(image), bmOptions)
-            previews.put(imageName, bitmap)
-            launch(UI) {
-                imageView.scaleType = ImageView.ScaleType.CENTER_CROP
-                imageView.setImageBitmap(bitmap)
-            }
-        }
-    }
-
-    private fun getImagePath(image: Image) =
-        ContextWrapper(context).filesDir.path + "/Images/${image.id}.${image.extension}"
 
     inner class previewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
     {
