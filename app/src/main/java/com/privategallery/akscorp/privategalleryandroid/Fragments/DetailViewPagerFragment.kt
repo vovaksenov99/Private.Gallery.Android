@@ -53,7 +53,6 @@ class DetailViewPagerFragment(val previewGridAdapter: PreviewGridAdapter, val po
     {
         (activity as MainActivity).main_activity_drawer.setDrawerLockMode(
             DrawerLayout.LOCK_MODE_UNLOCKED)
-
         super.onDestroyView()
     }
 
@@ -74,7 +73,8 @@ class DetailViewPagerFragment(val previewGridAdapter: PreviewGridAdapter, val po
             .childFragmentManager
 
         val view = activity!!.layoutInflater.inflate(R.layout.detail_view_pager, parent, false)
-        view.detailViewPager.adapter = DetailViewPagerAdapter(previewGridAdapter, position)
+        view.detailViewPager.adapter =
+                DetailViewPagerAdapter(previewGridAdapter, mchildFragmentManager)
         view.detailViewPager.currentItem = lastSelectedImagePosition
 
         (previewGridAdapter.context).onBackPressedListener = BackPressedListener()
@@ -104,16 +104,11 @@ class DetailViewPagerFragment(val previewGridAdapter: PreviewGridAdapter, val po
         return view
     }
 
-    private fun getImagePath(image: Image) =
-        ContextWrapper(context).filesDir.path + "/Images/${image.id}.${image.extension}"
-
     inner class BackPressedListener() : IOnBackPressedListener
     {
 
         override fun doBack()
         {
-
-
             try
             {
                 val image = previewGridAdapter.images[lastSelectedImagePosition]
@@ -127,7 +122,8 @@ class DetailViewPagerFragment(val previewGridAdapter: PreviewGridAdapter, val po
                 if (currentDetailFragment.view!!.image2.drawable is GifDrawable)
                 {
                     currentDetailFragment.view!!.image2.setImageBitmap(previews[imageName])
-                    lastImage =  (currentDetailFragment.view!!.image2.drawable.current as BitmapDrawable).bitmap
+                    lastImage =
+                            (currentDetailFragment.view!!.image2.drawable.current as BitmapDrawable).bitmap
                 }
                 else
                     lastImage =

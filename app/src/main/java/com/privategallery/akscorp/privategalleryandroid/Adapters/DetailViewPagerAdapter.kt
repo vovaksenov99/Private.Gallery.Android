@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.view.ViewPager
 import android.view.ViewGroup
@@ -26,9 +27,8 @@ import kotlinx.android.synthetic.main.detail_view_pager.view.*
 import java.io.Serializable
 
 
-class DetailViewPagerAdapter(val previewGridAdapter: PreviewGridAdapter,val positionRV: Int) :
-    FragmentPagerAdapter((previewGridAdapter.context as MainActivity)
-        .supportFragmentManager.findFragmentByTag(DETAIL_VIEW_PAGER_FRAGMENT_TAG).childFragmentManager)
+class DetailViewPagerAdapter(val previewGridAdapter: PreviewGridAdapter,val fragmentManager: FragmentManager) :
+    FragmentPagerAdapter(fragmentManager)
 {
 
     override fun getItem(position: Int): Fragment
