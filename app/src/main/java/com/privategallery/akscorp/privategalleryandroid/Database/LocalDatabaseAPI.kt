@@ -303,6 +303,16 @@ public class LocalDatabaseAPI(private val context: Context)
     }
 
     /**
+     * @param album album to remove in database
+     */
+    fun removeAlbumFromDatabase(album: Album)
+    {
+        GalleryDatabase.getInstance(context).use {
+            delete(Albums.NAME, "${Albums.FIELDS._ID} = ${album.id}")
+        }
+    }
+
+    /**
      * @param album album to check the existence to the database
      * @return true if exist, or false
      */

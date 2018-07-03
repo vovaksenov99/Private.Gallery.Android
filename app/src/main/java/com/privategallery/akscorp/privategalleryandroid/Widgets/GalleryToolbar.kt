@@ -14,6 +14,7 @@ import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Fragments.LOCAL_STORAGE_FRAGMENT_TAG
 import com.privategallery.akscorp.privategalleryandroid.Fragments.UNLOCK_LIST_FRAGMENT_TAG
 import com.privategallery.akscorp.privategalleryandroid.R
+import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.AlbumSettingsButton
 import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.LockImageButton
 import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.SelectAllButton
 import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.UnlockImageButton
@@ -59,6 +60,16 @@ class GalleryToolbar : android.support.v7.widget.Toolbar
                 setTitleTextColor(ContextCompat.getColor(getBaseContext(), R.color.darkGrey))
                 getBaseContext().main_activity_drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
 
+                val settingAlbumButton = AlbumSettingsButton(context)
+                settingAlbumButton.id = 16
+                val l1 = Toolbar.LayoutParams(
+                    Toolbar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT)
+                l1.gravity = Gravity.END
+                settingAlbumButton.layoutParams = l1
+                settingAlbumButton.background = null
+                settingAlbumButton.setImageResource(R.drawable.ic_settings_black_24dp)
+                addView(settingAlbumButton)
+
                 val toggle = ActionBarDrawerToggle(
                     getBaseContext(),
                     getBaseContext().main_activity_drawer,
@@ -91,7 +102,7 @@ class GalleryToolbar : android.support.v7.widget.Toolbar
                 selectAllButton.id = 15
                 selectAllButton.layoutParams = l1
                 selectAllButton.background = null
-                selectAllButton.setImageResource(R.drawable.ic_select_all_black_24dp)
+                selectAllButton.setImageResource(R.drawable.ic_select_all_white_24dp)
                 addView(selectAllButton)
 
                 menu.setGroupVisible(
@@ -123,7 +134,7 @@ class GalleryToolbar : android.support.v7.widget.Toolbar
                 selectAllButton.id = 15
                 selectAllButton.layoutParams = l1
                 selectAllButton.background = null
-                selectAllButton.setImageResource(R.drawable.ic_select_all_black_24dp)
+                selectAllButton.setImageResource(R.drawable.ic_select_all_white_24dp)
                 addView(selectAllButton)
 
                 menu.setGroupVisible(
@@ -142,5 +153,7 @@ class GalleryToolbar : android.support.v7.widget.Toolbar
         if (findViewById<LockImageButton>(12) != null) removeView(find(12))
         if (findViewById<LockImageButton>(14) != null) removeView(find(14))
         if (findViewById<LockImageButton>(15) != null) removeView(find(15))
+        if (findViewById<LockImageButton>(16) != null) removeView(find(16))
+
     }
 }

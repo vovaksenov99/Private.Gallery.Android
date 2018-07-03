@@ -78,12 +78,10 @@ val UNLOCK_LIST_FRAGMENT_TAG = "UNLOCK_LIST_FRAGMENT_TAG"
 
 class UnlockListFragment : Fragment(), SelectAll
 {
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View?
+        savedInstanceState: Bundle?): View?
     {
         val view = inflater.inflate(R.layout.preview_images_grid_fragment, container, false)
         initPreviewGrid(view)
@@ -93,6 +91,11 @@ class UnlockListFragment : Fragment(), SelectAll
     override fun selectAll()
     {
         (main_preview_rv_grid.adapter as UnlockPreviewGridAdapter).selectAll()
+    }
+
+    override fun deselectAll()
+    {
+        (main_preview_rv_grid.adapter as UnlockPreviewGridAdapter).deselectAll()
     }
 
     /**

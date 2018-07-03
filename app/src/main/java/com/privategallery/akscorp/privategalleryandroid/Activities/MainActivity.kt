@@ -26,18 +26,23 @@ import android.view.*
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import com.commit451.modalbottomsheetdialogfragment.ModalBottomSheetDialogFragment
+import com.commit451.modalbottomsheetdialogfragment.Option
+import com.commit451.modalbottomsheetdialogfragment.OptionRequest
 import com.privategallery.akscorp.privategalleryandroid.*
+import com.privategallery.akscorp.privategalleryandroid.Dialogs.ConfirmDialog
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.SETTINGS_DIALOG_TAG
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.SettingsDialog
 import com.privategallery.akscorp.privategalleryandroid.Fragments.PREVIEW_LIST_FRAGMENT_TAG
 import com.privategallery.akscorp.privategalleryandroid.Fragments.PreviewListFragment
 import com.privategallery.akscorp.privategalleryandroid.Fragments.UNLOCK_LIST_FRAGMENT_TAG
+import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.AlbumSettingsButton
 import com.privategallery.akscorp.privategalleryandroid.Widgets.COMMON
 import kotlinx.coroutines.experimental.android.UI
 import org.jetbrains.anko.alert
 import java.io.Serializable
 
-class MainActivity : AppCompatActivity()
+class MainActivity : AppCompatActivity(), ModalBottomSheetDialogFragment.Listener
 {
     lateinit var app: Application
 
@@ -94,13 +99,32 @@ class MainActivity : AppCompatActivity()
             {
                 mainActivityActions.showAddAlbumDialog()
             }
-            R.id.unlock_images ->
-            {
-                return mainActivityActions.switchToUnlockImagesState()
-            }
-
         }
         return true
+    }
+
+    override fun onModalOptionSelected(tag: String?, option: Option)
+    {
+        when (option.id)
+        {
+            AlbumSettingsButton.RENAME_ALBUM_ID ->
+            {
+                mainActivityActions.showRenameAlbumDialog()
+            }
+            AlbumSettingsButton.DELETE_ALBUM_ID ->
+            {
+                ConfirmDialog(this).showDialog(getString(R.string.delete_album_confirm)) {
+                    app.localDatabaseApi.removeAlbumFromDatabase(currentAlbum)
+                    currentAlbum = Album()
+                    mainActivityActions.initStartUI()
+
+                }
+            }
+            AlbumSettingsButton.UNLOCK_IMAGES_ID ->
+            {
+                mainActivityActions.switchToUnlockImagesState()
+            }
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -321,10 +345,44 @@ class MainActivityActions(val context: MainActivity)
                     val album = Album(name = albumName.text.toString())
                     val id = app.localDatabaseApi.insertAlbumInDatabase(album)
                     album.id = id
-                    loadAlbums({ switchAlbum(album) })
+                    loadAlbums { switchAlbum(album) }
                     it.cancel()
                     checkPermission()
+                }
+                negativeButton(getString(R.string.cancel)) { it.cancel() }
+                this.customView = container
+            }.show()
+        }
+    }
 
+    fun showRenameAlbumDialog()
+    {
+        context.apply {
+            alert {
+                title = getString(R.string.rename_album)
+
+                val container = FrameLayout(context)
+                val albumName = EditText(context)
+                albumName.hint = getString(R.string.album_name)
+                //max string length
+                albumName.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(30))
+                val params = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT)
+                container.setPadding(resources.getDimensionPixelSize(R.dimen.dialog_padding),
+                    0,
+                    resources.getDimensionPixelSize(R.dimen.dialog_padding),
+                    0)
+
+                container.layoutParams = params
+                container.addView(albumName)
+                positiveButton(getString(R.string.ok)) {
+                    currentAlbum.name = albumName.text.toString()
+                    app.localDatabaseApi.updateAlbumInDatabase(currentAlbum)
+                    toolbar.title = currentAlbum.name
+                    loadAlbums()
+                    it.cancel()
+                    //TODO optimize UPD
                 }
                 negativeButton(getString(R.string.cancel)) { it.cancel() }
                 this.customView = container

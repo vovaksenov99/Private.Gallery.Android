@@ -34,6 +34,11 @@ class LocalStorageFragment : Fragment(), SelectAll
         (local_storage_rv_grid.adapter as LocalStorageGridAdapter).selectAll()
     }
 
+    override fun deselectAll()
+    {
+        (local_storage_rv_grid.adapter as LocalStorageGridAdapter).deselectAll()
+    }
+
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)

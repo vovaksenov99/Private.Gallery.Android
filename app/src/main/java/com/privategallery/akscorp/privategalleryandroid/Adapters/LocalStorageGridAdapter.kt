@@ -87,6 +87,12 @@ class LocalStorageGridAdapter(
         notifyDataSetChanged()
     }
 
+    fun deselectAll()
+    {
+        used.clear()
+        notifyDataSetChanged()
+    }
+
     override fun getItemCount(): Int
     {
         return files.size

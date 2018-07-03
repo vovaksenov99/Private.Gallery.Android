@@ -8,6 +8,7 @@ import android.support.v4.app.FragmentManager
 import android.support.v7.preference.Preference
 import android.support.v7.preference.PreferenceFragmentCompat
 import android.util.Log
+import com.privategallery.akscorp.privategalleryandroid.Activities.IOnBackPressedListener
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Database.LocalDatabaseAPI
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.LOAD_DIALOG_TAG
@@ -30,7 +31,6 @@ class GeneralSettingsFragment : PreferenceFragmentCompat()
     override fun onCreatePreferences(bundle: Bundle?, s: String?)
     {
         addPreferencesFromResource(R.xml.setting_dialog)
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?)
@@ -38,6 +38,8 @@ class GeneralSettingsFragment : PreferenceFragmentCompat()
         super.onCreate(savedInstanceState)
         securitySettingsController()
         backupSettingsController()
+
+        (activity as MainActivity).onBackPressedListener = null
     }
 
     private fun securitySettingsController()
@@ -56,7 +58,9 @@ class GeneralSettingsFragment : PreferenceFragmentCompat()
                     val securityTypeFragment = SecurityTypeFragment()
                     mfragmentManager
                         .beginTransaction()
-                        .replace(R.id.prefs_container, securityTypeFragment)
+                        .replace(R.id.prefs_container,
+                            securityTypeFragment,
+                            SECURITY_TYPE_FRAGMENT_TAG)
                         .commit()
                     break
                 }
