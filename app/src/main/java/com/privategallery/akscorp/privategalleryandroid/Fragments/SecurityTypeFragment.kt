@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.support.v4.app.FragmentManager
 import android.support.v7.preference.Preference
 import android.support.v7.preference.PreferenceFragmentCompat
+import com.privategallery.akscorp.privategalleryandroid.Activities.IOnBackPressedListener
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Database.SignInPreference
 import com.privategallery.akscorp.privategalleryandroid.R
@@ -25,9 +26,10 @@ class SecurityTypeFragment : PreferenceFragmentCompat() {
         addPreferencesFromResource(R.xml.security_type)
     }
 
-
     override fun onResume() {
         super.onResume()
+
+        (context as MainActivity).onBackPressedListener = BackPressedListener()
 
         sharedPreferences =
                 context!!.getSharedPreferences(SignInPreference.NAME, Context.MODE_PRIVATE)
@@ -68,5 +70,15 @@ class SecurityTypeFragment : PreferenceFragmentCompat() {
             .beginTransaction()
             .replace(R.id.prefs_container, generalSettingsFragment)
             .commit()
+    }
+
+    inner class BackPressedListener() : IOnBackPressedListener
+    {
+
+        override fun doBack()
+        {
+            goToGeneralSettings()
+        }
+
     }
 }

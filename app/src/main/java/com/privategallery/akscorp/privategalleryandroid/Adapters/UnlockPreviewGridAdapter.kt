@@ -58,6 +58,12 @@ class UnlockPreviewGridAdapter(override val context: Context, override val image
         notifyDataSetChanged()
     }
 
+    fun deselectAll()
+    {
+        used.clear()
+        notifyDataSetChanged()
+    }
+
     override fun onBindViewHolder(holder: UnlockPreviewGridAdapter.previewHolder, position: Int)
     {
         holder.setIsRecyclable(false)

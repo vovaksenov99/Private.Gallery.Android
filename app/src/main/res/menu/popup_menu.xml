@@ -8,11 +8,5 @@
             app:showAsAction="never">
 
         </item>
-        <item
-            android:title="@string/unlock_images"
-            android:id="@+id/unlock_images"
-            app:showAsAction="never">
-
-        </item>
     </group>
 </menu>
