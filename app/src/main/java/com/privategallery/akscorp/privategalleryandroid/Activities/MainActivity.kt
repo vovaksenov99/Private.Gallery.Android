@@ -1,118 +1,125 @@
 package com.privategallery.akscorp.privategalleryandroid.Activities
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
+import android.os.Message
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.text.InputFilter
-import android.widget.Toast
-import com.privategallery.akscorp.privategalleryandroid.Adapters.AlbumsAdapter
-import com.privategallery.akscorp.privategalleryandroid.Essentials.Album
-import com.privategallery.akscorp.privategalleryandroid.Fragments.UnlockListFragment
-import com.privategallery.akscorp.privategalleryandroid.R.string.navigation_drawer_close
-import com.privategallery.akscorp.privategalleryandroid.R.string.navigation_drawer_open
-import com.privategallery.akscorp.privategalleryandroid.Utilities.*
-import com.privategallery.akscorp.privategalleryandroid.Widgets.UNLOCK_FILES
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.nav_view_menu.*
-import kotlinx.coroutines.experimental.launch
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.Toast
 import com.commit451.modalbottomsheetdialogfragment.ModalBottomSheetDialogFragment
 import com.commit451.modalbottomsheetdialogfragment.Option
-import com.commit451.modalbottomsheetdialogfragment.OptionRequest
-import com.privategallery.akscorp.privategalleryandroid.*
+import com.privategallery.akscorp.privategalleryandroid.Adapters.AlbumsAdapter
+import com.privategallery.akscorp.privategalleryandroid.Adapters.AlbumsShareAdapter
+import com.privategallery.akscorp.privategalleryandroid.Application
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.ConfirmDialog
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.SETTINGS_DIALOG_TAG
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.SettingsDialog
+import com.privategallery.akscorp.privategalleryandroid.Essentials.Album
 import com.privategallery.akscorp.privategalleryandroid.Fragments.PREVIEW_LIST_FRAGMENT_TAG
 import com.privategallery.akscorp.privategalleryandroid.Fragments.PreviewListFragment
 import com.privategallery.akscorp.privategalleryandroid.Fragments.UNLOCK_LIST_FRAGMENT_TAG
+import com.privategallery.akscorp.privategalleryandroid.Fragments.UnlockListFragment
+import com.privategallery.akscorp.privategalleryandroid.PERMISSIONS_REQUEST
+import com.privategallery.akscorp.privategalleryandroid.R
+import com.privategallery.akscorp.privategalleryandroid.R.string.navigation_drawer_close
+import com.privategallery.akscorp.privategalleryandroid.R.string.navigation_drawer_open
+import com.privategallery.akscorp.privategalleryandroid.Utilities.LoginPinDialog
+import com.privategallery.akscorp.privategalleryandroid.Utilities.PIN
+import com.privategallery.akscorp.privategalleryandroid.Utilities.SecurityController
 import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.AlbumSettingsButton
 import com.privategallery.akscorp.privategalleryandroid.Widgets.COMMON
+import com.privategallery.akscorp.privategalleryandroid.Widgets.UNLOCK_FILES
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.nav_view_menu.*
+import kotlinx.android.synthetic.main.share_albums.view.*
 import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 import org.jetbrains.anko.alert
 import java.io.Serializable
+import kotlin.properties.Delegates
 
-class MainActivity : AppCompatActivity(), ModalBottomSheetDialogFragment.Listener
-{
+
+class MainActivity : AppCompatActivity(), ModalBottomSheetDialogFragment.Listener {
     lateinit var app: Application
 
     //Object for override back click for different fragments
     var onBackPressedListener: IOnBackPressedListener? = null
     var doubleBackToExitPressedOnce = false
 
-    lateinit var albums: List<Album>
+    var albums: MutableList<Album> by Delegates.observable(mutableListOf()) { property, oldValue, newValue ->
+
+        runOnUiThread {
+            toolbar.setState(toolbar.status)
+        }
+    }
     var currentAlbum: Album = Album()
 
     val mainActivityActions = MainActivityActions(this)
 
-    override fun onCreate(savedInstanceState: Bundle?)
-    {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         app = application as Application
 
-        if (app.securityController.loginStatus == SecurityController.LOGIN_DONE)
-        {
+        if (app.securityController.loginStatus == SecurityController.LOGIN_DONE) {
             mainActivityActions.loginDone()
             mainActivityActions.initStartUI()
         }
-        else
-        {
+        else {
             mainActivityActions.showLoginDialog()
         }
 
         onBackPressedListener = BaseBackPressedListener()
+
+        mainActivityActions.shareReceiverInit()
     }
 
-    override fun onBackPressed()
-    {
+    override fun onBackPressed() {
         if (onBackPressedListener == null)
             super.onBackPressed()
         else
             onBackPressedListener!!.doBack()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean
-    {
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.popup_menu, menu)
 
         mainActivityActions.onCreateOptionsMenuInit(menu)
         return true
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean
-    {
-        when (item!!.itemId)
-        {
-            R.id.add_album ->
-            {
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item!!.itemId) {
+            R.id.add_album -> {
                 mainActivityActions.showAddAlbumDialog()
             }
         }
         return true
     }
 
-    override fun onModalOptionSelected(tag: String?, option: Option)
-    {
-        when (option.id)
-        {
-            AlbumSettingsButton.RENAME_ALBUM_ID ->
-            {
+    override fun onModalOptionSelected(tag: String?, option: Option) {
+        when (option.id) {
+            AlbumSettingsButton.RENAME_ALBUM_ID -> {
                 mainActivityActions.showRenameAlbumDialog()
             }
-            AlbumSettingsButton.DELETE_ALBUM_ID ->
-            {
+            AlbumSettingsButton.DELETE_ALBUM_ID -> {
                 ConfirmDialog(this).showDialog(getString(R.string.delete_album_confirm)) {
                     app.localDatabaseApi.removeAlbumFromDatabase(currentAlbum)
                     currentAlbum = Album()
@@ -120,26 +127,20 @@ class MainActivity : AppCompatActivity(), ModalBottomSheetDialogFragment.Listene
 
                 }
             }
-            AlbumSettingsButton.UNLOCK_IMAGES_ID ->
-            {
+            AlbumSettingsButton.UNLOCK_IMAGES_ID -> {
                 mainActivityActions.switchToUnlockImagesState()
             }
         }
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<String>, grantResults: IntArray)
-    {
-        when (requestCode)
-        {
-            PERMISSIONS_REQUEST ->
-            {
-                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED))
-                {
+        requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+            PERMISSIONS_REQUEST -> {
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
 
                 }
-                else
-                {
+                else {
                     Toast.makeText(
                         this, getString(R.string.permission_denied), Toast.LENGTH_LONG).show()
                 }
@@ -147,12 +148,9 @@ class MainActivity : AppCompatActivity(), ModalBottomSheetDialogFragment.Listene
         }
     }
 
-    inner class BaseBackPressedListener() : IOnBackPressedListener
-    {
-        override fun doBack()
-        {
-            if (doubleBackToExitPressedOnce)
-            {
+    inner class BaseBackPressedListener() : IOnBackPressedListener {
+        override fun doBack() {
+            if (doubleBackToExitPressedOnce) {
                 app.securityController.logout()
                 onBackPressedListener = null
                 onBackPressed()
@@ -173,10 +171,8 @@ class MainActivity : AppCompatActivity(), ModalBottomSheetDialogFragment.Listene
 /**
  * Class with actions on [MainActivity] Activity
  */
-class MainActivityActions(val context: MainActivity)
-{
-    fun switchToUnlockImagesState(): Boolean
-    {
+class MainActivityActions(val context: MainActivity) {
+    fun switchToUnlockImagesState(): Boolean {
         context.apply {
             if (currentAlbum.id == -1L) return true
 
@@ -194,15 +190,13 @@ class MainActivityActions(val context: MainActivity)
         return true
     }
 
-    fun loadAlbums(callback: () -> Unit = {})
-    {
+    fun loadAlbums(callback: () -> Unit = {}) {
         context.apply {
             launch {
-                albums = app.localDatabaseApi.getAllAlbumsFromDatabase()
+                albums = app.localDatabaseApi.getAllAlbumsFromDatabase().toMutableList()
                 launch(UI) {
                     initAlbums()
-                    if (!albums.isEmpty() && currentAlbum == Album())
-                    {
+                    if (!albums.isEmpty() && currentAlbum == Album()) {
                         fab.visibility = View.VISIBLE
                         switchAlbum(albums[0])
                     }
@@ -217,8 +211,7 @@ class MainActivityActions(val context: MainActivity)
      * Initialization main UI component. NavBar, toolbar
      *
      */
-    fun initStartUI()
-    {
+    fun initStartUI() {
         context.apply {
             setSupportActionBar(toolbar)
             supportActionBar?.setDisplayShowTitleEnabled(false)
@@ -231,22 +224,21 @@ class MainActivityActions(val context: MainActivity)
             main_activity_drawer.addDrawerListener(toggle)
             toggle.syncState()
 
-            loadAlbums()
+            loadAlbums() {
+                toolbar.setState(toolbar.status)
+            }
 
             nav_view_settings.setOnClickListener {
                 val dialog = SettingsDialog()
                 dialog.show(supportFragmentManager, SETTINGS_DIALOG_TAG)
             }
 
-            toolbar.setState(toolbar.status)
         }
     }
 
-    fun showLoginDialog()
-    {
+    fun showLoginDialog() {
         context.apply {
-            when (app.securityController.getAppSecurityType())
-            {
+            when (app.securityController.getAppSecurityType()) {
                 -1 -> initStartUI()
                 PIN -> app.securityController.showSecurityDialog(LoginPinDialog(this,
                     { initStartUI() }))
@@ -254,8 +246,7 @@ class MainActivityActions(val context: MainActivity)
         }
     }
 
-    fun initAlbums()
-    {
+    fun initAlbums() {
         context.apply {
             val layoutManager = LinearLayoutManager(this)
             albums_rv.setHasFixedSize(true)
@@ -266,8 +257,7 @@ class MainActivityActions(val context: MainActivity)
         }
     }
 
-    fun showAlbumContent(album: Album)
-    {
+    fun showAlbumContent(album: Album) {
         context.apply {
             val fragmentManager = supportFragmentManager
 
@@ -286,8 +276,43 @@ class MainActivityActions(val context: MainActivity)
         }
     }
 
-    fun loginDone()
-    {
+    fun shareReceiverInit(): Boolean {
+        context.apply {
+            val action = intent.action
+            val type = intent.type?.toLowerCase()
+
+            if (Intent.ACTION_SEND == action && type != null) {
+                if (type.startsWith("image/")) {
+
+                    loadAlbums {
+                        val builder = AlertDialog.Builder(context)
+
+                        val layout =
+                            LayoutInflater.from(context).inflate(R.layout.share_albums, null)
+                        val layoutManager = LinearLayoutManager(context)
+                        layout.albums_rv.setHasFixedSize(true)
+                        layout.albums_rv.layoutManager = layoutManager
+                        layout.albums_rv.isNestedScrollingEnabled = true
+                        builder.setView(layout)
+                        val dialog = builder.create()
+
+                        layout.albums_rv.adapter =
+                                AlbumsShareAdapter(context, albums, intent, object : Handler() {
+                                    override fun handleMessage(msg: Message) {
+                                        dialog.dismiss()
+                                    }
+                                })
+                        dialog.show()
+                    }
+
+                }
+                return true
+            }
+        }
+        return false
+    }
+
+    fun loginDone() {
         context.apply {
             if (currentAlbum.id != -1L) fab.visibility = View.VISIBLE
         }
@@ -296,8 +321,7 @@ class MainActivityActions(val context: MainActivity)
     /**
      * Displays the permissions dialog box. Show once
      */
-    private fun checkPermission()
-    {
+    private fun checkPermission() {
         context.apply {
             if (ContextCompat.checkSelfPermission(
                     this,
@@ -308,8 +332,7 @@ class MainActivityActions(val context: MainActivity)
                     Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
                     this,
                     Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED
-            )
-            {
+            ) {
                 ActivityCompat.requestPermissions(
                     this, arrayOf(
                         Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -320,8 +343,7 @@ class MainActivityActions(val context: MainActivity)
         }
     }
 
-    fun showAddAlbumDialog()
-    {
+    fun showAddAlbumDialog() {
         context.apply {
             alert {
                 title = getString(R.string.add_album)
@@ -355,8 +377,7 @@ class MainActivityActions(val context: MainActivity)
         }
     }
 
-    fun showRenameAlbumDialog()
-    {
+    fun showRenameAlbumDialog() {
         context.apply {
             alert {
                 title = getString(R.string.rename_album)
@@ -390,20 +411,17 @@ class MainActivityActions(val context: MainActivity)
         }
     }
 
-    fun switchAlbum(id: Long)
-    {
+    fun switchAlbum(id: Long) {
         context.apply {
             for (album in albums)
-                if (album.id == id)
-                {
+                if (album.id == id) {
                     switchAlbum(album)
                     return@apply
                 }
         }
     }
 
-    fun switchAlbum(album: Album?)
-    {
+    fun switchAlbum(album: Album?) {
 
         if (album == null)
             return
@@ -413,10 +431,8 @@ class MainActivityActions(val context: MainActivity)
             toolbar.title = album.name
 
             var i = 0
-            for (mAlbum in albums)
-            {
-                if (mAlbum.id == album.id)
-                {
+            for (mAlbum in albums) {
+                if (mAlbum.id == album.id) {
                     (albums_rv.adapter as AlbumsAdapter)
                         .selectCurrentAlbum(i)
                     break
@@ -427,8 +443,7 @@ class MainActivityActions(val context: MainActivity)
         }
     }
 
-    fun onCreateOptionsMenuInit(menu: Menu?)
-    {
+    fun onCreateOptionsMenuInit(menu: Menu?) {
         context.apply {
             if (toolbar != null && toolbar.status != COMMON)
                 menu!!.setGroupVisible(R.id.popup_menu_group, false)
@@ -439,7 +454,6 @@ class MainActivityActions(val context: MainActivity)
 /**
  * Addon classes and functions
  */
-interface IOnBackPressedListener
-{
+interface IOnBackPressedListener {
     fun doBack()
 }

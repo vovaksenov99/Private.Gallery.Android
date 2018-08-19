@@ -33,22 +33,26 @@ import java.io.File
 import java.text.FieldPosition
 import android.util.DisplayMetrics
 import com.squareup.picasso.Picasso
+import android.content.Intent
+import android.support.v4.content.FileProvider
+import android.widget.Toast
+import com.privategallery.akscorp.privategalleryandroid.hideBottomDetailView
+import kotlinx.android.synthetic.main.detail_view_pager.*
+import kotlinx.android.synthetic.main.detail_view_pager.view.*
 
-
-val DETAIL_FRAGMENT_TAG = "DETAIL_FRAGMENT_TAG"
 
 @SuppressLint("ValidFragment")
 class DetailFragment(val position: Int) : Fragment()
 {
     lateinit var imageName: String
     lateinit var image: Image
+
     override fun onCreate(savedInstanceState: Bundle?)
     {
         super.onCreate(savedInstanceState)
 
         imageName = arguments!!.getString("imageName")
         image = arguments!!.getSerializable("image") as Image
-
     }
 
     override fun onCreateView(inflater: LayoutInflater, parent: ViewGroup?, state: Bundle?): View?
@@ -56,6 +60,10 @@ class DetailFragment(val position: Int) : Fragment()
         super.onCreateView(inflater, parent, state)
 
         val view = activity!!.layoutInflater.inflate(R.layout.detail_fragment, parent, false)
+
+        view!!.image.setOnClickListener {
+            parentFragment!!.detail_bottom_bar.switchState()
+        }
 
         if (position == lastSelectedImagePosition)
         {
@@ -105,9 +113,9 @@ class DetailFragment(val position: Int) : Fragment()
 
                 view.image.alpha = 0f
             }
-
         }
     }
+
 
     private fun getImagePath(image: Image) =
         ContextWrapper(context).filesDir.path + "/Images/${image.id}.${image.extension}"

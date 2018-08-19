@@ -1,31 +1,37 @@
 package com.privategallery.akscorp.privategalleryandroid.Fragments
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.ContextWrapper
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Point
 import android.graphics.drawable.BitmapDrawable
+import android.net.Uri
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import com.privategallery.akscorp.privategalleryandroid.R
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
+import android.support.v4.content.FileProvider
 import android.support.v4.view.ViewCompat
 import android.support.v4.view.ViewPager
 import android.support.v4.widget.DrawerLayout
+import android.view.*
 import com.bumptech.glide.load.resource.gif.GifDrawable
+import com.privategallery.akscorp.privategalleryandroid.*
 import com.privategallery.akscorp.privategalleryandroid.Activities.IOnBackPressedListener
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Adapters.*
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Image
 import com.privategallery.akscorp.privategalleryandroid.Utilities.GlideApp
-import com.privategallery.akscorp.privategalleryandroid.showAppBar
-import com.privategallery.akscorp.privategalleryandroid.showFab
+import com.privategallery.akscorp.privategalleryandroid.Utilities.Utilities
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.detail_fragment.view.*
 import kotlinx.android.synthetic.main.detail_view_pager.view.*
+import java.io.File
+import android.view.MotionEvent
+import android.widget.Toast
+import org.jetbrains.anko.toast
 
 
 val DETAIL_VIEW_PAGER_FRAGMENT_TAG = "DETAIL_VIEW_PAGER_FRAGMENT_TAG"
@@ -36,6 +42,7 @@ class DetailViewPagerFragment(val previewGridAdapter: PreviewGridAdapter, val po
 {
 
     lateinit var mchildFragmentManager: FragmentManager
+    val AUTHORITY = "com.privategalery.akscorp.privategalleryandroid"
 
     lateinit var imageName: String
     lateinit var image: Image
@@ -63,6 +70,8 @@ class DetailViewPagerFragment(val previewGridAdapter: PreviewGridAdapter, val po
         super.onStart()
     }
 
+    var isShowBottomBar = true
+
 
     override fun onCreateView(inflater: LayoutInflater, parent: ViewGroup?, state: Bundle?): View?
     {
@@ -77,8 +86,9 @@ class DetailViewPagerFragment(val previewGridAdapter: PreviewGridAdapter, val po
                 DetailViewPagerAdapter(previewGridAdapter, mchildFragmentManager)
         view.detailViewPager.currentItem = lastSelectedImagePosition
 
-        (previewGridAdapter.context).onBackPressedListener = BackPressedListener()
+        sendButton(view)
 
+        (previewGridAdapter.context).onBackPressedListener = BackPressedListener()
         view.detailViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener
         {
             override fun onPageScrollStateChanged(state: Int)
@@ -95,13 +105,47 @@ class DetailViewPagerFragment(val previewGridAdapter: PreviewGridAdapter, val po
                 val lastDetailFragment =
                     mchildFragmentManager.findFragmentByTag("android:switcher:" + view!!.detailViewPager.id + ":" + lastSelectedImagePosition) as DetailFragment
 
+                val currentDetailFragment =
+                    mchildFragmentManager.findFragmentByTag("android:switcher:" + view!!.detailViewPager.id + ":" + position) as DetailFragment
+                image = currentDetailFragment.image
+
                 ViewCompat.setTransitionName(lastDetailFragment.view!!.image2, "")
 
                 lastSelectedImagePosition = position
-
             }
         })
         return view
+    }
+
+    private fun getImagePath(image: Image) =
+        ContextWrapper(context).filesDir.path + "/Images/${image.id}.${image.extension}"
+
+    private fun sendButton(view: View)
+    {
+
+        view.share_button.setOnClickListener {
+
+            try
+            {
+                val contentUri =
+                    FileProvider.getUriForFile(activity!!, AUTHORITY, File(getImagePath(image)))
+
+                val shareIntent = Intent()
+                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                shareIntent.action = Intent.ACTION_SEND
+                shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri)
+                shareIntent.type = "image/*"
+                val pm = activity!!.packageManager;
+                if (shareIntent.resolveActivity(pm) != null)
+                {
+                    startActivity(Intent.createChooser(shareIntent, "Share images to.."))
+                }
+            } catch (e: Exception)
+            {
+                context!!.toast("Internal error")
+                (context as MainActivity).app.exceptionCatcher.logException(e)
+            }
+        }
     }
 
     inner class BackPressedListener() : IOnBackPressedListener

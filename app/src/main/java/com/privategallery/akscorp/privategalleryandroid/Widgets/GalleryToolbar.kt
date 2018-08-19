@@ -20,6 +20,8 @@ import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.SelectAl
 import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.UnlockImageButton
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.find
+import java.util.*
+import kotlin.properties.Delegates
 
 /**
  * Created by AksCorp on 12.04.2018.
@@ -68,7 +70,13 @@ class GalleryToolbar : android.support.v7.widget.Toolbar
                 settingAlbumButton.layoutParams = l1
                 settingAlbumButton.background = null
                 settingAlbumButton.setImageResource(R.drawable.ic_settings_black_24dp)
-                addView(settingAlbumButton)
+
+                if (getBaseContext().albums.isNotEmpty())
+                {
+                    addView(settingAlbumButton)
+
+                }
+
 
                 val toggle = ActionBarDrawerToggle(
                     getBaseContext(),

@@ -2,25 +2,25 @@ package com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons
 
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.Intent
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ImageButton
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Adapters.LocalStorageGridAdapter
 import com.privategallery.akscorp.privategalleryandroid.Database.LocalDatabaseAPI
-import com.privategallery.akscorp.privategalleryandroid.Essentials.Image
 import com.privategallery.akscorp.privategalleryandroid.Utilities.Utilities
 import kotlinx.coroutines.experimental.launch
 import org.jetbrains.anko.toast
 import java.io.File
-import android.os.Handler
 import com.privategallery.akscorp.privategalleryandroid.*
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.*
 import com.privategallery.akscorp.privategalleryandroid.Fragments.LOCAL_STORAGE_FRAGMENT_TAG
 import kotlinx.android.synthetic.main.local_storage_grid_fragment.*
 import kotlinx.coroutines.experimental.android.UI
-import java.io.FileNotFoundException
-import android.graphics.BitmapFactory
+import com.privategallery.akscorp.privategalleryandroid.Services.LockImagesService
+import java.io.Serializable
+import android.os.*
 
 
 /**
@@ -39,6 +39,8 @@ class LockImageButton : ImageButton, View.OnClickListener
         setOnClickListener(this)
     }
 
+    var handlerLock: Handler? = null
+
     private fun getBaseContext() = ((context as ContextWrapper).baseContext as MainActivity)
 
     override fun onClick(v: View?)
@@ -55,8 +57,7 @@ class LockImageButton : ImageButton, View.OnClickListener
         if (localStorageGridAdapter.used.size == 0) return
 
         val dialog = LoadDialog()
-        dialog.showNow(
-            getBaseContext().supportFragmentManager, LOAD_DIALOG_TAG)
+        dialog.showNow(getBaseContext().supportFragmentManager, LOAD_DIALOG_TAG)
 
         dialog.progressBroadcastReceiverInit(dialog)
 
@@ -68,54 +69,31 @@ class LockImageButton : ImageButton, View.OnClickListener
             return
         }
 
-
-
-        launch {
-
-            val filesCount = localStorageGridAdapter.used.size.toDouble()
-            var counter = 0
-
-            for (el in localStorageGridAdapter.used)
+        handlerLock = object : Handler()
+        {
+            override fun handleMessage(msg: Message)
             {
+                localStorageGridAdapter.used.clear()
 
-                counter++
-                try
-                {
-                    val extension = getFileExtension(el)
-
-                    val options = BitmapFactory.Options()
-                    options.inJustDecodeBounds = true
-                    BitmapFactory.decodeFile(el, options)
-                    val imageHeight = options.outHeight
-                    val imageWidth = options.outWidth
-
-
-                    val id = db.insertImageInDatabase(
-                        Image(localPath = el,
-                            albumId = currentAlbumId,
-                            extension = extension,
-                            height = imageHeight.toLong(),
-                            width = imageWidth.toLong(),
-                            addedTime = System.currentTimeMillis()))
-
-                    Utilities.moveFile(el, logFile.absolutePath, "$id.$extension")
-                    localStorageGridAdapter.files.remove(File(el))
-                } catch (e: FileNotFoundException)
-                {
+                launch(UI) {
+                    Handler().postDelayed({
+                        dialog.dismiss()
+                        localStorageGridAdapter.files =
+                                Utilities.getFilesFromFolder(localStorageGridAdapter.lastDirectory.absolutePath)
+                        localStorageGridAdapter.filterFiles()
+                        localStorageGridAdapter.files.add(0, File(""))
+                        fragment.activity!!.local_storage_rv_grid.adapter.notifyDataSetChanged()
+                    }, 1500)
                 }
-
-                dialog.sentProgressToReceiver((counter / filesCount * 100.0).toInt())
-            }
-
-            localStorageGridAdapter.used.clear()
-
-            launch(UI) {
-                Handler().postDelayed({
-                    dialog.dismiss()
-                    fragment.activity!!.local_storage_rv_grid.adapter.notifyDataSetChanged()
-                }, 1500)
+                // do whatever with the bundle here
             }
         }
+
+        val int = Intent(getBaseContext(), LockImagesService::class.java)
+        int.putExtra("images", localStorageGridAdapter.used as Serializable)
+        int.putExtra("albumId", currentAlbumId)
+        int.putExtra("messenger", Messenger(handlerLock))
+        getBaseContext().startService(int)
     }
 
     fun getFileExtension(path: String): String =

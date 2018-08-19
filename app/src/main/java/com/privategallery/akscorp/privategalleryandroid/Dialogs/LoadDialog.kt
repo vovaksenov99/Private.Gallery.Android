@@ -65,8 +65,7 @@ class LoadDialog : DialogFragment()
     fun progressBroadcastReceiverInit(progressDialog: LoadDialog)
     {
         val intentFilter = IntentFilter(PROGRESS_BROADCAST_RECEIVER_TAG)
-        val mReceiver = ProgressBroadcastReceiver(
-            progressDialog)
+        val mReceiver = ProgressBroadcastReceiver(progressDialog)
         activity!!.registerReceiver(mReceiver, intentFilter)
     }
 
@@ -74,8 +73,7 @@ class LoadDialog : DialogFragment()
     {
         val intent = Intent()
         intent.action = PROGRESS_BROADCAST_RECEIVER_TAG
-        intent.putExtra(
-            CURRENT_PROGRESS_BROADCAST_RECEIVER, progress)
+        intent.putExtra(CURRENT_PROGRESS_BROADCAST_RECEIVER, progress)
         activity!!.sendBroadcast(intent)
     }
 }

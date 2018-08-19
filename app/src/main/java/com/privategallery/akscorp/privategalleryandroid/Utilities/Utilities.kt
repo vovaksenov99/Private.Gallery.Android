@@ -1,6 +1,9 @@
 package com.privategallery.akscorp.privategalleryandroid.Utilities
 
 import android.annotation.SuppressLint
+import android.arch.lifecycle.MutableLiveData
+import android.content.Context
+import android.net.Uri
 import android.util.Log
 import java.security.MessageDigest
 import java.util.*
@@ -11,7 +14,7 @@ import java.util.zip.ZipOutputStream
 import android.os.Build
 import android.view.View
 import android.view.ViewTreeObserver
-
+import android.provider.MediaStore
 
 
 
@@ -20,6 +23,11 @@ import android.view.ViewTreeObserver
  * akscorp2014@gmail.com
  * web site aksenov-vladimir.herokuapp.com
  */
+
+fun <T> MutableLiveData<MutableList<T>>.add(obj: T){
+    this.value?.add(obj)
+    this.postValue(value)
+}
 
 class Utilities()
 {
@@ -53,7 +61,7 @@ class Utilities()
             }
         }
 
-        fun moveFile(inputPath: String, outputPath: String, fileName: String)
+        fun moveFile(context: Context, inputPath: Uri, outputPath: String, fileName: String)
         {
 
             var `in`: InputStream? = null
@@ -69,8 +77,7 @@ class Utilities()
                 }
 
 
-
-                `in` = FileInputStream(inputPath)
+                `in` = context.contentResolver.openInputStream(inputPath)
                 out = FileOutputStream(outputPath + "/$fileName")
 
                 val buffer = ByteArray(1024)
@@ -91,13 +98,49 @@ class Utilities()
                 out = null
 
                 // delete the original file
-                File(inputPath).delete()
+
+                try{
+                val fdelete = File(getRealPathFromURI(context,inputPath))
+                if (fdelete.exists()) {
+                    if (fdelete.delete()) {
+                        System.out.println("file Deleted :" + inputPath.path)
+                    } else {
+                        System.out.println("file not Deleted :" + inputPath.path)
+                    }
+                }
+                }
+                catch (e:Exception)
+                {
+                    Log.e("tag", e.message)
+                }
+
             } catch (fnfe1: FileNotFoundException)
             {
                 throw fnfe1
             } catch (e: Exception)
             {
                 Log.e("tag", e.message)
+            }
+        }
+
+        private fun getRealPathFromURI(context:Context, contentURI: Uri): String {
+            try {
+                val result: String
+                val cursor = context.contentResolver.query(contentURI, null, null, null, null)
+                if (cursor == null) {
+                    result = contentURI.path
+                }
+                else {
+                    cursor.moveToFirst()
+                    val idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA)
+                    result = cursor.getString(idx)
+                    cursor.close()
+                }
+                return result
+            }
+            catch (e:Exception)
+            {
+                throw FileNotFoundException()
             }
         }
 
@@ -137,6 +180,49 @@ class Utilities()
                 }
             })
         }
+
+
+
+        /**
+         * @param context - activity context
+         * @param px - pixel value for conversion
+         */
+        fun pixelsToSp(context: Context, px: Float): Float
+        {
+            val scaledDensity = context.resources.displayMetrics.scaledDensity
+            return px / scaledDensity
+        }
+
+        /**
+         * @param context - activity context
+         * @param spValue - sp value for conversion
+         */
+        fun spToPixel(context: Context, spValue: Float): Int
+        {
+            val fontScale = context.resources.displayMetrics.scaledDensity
+            return (spValue * fontScale + 0.5f).toInt()
+        }
+
+        /**
+         * @param context - activity context
+         * @param pxValue - pixel value for conversion
+         */
+        fun pixelToDp(context: Context, pxValue: Float): Int
+        {
+            val scale = context.resources.displayMetrics.density
+            return (pxValue / scale + 0.5f).toInt()
+        }
+
+        /**
+         * @param context - activity context
+         * @param dipValue - dp value for conversion
+         */
+        fun dpToPixel(context: Context, dipValue: Float): Int
+        {
+            val scale = context.resources.displayMetrics.density
+            return (dipValue * scale + 0.5f).toInt()
+        }
+
 
     }
 

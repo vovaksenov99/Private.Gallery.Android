@@ -2,6 +2,7 @@ package com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons
 
 import android.content.Context
 import android.content.ContextWrapper
+import android.net.Uri
 import android.os.Environment
 import android.os.Handler
 import android.util.AttributeSet
@@ -66,7 +67,8 @@ class UnlockImageButton : ImageButton, View.OnClickListener {
 
                 try {
                     Utilities.moveFile(
-                        getImagePath(image),
+                        this@UnlockImageButton.context,
+                        Uri.parse(getImagePath(image)),
                         Environment.getExternalStorageDirectory().absolutePath + "/" + Environment.DIRECTORY_DCIM + "/PrivateGalleryFiles",
                         getImageName(image))
                     db.removeImageFromDatabase(image)
@@ -96,7 +98,7 @@ class UnlockImageButton : ImageButton, View.OnClickListener {
     }
 
     private fun getImagePath(image: Image) =
-        ContextWrapper(context).filesDir.path + "/Images/${image.id}.${image.extension}"
+        "file://"+ContextWrapper(context).filesDir.path + "/Images/${image.id}.${image.extension}"
 
     private fun getImageName(image: Image) = image.localPath!!.substring(
         image.localPath!!.lastIndexOf('/') + 1, image.localPath!!.length)
