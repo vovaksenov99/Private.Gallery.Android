@@ -1,14 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v4.view.ViewPager xmlns:android="http://schemas.android.com/apk/res/android"
+
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:id="@+id/detailViewPager"
     android:layout_height="match_parent">
 
-    <FrameLayout
-        android:id="@+id/detailViewPagerContainer"
+    <android.support.v4.view.ViewPager
+        android:id="@+id/detailViewPager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintBottom_toTopOf="@+id/detail_bottom_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    </FrameLayout>
-</android.support.v4.view.ViewPager>
+        <FrameLayout
+            android:id="@+id/detailViewPagerContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        </FrameLayout>
+    </android.support.v4.view.ViewPager>
+
+    <android.support.design.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <com.privategallery.akscorp.privategalleryandroid.Widgets.DetailBottomBar
+            android:id="@+id/detail_bottom_bar"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:background="@color/white"
+            android:clipToPadding="false"
+            android:gravity="center"
+            android:padding="12dp">
+
+            <com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.SquareButton
+                android:id="@+id/share_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/share_button"
+                android:elevation="0dp"
+                android:stateListAnimator="@null" />
+        </com.privategallery.akscorp.privategalleryandroid.Widgets.DetailBottomBar>
+    </android.support.design.widget.CoordinatorLayout>
+</android.support.constraint.ConstraintLayout>

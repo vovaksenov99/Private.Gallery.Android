@@ -4,8 +4,6 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
-import android.net.Uri
 import android.os.Bundle
 import android.support.transition.*
 import android.support.v4.view.ViewCompat
@@ -14,27 +12,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Image
-import com.privategallery.akscorp.privategalleryandroid.Utilities.GlideApp
 import kotlinx.android.synthetic.main.preview_rv_item.view.*
-import com.bumptech.glide.request.RequestOptions
 import com.privategallery.akscorp.privategalleryandroid.*
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.R
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.detail_fragment.view.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import android.support.v4.util.LruCache
 import android.support.v7.widget.GridLayoutManager
-import android.util.DisplayMetrics
+import android.util.Log
 import android.view.ViewTreeObserver
 import com.privategallery.akscorp.privategalleryandroid.Fragments.*
 import com.privategallery.akscorp.privategalleryandroid.Utilities.Utilities
 import kotlinx.android.synthetic.main.detail_view_pager.view.*
 import kotlinx.coroutines.experimental.Job
-import java.util.concurrent.Semaphore
 
 
 /**
@@ -94,7 +87,7 @@ class PreviewGridAdapter(override val context: Context, override val images: Lis
         val image = images[position]
         val imageName = "image_" + image.albumId.toString() + "_" + image.id.toString()
         ViewCompat.setTransitionName(imageView, imageName)
-            holder.preview.setImageResource(R.color.placeholder)
+        holder.preview.setImageResource(R.color.placeholder)
 
         if (previews[imageName] == null)
         {
@@ -154,8 +147,11 @@ class PreviewGridAdapter(override val context: Context, override val images: Lis
                     val lastDetailFragment =
                         detailFragment.mchildFragmentManager.findFragmentByTag("android:switcher:" + detailFragment.view!!.detailViewPager.id + ":" + lastSelectedImagePosition) as DetailFragment
                     lastDetailFragment.establishImage(lastDetailFragment.view!!)
+
+                    lastDetailFragment.parentFragment!!.view!!.detail_bottom_bar.switchState()
                 } catch (e: Exception)
                 {
+                    Log.e("", e.toString())
                 }
             }
 
@@ -208,7 +204,8 @@ class PreviewGridAdapter(override val context: Context, override val images: Lis
 
 }
 
-abstract class FastGalleryScrollAdapter<T : RecyclerView.ViewHolder?>(open val context: Context, open val images: List<Image>) :
+abstract class FastGalleryScrollAdapter<T : RecyclerView.ViewHolder?>(open val context: Context,
+                                                                      open val images: List<Image>) :
     RecyclerView.Adapter<T>()
 {
     val PRELOAD_IMAGES_COUNT = 20
@@ -268,7 +265,8 @@ abstract class FastGalleryScrollAdapter<T : RecyclerView.ViewHolder?>(open val c
 
                         val job = Job()
                         launch(job) {
-                            for (i in (startVisiblePosition)..(Math.max(0,startVisiblePosition - PRELOAD_IMAGES_COUNT)))
+                            for (i in (startVisiblePosition)..(Math.max(0,
+                                startVisiblePosition - PRELOAD_IMAGES_COUNT)))
                             {
                                 val image = images[i]
                                 val imageName =
@@ -301,10 +299,16 @@ abstract class FastGalleryScrollAdapter<T : RecyclerView.ViewHolder?>(open val c
 
         launch {
             val bmOptions = BitmapFactory.Options()
-            bmOptions.inSampleSize =
-                    ((Math.max(image.width!!, image.height!!) / (holderWidth))).toInt()
-            val bitmap = BitmapFactory.decodeFile(getImagePath(image), bmOptions)
-            previews.put(imageName, bitmap)
+            try
+            {
+                bmOptions.inSampleSize =
+                        ((Math.max(image.width!!, image.height!!) / (holderWidth))).toInt()
+                val bitmap = BitmapFactory.decodeFile(getImagePath(image), bmOptions)
+                previews.put(imageName, bitmap)
+            } catch (e: Exception)
+            {
+                return@launch
+            }
             launch(UI) {
                 action()
             }
@@ -313,8 +317,6 @@ abstract class FastGalleryScrollAdapter<T : RecyclerView.ViewHolder?>(open val c
 
     private fun getImagePath(image: Image) =
         ContextWrapper(context).filesDir.path + "/Images/${image.id}.${image.extension}"
-
-
 
 }
 

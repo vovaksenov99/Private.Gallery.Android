@@ -39,8 +39,6 @@
     <string name="none_summary">Lock is not used</string>
     <string name="select_security_type">Select security type</string>
 
-
-
     <string name="setup_login_pref">setup_login_pref</string>
     <string name="pin_pref">pin_pref</string>
     <string name="none_pref">none_pref</string>

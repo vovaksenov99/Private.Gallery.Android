@@ -3,6 +3,7 @@ package com.privategallery.akscorp.privategalleryandroid.Adapters
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
 import android.support.v7.widget.RecyclerView
 import android.text.InputFilter
 import android.view.LayoutInflater
@@ -50,7 +51,7 @@ class LocalStorageGridAdapter(
      */
     val used: MutableSet<String> = mutableSetOf()
 
-    private var lastDirectory: File
+    var lastDirectory: File
     lateinit var dialog: LoadDialog
 
     init
@@ -63,7 +64,7 @@ class LocalStorageGridAdapter(
 
     }
 
-    private fun filterFiles()
+    fun filterFiles()
     {
         files = files.filter {
             availableExtensions.contains(it.extension.toUpperCase()) || it.isDirectory
@@ -81,7 +82,7 @@ class LocalStorageGridAdapter(
         {
             if (!image.isDirectory && availableExtensions.contains(image.extension.toUpperCase()) &&
                 !used.contains(image.absolutePath))
-                used.add(image.absolutePath)
+                used.add(Uri.fromFile(image).toString())
         }
 
         notifyDataSetChanged()
@@ -119,11 +120,8 @@ class LocalStorageGridAdapter(
     private fun sentProgressToReceiver(progress: Int)
     {
         val intent = Intent()
-        intent.action =
-                PROGRESS_BROADCAST_RECEIVER_TAG
-        intent.putExtra(
-            CURRENT_PROGRESS_BROADCAST_RECEIVER, progress
-        )
+        intent.action = PROGRESS_BROADCAST_RECEIVER_TAG
+        intent.putExtra(CURRENT_PROGRESS_BROADCAST_RECEIVER, progress)
         (context as MainActivity).sendBroadcast(intent)
     }
 
@@ -132,7 +130,6 @@ class LocalStorageGridAdapter(
      */
     override fun onBindViewHolder(holder: LocalStorageGridAdapter.previewHolder, position: Int)
     {
-
         val imageView = holder.preview
         val fileName = holder.name
         fileName.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(30))
@@ -212,14 +209,14 @@ class LocalStorageGridAdapter(
                     .into(imageView)
 
                 holder.itemView.setOnClickListener {
-                    if (used.contains(file.absolutePath))
+                    if (used.contains(Uri.fromFile(file).toString()))
                     {
-                        used.remove(file.absolutePath)
+                        used.remove(Uri.fromFile(file).toString())
                         holder.toggle.visibility = View.INVISIBLE
                     }
                     else
                     {
-                        used.add(file.absolutePath)
+                        used.add(Uri.fromFile(file).toString())
                         holder.toggle.visibility = View.VISIBLE
                     }
                 }

@@ -42,7 +42,7 @@ class SelectAllButton : ImageButton, View.OnClickListener
         val adapter =
             fragment as SelectAll
 
-        if (select)
+        if (!select)
         {
             adapter.selectAll()
         }

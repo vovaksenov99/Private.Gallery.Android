@@ -26,7 +26,6 @@ import kotlinx.android.synthetic.main.detail_fragment.view.*
 import kotlinx.android.synthetic.main.detail_view_pager.view.*
 import java.io.Serializable
 
-
 class DetailViewPagerAdapter(val previewGridAdapter: PreviewGridAdapter,val fragmentManager: FragmentManager) :
     FragmentPagerAdapter(fragmentManager)
 {
