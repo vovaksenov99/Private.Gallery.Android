@@ -8,14 +8,14 @@ import android.support.v4.app.FragmentManager
 import android.support.v7.preference.Preference
 import android.support.v7.preference.PreferenceFragmentCompat
 import android.util.Log
-import com.privategallery.akscorp.privategalleryandroid.Activities.IOnBackPressedListener
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Database.LocalDatabaseAPI
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.LOAD_DIALOG_TAG
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.LoadDialog
-import com.privategallery.akscorp.privategalleryandroid.R
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.SETTINGS_DIALOG_TAG
+import com.privategallery.akscorp.privategalleryandroid.Essentials.Album
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Image
+import com.privategallery.akscorp.privategalleryandroid.R
 import kotlinx.coroutines.experimental.launch
 import java.io.*
 import java.util.zip.ZipEntry
@@ -24,17 +24,14 @@ import java.util.zip.ZipOutputStream
 
 val GENARAL_SETTING_FRAGMENT_TAG = "GENARAL_SETTING_FRAGMENT_TAG"
 
-class GeneralSettingsFragment : PreferenceFragmentCompat()
-{
+class GeneralSettingsFragment : PreferenceFragmentCompat() {
     lateinit var mfragmentManager: FragmentManager
 
-    override fun onCreatePreferences(bundle: Bundle?, s: String?)
-    {
+    override fun onCreatePreferences(bundle: Bundle?, s: String?) {
         addPreferencesFromResource(R.xml.setting_dialog)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?)
-    {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         securitySettingsController()
         backupSettingsController()
@@ -42,18 +39,15 @@ class GeneralSettingsFragment : PreferenceFragmentCompat()
         (activity as MainActivity).onBackPressedListener = null
     }
 
-    private fun securitySettingsController()
-    {
+    private fun securitySettingsController() {
         val myPref = findPreference(getString(R.string.setup_login_pref)) as Preference
 
         myPref.onPreferenceClickListener = Preference.OnPreferenceClickListener {
 
             val fragments = (activity as MainActivity).supportFragmentManager.fragments
 
-            for (fragment in fragments)
-            {
-                if (fragment.tag == SETTINGS_DIALOG_TAG)
-                {
+            for (fragment in fragments) {
+                if (fragment.tag == SETTINGS_DIALOG_TAG) {
                     mfragmentManager = fragment.childFragmentManager
                     val securityTypeFragment = SecurityTypeFragment()
                     mfragmentManager
@@ -70,8 +64,7 @@ class GeneralSettingsFragment : PreferenceFragmentCompat()
         }
     }
 
-    private fun backupSettingsController()
-    {
+    private fun backupSettingsController() {
         val myPref = findPreference(getString(R.string.setup_backup_zip_pref)) as Preference
 
 
@@ -87,12 +80,10 @@ class GeneralSettingsFragment : PreferenceFragmentCompat()
 }
 
 class ZipAllFiles(val context: Context, val db: LocalDatabaseAPI,
-                  private val fragmentManager: FragmentManager)
-{
+                  private val fragmentManager: FragmentManager) {
     val dialog = LoadDialog()
 
-    fun zipAllGalleryFiles()
-    {
+    fun zipAllGalleryFiles() {
         dialog.showNow(fragmentManager, LOAD_DIALOG_TAG)
 
         dialog.progressBroadcastReceiverInit(dialog)
@@ -100,17 +91,12 @@ class ZipAllFiles(val context: Context, val db: LocalDatabaseAPI,
         launch {
             val albums = db.getAllAlbumsFromDatabase()
 
-            val filesToZip = mutableListOf<String>()
-            for (album in albums)
-            {
-                val files = db.getImagesFromDatabase(album.id)
-                for (file in files)
-                    filesToZip.add(getImagePath(file))
-            }
+            val dir =
+                Environment.getExternalStorageDirectory().absolutePath + "/PrivateGalleryFilesBackup/"
+            val zipName = System.currentTimeMillis().toString() + ".zip"
 
-            createZipFile(filesToZip,
-                Environment.getExternalStorageDirectory().absolutePath + "/PrivateGalleryFilesBackup/",
-                System.currentTimeMillis().toString() + ".zip")
+            createZipFile(albums, dir, zipName)
+
         }
     }
 
@@ -120,55 +106,58 @@ class ZipAllFiles(val context: Context, val db: LocalDatabaseAPI,
     /**
      * @param files - list with absolute file path. Ex: /sdcard/ZipDemo/textfile.txt
      */
-    protected fun createZipFile(files: List<String>, zipFileDirectoryPath: String,
-                                zipFileName: String)
-    {
+    protected fun createZipFile(albums: List<Album>,
+                                zipFileDirectoryPath: String,
+                                zipFileName: String) {
         val BUFFER = 1024
-        try
-        {
+        try {
             val dir = File(zipFileDirectoryPath)
-            if (!dir.exists())
-            {
+            if (!dir.exists()) {
                 dir.mkdirs()
             }
 
+
             var origin: BufferedInputStream? = null
             val dest = FileOutputStream("$zipFileDirectoryPath$zipFileName")
-            val out = ZipOutputStream(BufferedOutputStream(
-                dest))
+            val out = ZipOutputStream(BufferedOutputStream(dest))
             val data = ByteArray(BUFFER)
 
-            for (i in files.indices)
-            {
-                try
-                {
-                    Log.v("Compress", "Adding: " + files[i])
-                    val fi = FileInputStream(files[i])
-                    origin = BufferedInputStream(fi, BUFFER)
+            val imagesCount = db.getImagesCount()
+            var currentImage = 0;
 
-                    val entry = ZipEntry(files[i].substring(files[i].lastIndexOf("/") + 1))
-                    out.putNextEntry(entry)
-                    var count: Int
+            for (albumIndex in albums.indices) {
 
-                    while (true)
-                    {
-                        count = origin.read(data, 0, BUFFER)
-                        if (count == -1)
-                            break
-                        out.write(data, 0, count)
+                val files = db.getImagesFromDatabase(albums[albumIndex].id).map { getImagePath(it) }
+                for (i in files.indices) {
+                    try {
+                        Log.v("Compress", "Adding: " + files[i])
+                        val fi = FileInputStream(files[i])
+                        origin = BufferedInputStream(fi, BUFFER)
+
+                        val entry =
+                            ZipEntry("${albums[albumIndex].name}/" + files[i].substring(files[i].lastIndexOf(
+                                "/") + 1))
+                        out.putNextEntry(entry)
+                        var count: Int
+
+                        while (true) {
+                            count = origin.read(data, 0, BUFFER)
+                            if (count == -1)
+                                break
+                            out.write(data, 0, count)
+                        }
+                        origin.close()
+                    } catch (e: Exception) {
+                        Log.v("Compress", "Adding failed!: " + files[i])
                     }
-                    origin.close()
-                } catch (e: Exception)
-                {
-                    Log.v("Compress", "Adding failed!: " + files[i])
+                    currentImage++;
+                    dialog.sentProgressToReceiver((currentImage.toDouble() / imagesCount * 100.0).toInt())
                 }
-                dialog.sentProgressToReceiver((i.toDouble() / files.size * 100.0).toInt())
             }
             dialog.sentProgressToReceiver(100)
             dialog.delayDismiss()
             out.close()
-        } catch (e: Exception)
-        {
+        } catch (e: Exception) {
             e.printStackTrace()
         }
 

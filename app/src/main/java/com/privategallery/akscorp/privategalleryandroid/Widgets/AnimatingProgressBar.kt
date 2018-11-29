@@ -1,12 +1,9 @@
 package com.privategallery.akscorp.privategalleryandroid.Widgets
 
 import android.animation.ValueAnimator
-import android.animation.ValueAnimator.AnimatorUpdateListener
 import android.content.Context
 import android.util.AttributeSet
 import android.view.animation.AccelerateDecelerateInterpolator
-import android.view.animation.BaseInterpolator
-import android.view.animation.OvershootInterpolator
 import android.widget.ProgressBar
 
 
@@ -43,7 +40,8 @@ class AnimatingProgressBar : ProgressBar {
                     animation.animatedValue as Int
                 )
             }
-        } else
+        }
+        else
             animator!!.setIntValues(getProgress(), progress)
         animator!!.start()
 
@@ -62,11 +60,11 @@ class AnimatingProgressBar : ProgressBar {
             animatorSecondary!!.interpolator = DEFAULT_INTERPOLATER
             animatorSecondary!!.addUpdateListener { animation ->
                 super@AnimatingProgressBar.setSecondaryProgress(
-                    animation
-                        .animatedValue as Int
+                    animation.animatedValue as Int
                 )
             }
-        } else
+        }
+        else
             animatorSecondary!!.setIntValues(progress, secondaryProgress)
         animatorSecondary!!.start()
     }
@@ -81,7 +79,6 @@ class AnimatingProgressBar : ProgressBar {
 
 
     companion object {
-
         private val DEFAULT_INTERPOLATER = AccelerateDecelerateInterpolator()
     }
 

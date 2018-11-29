@@ -68,10 +68,10 @@ class LockImagesService : IntentService("")
 
                 val id = db.insertImageInDatabase(
                     Image(localPath = el,
-                        albumId = currentAlbumId.toLong(),
+                        albumId = currentAlbumId,
                         extension = extension,
-                        height = imageHeight.toLong(),
-                        width = imageWidth.toLong(),
+                        height = imageHeight,
+                        width = imageWidth,
                         addedTime = System.currentTimeMillis()))
 
                 Utilities.moveFile(this, Uri.parse(el), logFile.absolutePath, "$id.$extension")
@@ -87,6 +87,7 @@ class LockImagesService : IntentService("")
         {
             val messenger = intent.getParcelableExtra("messenger") as Messenger
             val msg = Message.obtain()
+            msg.arg1 = currentAlbumId.toInt()
             messenger.send(msg)
         }
     }

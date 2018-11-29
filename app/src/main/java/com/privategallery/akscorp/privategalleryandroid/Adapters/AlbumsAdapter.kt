@@ -1,6 +1,5 @@
 package com.privategallery.akscorp.privategalleryandroid.Adapters
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
@@ -11,7 +10,6 @@ import android.widget.TextView
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Album
 import com.privategallery.akscorp.privategalleryandroid.R
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.album_rv_item.view.*
 
 /**
@@ -45,17 +43,18 @@ class AlbumsAdapter(private val context: Context, val albums: List<Album>) :
         val text = holder.text
         text.text = albums[position].name
 
-        if(lastAlbumChoose == position)
-        {
-            (holder.itemView).background =
-                    ContextCompat.getDrawable(context, R.drawable.ripple_selector_selected)
+        //Holder item view
+        val item = (holder.itemView)
+
+        if (lastAlbumChoose == position) {
+            item.background = ContextCompat.getDrawable(context, R.drawable.ripple_selector_selected)
         }
-        else
-        {
-            (holder.itemView).background = ContextCompat.getDrawable(context, R.drawable.ripple_selector_common)
+        else {
+            item.background =
+                    ContextCompat.getDrawable(context, R.drawable.ripple_selector_common)
         }
 
-        holder.itemView.setOnClickListener {
+        item.setOnClickListener {
             lastSelectedImagePosition = -1
 
             activity.mainActivityActions.switchAlbum(albums[position])
@@ -70,6 +69,5 @@ class AlbumsAdapter(private val context: Context, val albums: List<Album>) :
     inner class AlbumHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val text: TextView = itemView.album_name as TextView
     }
-
 
 }

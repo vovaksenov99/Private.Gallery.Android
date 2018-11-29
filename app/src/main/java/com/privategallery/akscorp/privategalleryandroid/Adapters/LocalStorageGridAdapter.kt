@@ -81,7 +81,7 @@ class LocalStorageGridAdapter(
         for (image in files)
         {
             if (!image.isDirectory && availableExtensions.contains(image.extension.toUpperCase()) &&
-                !used.contains(image.absolutePath))
+                !used.contains(Uri.fromFile(image).toString()))
                 used.add(Uri.fromFile(image).toString())
         }
 
@@ -137,7 +137,7 @@ class LocalStorageGridAdapter(
         val file = files[position]
         fileName.text = file.name
 
-        if (used.contains(file.absolutePath))
+        if (used.contains(Uri.fromFile(file).toString()))
         {
             holder.toggle.visibility = View.VISIBLE
         }

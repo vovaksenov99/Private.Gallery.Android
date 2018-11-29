@@ -63,7 +63,6 @@ class MainActivity : AppCompatActivity(), ModalBottomSheetDialogFragment.Listene
     var doubleBackToExitPressedOnce = false
 
     var albums: MutableList<Album> by Delegates.observable(mutableListOf()) { property, oldValue, newValue ->
-
         runOnUiThread {
             toolbar.setState(toolbar.status)
         }
@@ -86,9 +85,15 @@ class MainActivity : AppCompatActivity(), ModalBottomSheetDialogFragment.Listene
             mainActivityActions.showLoginDialog()
         }
 
-        onBackPressedListener = BaseBackPressedListener()
 
         mainActivityActions.shareReceiverInit()
+        mainActivityActions.shareReceiverInitMultiply()
+
+        onBackPressedListener = BaseBackPressedListener()
+    }
+
+    override fun onResume() {
+        super.onResume()
     }
 
     override fun onBackPressed() {
@@ -300,8 +305,46 @@ class MainActivityActions(val context: MainActivity) {
                                 AlbumsShareAdapter(context, albums, intent, object : Handler() {
                                     override fun handleMessage(msg: Message) {
                                         dialog.dismiss()
+                                        switchAlbum(msg.arg1.toLong())
                                     }
-                                })
+                                },false)
+                        dialog.show()
+                    }
+
+                }
+                return true
+            }
+        }
+        return false
+    }
+
+    fun shareReceiverInitMultiply(): Boolean {
+        context.apply {
+            val action = intent.action
+            val type = intent.type?.toLowerCase()
+
+            if (Intent.ACTION_SEND_MULTIPLE == action && type != null) {
+                if (type.startsWith("image/")) {
+
+                    loadAlbums {
+                        val builder = AlertDialog.Builder(context)
+
+                        val layout =
+                            LayoutInflater.from(context).inflate(R.layout.share_albums, null)
+                        val layoutManager = LinearLayoutManager(context)
+                        layout.albums_rv.setHasFixedSize(true)
+                        layout.albums_rv.layoutManager = layoutManager
+                        layout.albums_rv.isNestedScrollingEnabled = true
+                        builder.setView(layout)
+                        val dialog = builder.create()
+
+                        layout.albums_rv.adapter =
+                                AlbumsShareAdapter(context, albums, intent, object : Handler() {
+                                    override fun handleMessage(msg: Message) {
+                                        dialog.dismiss()
+                                        switchAlbum(msg.arg1.toLong())
+                                    }
+                                },true)
                         dialog.show()
                     }
 
@@ -427,19 +470,25 @@ class MainActivityActions(val context: MainActivity) {
             return
         context.apply {
 
-            currentAlbum = album
-            toolbar.title = album.name
+            try {
+                currentAlbum = album
+                toolbar.title = album.name
 
-            var i = 0
-            for (mAlbum in albums) {
-                if (mAlbum.id == album.id) {
-                    (albums_rv.adapter as AlbumsAdapter)
-                        .selectCurrentAlbum(i)
-                    break
+                var i = 0
+                for (mAlbum in albums) {
+                    if (mAlbum.id == album.id) {
+                        (albums_rv.adapter as AlbumsAdapter)
+                            .selectCurrentAlbum(i)
+                        break
+                    }
+                    i++
                 }
-                i++
+                showAlbumContent(album)
             }
-            showAlbumContent(album)
+            catch (e: Exception)
+            {
+                e.printStackTrace()
+            }
         }
     }
 

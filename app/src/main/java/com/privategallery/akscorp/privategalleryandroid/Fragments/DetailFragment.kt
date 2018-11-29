@@ -116,7 +116,6 @@ class DetailFragment(val position: Int) : Fragment()
         }
     }
 
-
     private fun getImagePath(image: Image) =
         ContextWrapper(context).filesDir.path + "/Images/${image.id}.${image.extension}"
 
