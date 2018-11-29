@@ -70,7 +70,9 @@ class PreviewListFragment : Fragment()
     fun getImagesFromDatabase(album: Album): MutableList<Image>
     {
         val db = LocalDatabaseAPI(activity!!)
-        return db.getImagesFromDatabase(album.id)
+        val list =db.getImagesFromDatabase(album.id)
+        list.sortByDescending { it.addedTime }
+        return list
     }
 }
 

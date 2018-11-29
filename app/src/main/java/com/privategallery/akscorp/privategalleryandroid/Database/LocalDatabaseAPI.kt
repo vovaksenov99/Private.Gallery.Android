@@ -126,6 +126,26 @@ public class LocalDatabaseAPI(private val context: Context)
     }
 
     /**
+     * Get all images count from database
+     *
+     * @return images count from database in Table [Images.NAME]
+     */
+    fun getImagesCount(): Int
+    {
+        return GalleryDatabase.getInstance(context).use {
+            val cursor = query(Images.NAME,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null)
+
+            cursor.count
+        }
+    }
+
+    /**
      * Get all imageData essence from database by album id
      *
      * @param albumId album id
@@ -169,8 +189,8 @@ public class LocalDatabaseAPI(private val context: Context)
                         Images.FIELDS.LOCAL_PATH -> image.localPath = cursor.getString(pos)
                         Images.FIELDS.ALBUM_ID -> image.albumId = cursor.getString(pos).toLong()
                         Images.FIELDS.EXTENSION -> image.extension = cursor.getString(pos)
-                        Images.FIELDS.HEIGHT -> image.height = cursor.getString(pos).toLong()
-                        Images.FIELDS.WIDTH -> image.width = cursor.getString(pos).toLong()
+                        Images.FIELDS.HEIGHT -> image.height = cursor.getString(pos).toInt()
+                        Images.FIELDS.WIDTH -> image.width = cursor.getString(pos).toInt()
                         Images.FIELDS.ADDED_TIME -> image.addedTime = cursor.getString(pos).toLong()
                     }
                 }

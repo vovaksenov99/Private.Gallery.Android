@@ -49,7 +49,13 @@ class LoadDialog : DialogFragment()
     {
         launch(UI) {
             Handler().postDelayed({
-                dialog.dismiss()
+                try {
+                    dialog.dismiss()
+                }
+                catch (e:Exception)
+                {
+                    e.printStackTrace()
+                }
                 action()
             }, 1500)
         }
