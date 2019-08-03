@@ -1,7 +1,7 @@
 package com.privategallery.akscorp.privategalleryandroid
 
 import android.app.Application
-import android.support.v7.app.AppCompatDelegate
+import androidx.appcompat.app.AppCompatDelegate
 import com.github.piasy.biv.BigImageViewer
 import com.github.piasy.biv.loader.glide.GlideImageLoader
 import com.hawkcatcherkotlin.akscorp.hawkcatcherkotlin.HawkExceptionCatcher
@@ -24,7 +24,6 @@ class Application : Application() {
     lateinit var exceptionCatcher: HawkExceptionCatcher
     lateinit var securityController: SecurityController
     lateinit var localDatabaseApi: LocalDatabaseAPI
-
 
     override fun onCreate() {
         super.onCreate()

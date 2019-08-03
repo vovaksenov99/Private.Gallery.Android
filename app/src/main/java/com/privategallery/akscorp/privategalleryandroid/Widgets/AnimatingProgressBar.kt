@@ -6,7 +6,6 @@ import android.util.AttributeSet
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ProgressBar
 
-
 class AnimatingProgressBar : ProgressBar {
 
     private var animator: ValueAnimator? = null
@@ -14,9 +13,9 @@ class AnimatingProgressBar : ProgressBar {
     var isAnimate = true
 
     constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(
-        context,
-        attrs,
-        defStyle
+            context,
+            attrs,
+            defStyle
     ) {
     }
 
@@ -37,11 +36,10 @@ class AnimatingProgressBar : ProgressBar {
             animator!!.interpolator = DEFAULT_INTERPOLATER
             animator!!.addUpdateListener { animation ->
                 super@AnimatingProgressBar.setProgress(
-                    animation.animatedValue as Int
+                        animation.animatedValue as Int
                 )
             }
-        }
-        else
+        } else
             animator!!.setIntValues(getProgress(), progress)
         animator!!.start()
 
@@ -60,11 +58,10 @@ class AnimatingProgressBar : ProgressBar {
             animatorSecondary!!.interpolator = DEFAULT_INTERPOLATER
             animatorSecondary!!.addUpdateListener { animation ->
                 super@AnimatingProgressBar.setSecondaryProgress(
-                    animation.animatedValue as Int
+                        animation.animatedValue as Int
                 )
             }
-        }
-        else
+        } else
             animatorSecondary!!.setIntValues(progress, secondaryProgress)
         animatorSecondary!!.start()
     }
@@ -76,7 +73,6 @@ class AnimatingProgressBar : ProgressBar {
         if (animatorSecondary != null)
             animatorSecondary!!.cancel()
     }
-
 
     companion object {
         private val DEFAULT_INTERPOLATER = AccelerateDecelerateInterpolator()

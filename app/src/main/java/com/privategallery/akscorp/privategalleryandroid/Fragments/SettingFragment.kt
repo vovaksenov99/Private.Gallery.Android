@@ -4,10 +4,10 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.os.Bundle
 import android.os.Environment
-import android.support.v4.app.FragmentManager
-import android.support.v7.preference.Preference
-import android.support.v7.preference.PreferenceFragmentCompat
 import android.util.Log
+import androidx.fragment.app.FragmentManager
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Database.LocalDatabaseAPI
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.LOAD_DIALOG_TAG
@@ -16,11 +16,16 @@ import com.privategallery.akscorp.privategalleryandroid.Dialogs.SETTINGS_DIALOG_
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Album
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Image
 import com.privategallery.akscorp.privategalleryandroid.R
-import kotlinx.coroutines.experimental.launch
-import java.io.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import java.io.BufferedInputStream
+import java.io.BufferedOutputStream
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-
 
 val GENARAL_SETTING_FRAGMENT_TAG = "GENARAL_SETTING_FRAGMENT_TAG"
 
@@ -35,8 +40,13 @@ class GeneralSettingsFragment : PreferenceFragmentCompat() {
         super.onCreate(savedInstanceState)
         securitySettingsController()
         backupSettingsController()
+        duplicateSettingsController()
 
         (activity as MainActivity).onBackPressedListener = null
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
     }
 
     private fun securitySettingsController() {
@@ -44,18 +54,18 @@ class GeneralSettingsFragment : PreferenceFragmentCompat() {
 
         myPref.onPreferenceClickListener = Preference.OnPreferenceClickListener {
 
-            val fragments = (activity as MainActivity).supportFragmentManager.fragments
+            val fragments = activity!!.supportFragmentManager.fragments
 
             for (fragment in fragments) {
                 if (fragment.tag == SETTINGS_DIALOG_TAG) {
                     mfragmentManager = fragment.childFragmentManager
                     val securityTypeFragment = SecurityTypeFragment()
                     mfragmentManager
-                        .beginTransaction()
-                        .replace(R.id.prefs_container,
-                            securityTypeFragment,
-                            SECURITY_TYPE_FRAGMENT_TAG)
-                        .commit()
+                            .beginTransaction()
+                            .replace(R.id.prefs_container,
+                                    securityTypeFragment,
+                                    SECURITY_TYPE_FRAGMENT_TAG)
+                            .commit()
                     break
                 }
             }
@@ -71,9 +81,36 @@ class GeneralSettingsFragment : PreferenceFragmentCompat() {
         myPref.onPreferenceClickListener = Preference.OnPreferenceClickListener {
 
             val zipManager = ZipAllFiles(context!!, (activity as MainActivity).app.localDatabaseApi,
-                activity!!.supportFragmentManager)
+                    activity!!.supportFragmentManager)
 
             zipManager.zipAllGalleryFiles()
+            true
+        }
+    }
+
+    private fun duplicateSettingsController() {
+        val myPref = findPreference(getString(R.string.duplicate_pref)) as Preference
+
+
+        myPref.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+
+
+            val fragments = activity!!.supportFragmentManager.fragments
+
+            for (fragment in fragments) {
+                if (fragment.tag == SETTINGS_DIALOG_TAG) {
+                    mfragmentManager = fragment.childFragmentManager
+                    val securityTypeFragment = DuplicateListFragment()
+                    mfragmentManager
+                            .beginTransaction()
+                            .replace(R.id.prefs_container,
+                                    securityTypeFragment,
+                                    DUPLICATE_LIST_FRAGMENT_TAG)
+                            .commit()
+                    break
+                }
+            }
+
             true
         }
     }
@@ -86,13 +123,11 @@ class ZipAllFiles(val context: Context, val db: LocalDatabaseAPI,
     fun zipAllGalleryFiles() {
         dialog.showNow(fragmentManager, LOAD_DIALOG_TAG)
 
-        dialog.progressBroadcastReceiverInit(dialog)
-
-        launch {
+        GlobalScope.launch(Dispatchers.IO) {
             val albums = db.getAllAlbumsFromDatabase()
 
             val dir =
-                Environment.getExternalStorageDirectory().absolutePath + "/PrivateGalleryFilesBackup/"
+                    Environment.getExternalStorageDirectory().absolutePath + "/PrivateGalleryFilesBackup/"
             val zipName = System.currentTimeMillis().toString() + ".zip"
 
             createZipFile(albums, dir, zipName)
@@ -101,7 +136,7 @@ class ZipAllFiles(val context: Context, val db: LocalDatabaseAPI,
     }
 
     private fun getImagePath(image: Image) =
-        ContextWrapper(context).filesDir.path + "/Images/${image.id}.${image.extension}"
+            ContextWrapper(context).filesDir.path + "/Images/${image.id}.${image.extension}"
 
     /**
      * @param files - list with absolute file path. Ex: /sdcard/ZipDemo/textfile.txt
@@ -135,8 +170,8 @@ class ZipAllFiles(val context: Context, val db: LocalDatabaseAPI,
                         origin = BufferedInputStream(fi, BUFFER)
 
                         val entry =
-                            ZipEntry("${albums[albumIndex].name}/" + files[i].substring(files[i].lastIndexOf(
-                                "/") + 1))
+                                ZipEntry("${albums[albumIndex].name}/" + files[i].substring(files[i].lastIndexOf(
+                                        "/") + 1))
                         out.putNextEntry(entry)
                         var count: Int
 

@@ -19,52 +19,47 @@ import org.jetbrains.anko.db.dropTable
  */
 
 const val DATABASE_NAME = "GalleryDatabase.db"
-const val DATABASE_VERSION = 1
+const val DATABASE_VERSION = 3
 
 /**
  * @param context parent activity context
  */
 class GalleryDatabase(context: Context) :
-    ManagedSQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION)
-{
+        ManagedSQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
 
-    companion object
-    {
+    companion object {
         private var instance: GalleryDatabase? = null
 
         /**
          * Get current database exemplar
          */
         @Synchronized
-        fun getInstance(context: Context): GalleryDatabase
-        {
-            if (instance == null)
-            {
+        fun getInstance(context: Context): GalleryDatabase {
+            if (instance == null) {
                 instance = GalleryDatabase(context.applicationContext)
             }
             return instance!!
         }
     }
 
-    override fun onCreate(db: SQLiteDatabase)
-    {
+    override fun onCreate(db: SQLiteDatabase) {
         db.createTable(Albums.NAME, true,
-            Albums.FIELDS._ID to INTEGER + PRIMARY_KEY + AUTOINCREMENT,
-            Albums.FIELDS.NAME to TEXT,
-            Albums.FIELDS.COVER_PATH to TEXT)
+                Albums.FIELDS._ID to INTEGER + PRIMARY_KEY + AUTOINCREMENT,
+                Albums.FIELDS.NAME to TEXT,
+                Albums.FIELDS.COVER_PATH to TEXT)
         db.createTable(Images.NAME, true,
-            Images.FIELDS._ID to INTEGER + PRIMARY_KEY + AUTOINCREMENT,
-            Images.FIELDS.NAME to TEXT,
-            Images.FIELDS.LOCAL_PATH to TEXT,
-            Images.FIELDS.ALBUM_ID to INTEGER,
-            Images.FIELDS.EXTENSION to TEXT,
-            Images.FIELDS.HEIGHT to INTEGER,
-            Images.FIELDS.WIDTH to INTEGER,
-            Images.FIELDS.ADDED_TIME to INTEGER)
+                Images.FIELDS._ID to INTEGER + PRIMARY_KEY + AUTOINCREMENT,
+                Images.FIELDS.NAME to TEXT,
+                Images.FIELDS.LOCAL_PATH to TEXT,
+                Images.FIELDS.ALBUM_ID to INTEGER,
+                Images.FIELDS.EXTENSION to TEXT,
+                Images.FIELDS.HEIGHT to INTEGER,
+                Images.FIELDS.WIDTH to INTEGER,
+                Images.FIELDS.ADDED_TIME to INTEGER,
+                Images.FIELDS.FINGER_PRINT to TEXT)
     }
 
-    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int)
-    {
+    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
         db.dropTable(Albums.NAME, true)
         db.dropTable(Images.NAME, true)
 

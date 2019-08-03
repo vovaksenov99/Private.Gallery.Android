@@ -38,7 +38,7 @@
         </activity>
 
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="com.privategalery.akscorp.privategalleryandroid"
             android:exported="false"
             android:grantUriPermissions="true">
@@ -47,8 +47,6 @@
                 android:resource="@xml/file_provider_paths" />
         </provider>
 
-        <service android:name="com.privategallery.akscorp.privategalleryandroid.Services.LockImagesService" >
-
-        </service>
+        <service android:name=".Services.LockImagesService" />
     </application>
 </manifest>

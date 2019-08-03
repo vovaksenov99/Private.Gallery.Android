@@ -3,16 +3,17 @@ package com.privategallery.akscorp.privategalleryandroid.Fragments
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.support.v4.app.FragmentManager
-import android.support.v7.preference.Preference
-import android.support.v7.preference.PreferenceFragmentCompat
+import androidx.fragment.app.FragmentManager
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
 import com.privategallery.akscorp.privategalleryandroid.Activities.IOnBackPressedListener
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Database.SignInPreference
-import com.privategallery.akscorp.privategalleryandroid.R
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.SETTINGS_DIALOG_TAG
-import com.privategallery.akscorp.privategalleryandroid.Utilities.*
-
+import com.privategallery.akscorp.privategalleryandroid.R
+import com.privategallery.akscorp.privategalleryandroid.Utilities.EstablishNoneDialog
+import com.privategallery.akscorp.privategalleryandroid.Utilities.EstablishPinDialog
+import com.privategallery.akscorp.privategalleryandroid.Utilities.SecurityController
 
 val SECURITY_TYPE_FRAGMENT_TAG = "SECURITY_TYPE_FRAGMENT_TAG"
 
@@ -42,13 +43,13 @@ class SecurityTypeFragment : PreferenceFragmentCompat() {
 
         pin.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             securityController.showSecurityDialog(EstablishPinDialog(context!!,
-                { goToGeneralSettings() }))
+                    { goToGeneralSettings() }))
             true
         }
 
         none.onPreferenceClickListener = Preference.OnPreferenceClickListener {
             securityController.showSecurityDialog(EstablishNoneDialog(context!!,
-                { goToGeneralSettings() }))
+                    { goToGeneralSettings() }))
             true
         }
     }
@@ -67,16 +68,14 @@ class SecurityTypeFragment : PreferenceFragmentCompat() {
     private fun goToGeneralSettings() {
         val generalSettingsFragment = GeneralSettingsFragment()
         mfragmentManager
-            .beginTransaction()
-            .replace(R.id.prefs_container, generalSettingsFragment)
-            .commit()
+                .beginTransaction()
+                .replace(R.id.prefs_container, generalSettingsFragment)
+                .commit()
     }
 
-    inner class BackPressedListener() : IOnBackPressedListener
-    {
+    inner class BackPressedListener() : IOnBackPressedListener {
 
-        override fun doBack()
-        {
+        override fun doBack() {
             goToGeneralSettings()
         }
 

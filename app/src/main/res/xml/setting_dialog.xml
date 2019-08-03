@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.preference.PreferenceScreen
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <android.support.v7.preference.PreferenceCategory
-        android:title="@string/security_options">
+    <androidx.preference.PreferenceCategory android:title="@string/security_options">
 
         <Preference
             android:key="@string/setup_login_pref"
             android:summary="@string/security_options_summary"
             android:title="@string/login_option" />
 
-    </android.support.v7.preference.PreferenceCategory>
+    </androidx.preference.PreferenceCategory>
 
-    <android.support.v7.preference.PreferenceCategory
-        android:title="@string/backup_settings">
+    <androidx.preference.PreferenceCategory android:title="@string/backup_settings">
 
         <Preference
             android:key="@string/setup_backup_zip_pref"
             android:summary="@string/create_zip_file_summary"
             android:title="@string/create_zip_file" />
+        <Preference
+            android:key="@string/duplicate_pref"
+            android:title="@string/find_duplicate" />
 
-    </android.support.v7.preference.PreferenceCategory>
+    </androidx.preference.PreferenceCategory>
 
-</android.support.v7.preference.PreferenceScreen>
+</androidx.preference.PreferenceScreen>

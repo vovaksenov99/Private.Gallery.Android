@@ -6,13 +6,6 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.os.Message
-import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
-import android.support.v4.view.GravityCompat
-import android.support.v7.app.ActionBarDrawerToggle
-import android.support.v7.app.AlertDialog
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
 import android.text.InputFilter
 import android.view.LayoutInflater
 import android.view.Menu
@@ -22,6 +15,13 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.commit451.modalbottomsheetdialogfragment.ModalBottomSheetDialogFragment
 import com.commit451.modalbottomsheetdialogfragment.Option
 import com.privategallery.akscorp.privategalleryandroid.Adapters.AlbumsAdapter
@@ -45,15 +45,18 @@ import com.privategallery.akscorp.privategalleryandroid.Utilities.SecurityContro
 import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.AlbumSettingsButton
 import com.privategallery.akscorp.privategalleryandroid.Widgets.COMMON
 import com.privategallery.akscorp.privategalleryandroid.Widgets.UNLOCK_FILES
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.nav_view_menu.*
-import kotlinx.android.synthetic.main.share_albums.view.*
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
+import kotlinx.android.synthetic.main.activity_main.fab
+import kotlinx.android.synthetic.main.activity_main.main_activity_drawer
+import kotlinx.android.synthetic.main.activity_main.toolbar
+import kotlinx.android.synthetic.main.nav_view_menu.albums_rv
+import kotlinx.android.synthetic.main.nav_view_menu.nav_view_settings
+import kotlinx.android.synthetic.main.share_albums.view.albums_rv
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.jetbrains.anko.alert
 import java.io.Serializable
 import kotlin.properties.Delegates
-
 
 class MainActivity : AppCompatActivity(), ModalBottomSheetDialogFragment.Listener {
     lateinit var app: Application
@@ -80,8 +83,7 @@ class MainActivity : AppCompatActivity(), ModalBottomSheetDialogFragment.Listene
         if (app.securityController.loginStatus == SecurityController.LOGIN_DONE) {
             mainActivityActions.loginDone()
             mainActivityActions.initStartUI()
-        }
-        else {
+        } else {
             mainActivityActions.showLoginDialog()
         }
 
@@ -94,6 +96,10 @@ class MainActivity : AppCompatActivity(), ModalBottomSheetDialogFragment.Listene
 
     override fun onResume() {
         super.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
     }
 
     override fun onBackPressed() {
@@ -139,15 +145,14 @@ class MainActivity : AppCompatActivity(), ModalBottomSheetDialogFragment.Listene
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+            requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
             PERMISSIONS_REQUEST -> {
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
 
-                }
-                else {
+                } else {
                     Toast.makeText(
-                        this, getString(R.string.permission_denied), Toast.LENGTH_LONG).show()
+                            this, getString(R.string.permission_denied), Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -164,8 +169,8 @@ class MainActivity : AppCompatActivity(), ModalBottomSheetDialogFragment.Listene
 
             doubleBackToExitPressedOnce = true
             Toast.makeText(this@MainActivity,
-                getString(R.string.click_back_to_exit),
-                Toast.LENGTH_SHORT).show()
+                    getString(R.string.click_back_to_exit),
+                    Toast.LENGTH_SHORT).show()
 
             Handler().postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
         }
@@ -188,18 +193,18 @@ class MainActivityActions(val context: MainActivity) {
             val fragmentManager = supportFragmentManager
             val fragment = UnlockListFragment()
             fragmentManager.beginTransaction()
-                .replace(R.id.main_activity_constraint_layout_album,
-                    fragment,
-                    UNLOCK_LIST_FRAGMENT_TAG).commit()
+                    .replace(R.id.main_activity_constraint_layout_album,
+                            fragment,
+                            UNLOCK_LIST_FRAGMENT_TAG).commit()
         }
         return true
     }
 
     fun loadAlbums(callback: () -> Unit = {}) {
         context.apply {
-            launch {
+            GlobalScope.launch(Dispatchers.IO) {
                 albums = app.localDatabaseApi.getAllAlbumsFromDatabase().toMutableList()
-                launch(UI) {
+                GlobalScope.launch(Dispatchers.Main) {
                     initAlbums()
                     if (!albums.isEmpty() && currentAlbum == Album()) {
                         fab.visibility = View.VISIBLE
@@ -211,7 +216,6 @@ class MainActivityActions(val context: MainActivity) {
         }
     }
 
-
     /**
      * Initialization main UI component. NavBar, toolbar
      *
@@ -221,11 +225,11 @@ class MainActivityActions(val context: MainActivity) {
             setSupportActionBar(toolbar)
             supportActionBar?.setDisplayShowTitleEnabled(false)
             val toggle = ActionBarDrawerToggle(
-                this,
-                main_activity_drawer,
-                toolbar,
-                navigation_drawer_open,
-                navigation_drawer_close)
+                    this,
+                    main_activity_drawer,
+                    toolbar,
+                    navigation_drawer_open,
+                    navigation_drawer_close)
             main_activity_drawer.addDrawerListener(toggle)
             toggle.syncState()
 
@@ -246,7 +250,7 @@ class MainActivityActions(val context: MainActivity) {
             when (app.securityController.getAppSecurityType()) {
                 -1 -> initStartUI()
                 PIN -> app.securityController.showSecurityDialog(LoginPinDialog(this,
-                    { initStartUI() }))
+                        { initStartUI() }))
             }
         }
     }
@@ -272,11 +276,11 @@ class MainActivityActions(val context: MainActivity) {
             fragment.arguments = bundle
 
             fragmentManager.beginTransaction()
-                .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
-                .replace(R.id.main_activity_constraint_layout_album,
-                    fragment,
-                    PREVIEW_LIST_FRAGMENT_TAG)
-                .commit()
+                    .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
+                    .replace(R.id.main_activity_constraint_layout_album,
+                            fragment,
+                            PREVIEW_LIST_FRAGMENT_TAG)
+                    .commit()
             //main_activity_drawer.closeDrawer(Gravity.START)
         }
     }
@@ -293,8 +297,9 @@ class MainActivityActions(val context: MainActivity) {
                         val builder = AlertDialog.Builder(context)
 
                         val layout =
-                            LayoutInflater.from(context).inflate(R.layout.share_albums, null)
-                        val layoutManager = LinearLayoutManager(context)
+                                LayoutInflater.from(context).inflate(R.layout.share_albums, null)
+                        val layoutManager =
+                                LinearLayoutManager(context)
                         layout.albums_rv.setHasFixedSize(true)
                         layout.albums_rv.layoutManager = layoutManager
                         layout.albums_rv.isNestedScrollingEnabled = true
@@ -307,7 +312,7 @@ class MainActivityActions(val context: MainActivity) {
                                         dialog.dismiss()
                                         switchAlbum(msg.arg1.toLong())
                                     }
-                                },false)
+                                }, false)
                         dialog.show()
                     }
 
@@ -330,8 +335,9 @@ class MainActivityActions(val context: MainActivity) {
                         val builder = AlertDialog.Builder(context)
 
                         val layout =
-                            LayoutInflater.from(context).inflate(R.layout.share_albums, null)
-                        val layoutManager = LinearLayoutManager(context)
+                                LayoutInflater.from(context).inflate(R.layout.share_albums, null)
+                        val layoutManager =
+                                LinearLayoutManager(context)
                         layout.albums_rv.setHasFixedSize(true)
                         layout.albums_rv.layoutManager = layoutManager
                         layout.albums_rv.isNestedScrollingEnabled = true
@@ -344,7 +350,7 @@ class MainActivityActions(val context: MainActivity) {
                                         dialog.dismiss()
                                         switchAlbum(msg.arg1.toLong())
                                     }
-                                },true)
+                                }, true)
                         dialog.show()
                     }
 
@@ -367,17 +373,17 @@ class MainActivityActions(val context: MainActivity) {
     private fun checkPermission() {
         context.apply {
             if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED
+                            this,
+                            Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                            this,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                            this,
+                            Manifest.permission.INTERNET) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                            this,
+                            Manifest.permission.ACCESS_NETWORK_STATE) != PackageManager.PERMISSION_GRANTED
             ) {
                 ActivityCompat.requestPermissions(
-                    this, arrayOf(
+                        this, arrayOf(
                         Manifest.permission.READ_EXTERNAL_STORAGE,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE,
                         Manifest.permission.ACCESS_NETWORK_STATE,
@@ -397,12 +403,12 @@ class MainActivityActions(val context: MainActivity) {
                 //max string length
                 albumName.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(30))
                 val params = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT)
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT)
                 container.setPadding(resources.getDimensionPixelSize(R.dimen.dialog_padding),
-                    0,
-                    resources.getDimensionPixelSize(R.dimen.dialog_padding),
-                    0)
+                        0,
+                        resources.getDimensionPixelSize(R.dimen.dialog_padding),
+                        0)
 
                 container.layoutParams = params
                 container.addView(albumName)
@@ -431,12 +437,12 @@ class MainActivityActions(val context: MainActivity) {
                 //max string length
                 albumName.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(30))
                 val params = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT)
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT)
                 container.setPadding(resources.getDimensionPixelSize(R.dimen.dialog_padding),
-                    0,
-                    resources.getDimensionPixelSize(R.dimen.dialog_padding),
-                    0)
+                        0,
+                        resources.getDimensionPixelSize(R.dimen.dialog_padding),
+                        0)
 
                 container.layoutParams = params
                 container.addView(albumName)
@@ -478,15 +484,13 @@ class MainActivityActions(val context: MainActivity) {
                 for (mAlbum in albums) {
                     if (mAlbum.id == album.id) {
                         (albums_rv.adapter as AlbumsAdapter)
-                            .selectCurrentAlbum(i)
+                                .selectCurrentAlbum(i)
                         break
                     }
                     i++
                 }
                 showAlbumContent(album)
-            }
-            catch (e: Exception)
-            {
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
