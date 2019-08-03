@@ -1,9 +1,12 @@
 package com.privategallery.akscorp.privategalleryandroid.Adapters
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.net.Uri
 import android.os.Handler
+import android.os.IBinder
 import android.os.Messenger
 import android.view.LayoutInflater
 import android.view.View
@@ -62,8 +65,7 @@ class AlbumsShareAdapter(private val context: Context, val albums: List<Album>, 
 
         holder.itemView.setOnClickListener {
             if (!isMultiply) {
-                var imageUri: Uri
-                imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM) as Uri
+                val imageUri: Uri = intent.getParcelableExtra(Intent.EXTRA_STREAM) as Uri
                 val int = Intent(context, LockImagesService::class.java)
                 int.putExtra("images", mutableSetOf(imageUri.toString()) as Serializable)
                 int.putExtra("albumId", albums[position].id)
@@ -71,7 +73,7 @@ class AlbumsShareAdapter(private val context: Context, val albums: List<Album>, 
                 context.startService(int)
 
             } else {
-                var imageUri: MutableSet<String> =
+                val imageUri: MutableSet<String> =
                         intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
                                 .map { it.toString() }.toMutableSet()
                 val int = Intent(context, LockImagesService::class.java)

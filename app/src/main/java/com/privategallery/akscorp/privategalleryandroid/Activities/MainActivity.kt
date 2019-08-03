@@ -22,12 +22,9 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.commit451.modalbottomsheetdialogfragment.ModalBottomSheetDialogFragment
-import com.commit451.modalbottomsheetdialogfragment.Option
 import com.privategallery.akscorp.privategalleryandroid.Adapters.AlbumsAdapter
 import com.privategallery.akscorp.privategalleryandroid.Adapters.AlbumsShareAdapter
 import com.privategallery.akscorp.privategalleryandroid.Application
-import com.privategallery.akscorp.privategalleryandroid.Dialogs.ConfirmDialog
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.SETTINGS_DIALOG_TAG
 import com.privategallery.akscorp.privategalleryandroid.Dialogs.SettingsDialog
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Album
@@ -42,10 +39,10 @@ import com.privategallery.akscorp.privategalleryandroid.R.string.navigation_draw
 import com.privategallery.akscorp.privategalleryandroid.Utilities.LoginPinDialog
 import com.privategallery.akscorp.privategalleryandroid.Utilities.PIN
 import com.privategallery.akscorp.privategalleryandroid.Utilities.SecurityController
-import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.AlbumSettingsButton
 import com.privategallery.akscorp.privategalleryandroid.Widgets.COMMON
 import com.privategallery.akscorp.privategalleryandroid.Widgets.UNLOCK_FILES
 import kotlinx.android.synthetic.main.activity_main.fab
+import kotlinx.android.synthetic.main.activity_main.main_activity_constraint_layout_album
 import kotlinx.android.synthetic.main.activity_main.main_activity_drawer
 import kotlinx.android.synthetic.main.activity_main.toolbar
 import kotlinx.android.synthetic.main.nav_view_menu.albums_rv
@@ -56,9 +53,10 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.jetbrains.anko.alert
 import java.io.Serializable
+import java.lang.ref.WeakReference
 import kotlin.properties.Delegates
 
-class MainActivity : AppCompatActivity(), ModalBottomSheetDialogFragment.Listener {
+class MainActivity : AppCompatActivity() {
     lateinit var app: Application
 
     //Object for override back click for different fragments
@@ -125,25 +123,6 @@ class MainActivity : AppCompatActivity(), ModalBottomSheetDialogFragment.Listene
         return true
     }
 
-    override fun onModalOptionSelected(tag: String?, option: Option) {
-        when (option.id) {
-            AlbumSettingsButton.RENAME_ALBUM_ID -> {
-                mainActivityActions.showRenameAlbumDialog()
-            }
-            AlbumSettingsButton.DELETE_ALBUM_ID -> {
-                ConfirmDialog(this).showDialog(getString(R.string.delete_album_confirm)) {
-                    app.localDatabaseApi.removeAlbumFromDatabase(currentAlbum)
-                    currentAlbum = Album()
-                    mainActivityActions.initStartUI()
-
-                }
-            }
-            AlbumSettingsButton.UNLOCK_IMAGES_ID -> {
-                mainActivityActions.switchToUnlockImagesState()
-            }
-        }
-    }
-
     override fun onRequestPermissionsResult(
             requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
@@ -182,8 +161,28 @@ class MainActivity : AppCompatActivity(), ModalBottomSheetDialogFragment.Listene
  * Class with actions on [MainActivity] Activity
  */
 class MainActivityActions(val context: MainActivity) {
+
+
+    class ShareIntentHandler(val activityReference: WeakReference<MainActivityActions>, val dialog: AlertDialog) : Handler() {
+
+        override fun handleMessage(msg: Message) {
+            val activity = activityReference.get()
+            if (activity != null) {
+                with(activity)
+                {
+                    when (msg.arg2) {
+                        1 -> switchAlbum(msg.arg1.toLong())
+                        0 -> Toast.makeText(context, R.string.not_valid_image_path, Toast.LENGTH_LONG).show()
+                    }
+                    dialog.dismiss()
+                }
+
+            }
+        }
+    }
+
     fun switchToUnlockImagesState(): Boolean {
-        context.apply {
+        with(context) {
             if (currentAlbum.id == -1L) return true
 
             fab.visibility = View.INVISIBLE
@@ -201,14 +200,17 @@ class MainActivityActions(val context: MainActivity) {
     }
 
     fun loadAlbums(callback: () -> Unit = {}) {
-        context.apply {
+        with(context) {
             GlobalScope.launch(Dispatchers.IO) {
                 albums = app.localDatabaseApi.getAllAlbumsFromDatabase().toMutableList()
                 GlobalScope.launch(Dispatchers.Main) {
                     initAlbums()
-                    if (!albums.isEmpty() && currentAlbum == Album()) {
+                    if (albums.isNotEmpty()) {
                         fab.visibility = View.VISIBLE
                         switchAlbum(albums[0])
+                    } else {
+                        fab.visibility = View.INVISIBLE
+                        switchAlbum(null)
                     }
                     callback()
                 }
@@ -221,7 +223,7 @@ class MainActivityActions(val context: MainActivity) {
      *
      */
     fun initStartUI() {
-        context.apply {
+        with(context) {
             setSupportActionBar(toolbar)
             supportActionBar?.setDisplayShowTitleEnabled(false)
             val toggle = ActionBarDrawerToggle(
@@ -246,7 +248,7 @@ class MainActivityActions(val context: MainActivity) {
     }
 
     fun showLoginDialog() {
-        context.apply {
+        with(context) {
             when (app.securityController.getAppSecurityType()) {
                 -1 -> initStartUI()
                 PIN -> app.securityController.showSecurityDialog(LoginPinDialog(this,
@@ -256,7 +258,7 @@ class MainActivityActions(val context: MainActivity) {
     }
 
     fun initAlbums() {
-        context.apply {
+        with(context) {
             val layoutManager = LinearLayoutManager(this)
             albums_rv.setHasFixedSize(true)
             albums_rv.layoutManager = layoutManager
@@ -267,7 +269,7 @@ class MainActivityActions(val context: MainActivity) {
     }
 
     fun showAlbumContent(album: Album) {
-        context.apply {
+        with(context) {
             val fragmentManager = supportFragmentManager
 
             val bundle = Bundle()
@@ -286,7 +288,7 @@ class MainActivityActions(val context: MainActivity) {
     }
 
     fun shareReceiverInit(): Boolean {
-        context.apply {
+        with(context) {
             val action = intent.action
             val type = intent.type?.toLowerCase()
 
@@ -307,12 +309,10 @@ class MainActivityActions(val context: MainActivity) {
                         val dialog = builder.create()
 
                         layout.albums_rv.adapter =
-                                AlbumsShareAdapter(context, albums, intent, object : Handler() {
-                                    override fun handleMessage(msg: Message) {
-                                        dialog.dismiss()
-                                        switchAlbum(msg.arg1.toLong())
-                                    }
-                                }, false)
+                                AlbumsShareAdapter(context, albums, intent, ShareIntentHandler(
+                                        WeakReference(this@MainActivityActions),
+                                        dialog
+                                ), false)
                         dialog.show()
                     }
 
@@ -324,7 +324,7 @@ class MainActivityActions(val context: MainActivity) {
     }
 
     fun shareReceiverInitMultiply(): Boolean {
-        context.apply {
+        with(context) {
             val action = intent.action
             val type = intent.type?.toLowerCase()
 
@@ -334,10 +334,8 @@ class MainActivityActions(val context: MainActivity) {
                     loadAlbums {
                         val builder = AlertDialog.Builder(context)
 
-                        val layout =
-                                LayoutInflater.from(context).inflate(R.layout.share_albums, null)
-                        val layoutManager =
-                                LinearLayoutManager(context)
+                        val layout = LayoutInflater.from(context).inflate(R.layout.share_albums, null)
+                        val layoutManager = LinearLayoutManager(context)
                         layout.albums_rv.setHasFixedSize(true)
                         layout.albums_rv.layoutManager = layoutManager
                         layout.albums_rv.isNestedScrollingEnabled = true
@@ -345,12 +343,10 @@ class MainActivityActions(val context: MainActivity) {
                         val dialog = builder.create()
 
                         layout.albums_rv.adapter =
-                                AlbumsShareAdapter(context, albums, intent, object : Handler() {
-                                    override fun handleMessage(msg: Message) {
-                                        dialog.dismiss()
-                                        switchAlbum(msg.arg1.toLong())
-                                    }
-                                }, true)
+                                AlbumsShareAdapter(context, albums, intent, ShareIntentHandler(
+                                        WeakReference(this@MainActivityActions),
+                                        dialog
+                                ), true)
                         dialog.show()
                     }
 
@@ -362,7 +358,7 @@ class MainActivityActions(val context: MainActivity) {
     }
 
     fun loginDone() {
-        context.apply {
+        with(context) {
             if (currentAlbum.id != -1L) fab.visibility = View.VISIBLE
         }
     }
@@ -371,7 +367,7 @@ class MainActivityActions(val context: MainActivity) {
      * Displays the permissions dialog box. Show once
      */
     private fun checkPermission() {
-        context.apply {
+        with(context) {
             if (ContextCompat.checkSelfPermission(
                             this,
                             Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
@@ -393,7 +389,7 @@ class MainActivityActions(val context: MainActivity) {
     }
 
     fun showAddAlbumDialog() {
-        context.apply {
+        with(context) {
             alert {
                 title = getString(R.string.add_album)
 
@@ -427,7 +423,7 @@ class MainActivityActions(val context: MainActivity) {
     }
 
     fun showRenameAlbumDialog() {
-        context.apply {
+        with(context) {
             alert {
                 title = getString(R.string.rename_album)
 
@@ -461,20 +457,24 @@ class MainActivityActions(val context: MainActivity) {
     }
 
     fun switchAlbum(id: Long) {
-        context.apply {
+        with(context) {
             for (album in albums)
                 if (album.id == id) {
                     switchAlbum(album)
-                    return@apply
+                    return
                 }
         }
     }
 
     fun switchAlbum(album: Album?) {
-
-        if (album == null)
-            return
-        context.apply {
+        with(context) {
+            if (album == null) {
+                albums_rv.adapter = null
+                main_activity_constraint_layout_album.visibility = View.INVISIBLE
+                currentAlbum = Album()
+                return
+            }
+            main_activity_constraint_layout_album.visibility = View.VISIBLE
 
             try {
                 currentAlbum = album
@@ -497,7 +497,7 @@ class MainActivityActions(val context: MainActivity) {
     }
 
     fun onCreateOptionsMenuInit(menu: Menu?) {
-        context.apply {
+        with(context) {
             if (toolbar != null && toolbar.status != COMMON)
                 menu!!.setGroupVisible(R.id.popup_menu_group, false)
         }

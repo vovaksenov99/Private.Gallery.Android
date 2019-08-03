@@ -11,6 +11,7 @@
     <string name="done">Done</string>
     <string name="in_progress">In progress...</string>
     <string name="delete_album_confirm">Do you really want to delete album with all content?</string>
+    <string name="not_valid_image_path">We cant find real image path :(</string>
 
 
     <string name="navigation_drawer_close" translatable="false" />
