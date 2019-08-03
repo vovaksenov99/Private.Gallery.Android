@@ -6,26 +6,22 @@ package com.privategallery.akscorp.privategalleryandroid.Database.Tables
  * Database table structure description
  */
 
-object Albums
-{
-    
+object Albums {
+
     const val NAME = "Albums"
-    
-    object FIELDS
-    {
+
+    object FIELDS {
         val _ID = "_id"
         val NAME = "name"
         val COVER_PATH = "coverPath"
     }
 }
 
-object Images
-{
-    
+object Images {
+
     const val NAME = "Images"
-    
-    object FIELDS
-    {
+
+    object FIELDS {
         val _ID = "_id"
         val NAME = "name"
         val LOCAL_PATH = "localPath"
@@ -34,5 +30,6 @@ object Images
         val ADDED_TIME = "addedTime"
         val HEIGHT = "height"
         val WIDTH = "width"
+        val FINGER_PRINT = "fingerPrint"
     }
 }

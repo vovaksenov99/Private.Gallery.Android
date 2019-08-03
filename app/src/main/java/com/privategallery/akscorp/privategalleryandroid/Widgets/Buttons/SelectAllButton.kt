@@ -13,48 +13,40 @@ import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
  * web site aksenov-vladimir.herokuapp.com
  */
 
-interface SelectAll
-{
+interface SelectAll {
     fun selectAll()
     fun deselectAll()
 
 }
 
-class SelectAllButton : ImageButton, View.OnClickListener
-{
+class SelectAllButton : ImageButton, View.OnClickListener {
 
     var fragmentTag = ""
     var select = false
 
-    init
-    {
+    init {
         setOnClickListener(this)
     }
 
     private fun getBaseContext() = ((context as ContextWrapper).baseContext as MainActivity)
 
-    override fun onClick(v: View?)
-    {
+    override fun onClick(v: View?) {
 
         val fragment =
-            getBaseContext().supportFragmentManager.findFragmentByTag(fragmentTag)
+                getBaseContext().supportFragmentManager.findFragmentByTag(fragmentTag)
 
         val adapter =
-            fragment as SelectAll
+                fragment as SelectAll
 
-        if (!select)
-        {
+        if (!select) {
             adapter.selectAll()
-        }
-        else
-        {
+        } else {
             adapter.deselectAll()
         }
         select = !select
     }
 
-    constructor(context: Context, fragmentTag: String) : super(context)
-    {
+    constructor(context: Context, fragmentTag: String) : super(context) {
         this.fragmentTag = fragmentTag
     }
 
@@ -63,5 +55,5 @@ class SelectAllButton : ImageButton, View.OnClickListener
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
 
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(
-        context, attrs, defStyleAttr)
+            context, attrs, defStyleAttr)
 }

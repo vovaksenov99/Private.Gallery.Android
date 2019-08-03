@@ -1,45 +1,37 @@
 package com.privategallery.akscorp.privategalleryandroid.Fragments
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.ContextWrapper
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Point
-import android.graphics.drawable.BitmapDrawable
-import android.net.Uri
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.content.FileProvider
-import android.support.v4.view.ViewCompat
-import android.support.v4.view.ViewPager
-import android.support.v4.widget.DrawerLayout
-import android.view.*
-import com.bumptech.glide.load.resource.gif.GifDrawable
-import com.privategallery.akscorp.privategalleryandroid.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.core.content.FileProvider
+import androidx.core.view.ViewCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.viewpager.widget.ViewPager
 import com.privategallery.akscorp.privategalleryandroid.Activities.IOnBackPressedListener
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
-import com.privategallery.akscorp.privategalleryandroid.Adapters.*
+import com.privategallery.akscorp.privategalleryandroid.Adapters.DetailViewPagerAdapter
+import com.privategallery.akscorp.privategalleryandroid.Adapters.lastSelectedImagePosition
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Image
-import com.privategallery.akscorp.privategalleryandroid.Utilities.GlideApp
-import com.privategallery.akscorp.privategalleryandroid.Utilities.Utilities
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.detail_fragment.view.*
-import kotlinx.android.synthetic.main.detail_view_pager.view.*
-import java.io.File
-import android.view.MotionEvent
-import android.widget.Toast
+import com.privategallery.akscorp.privategalleryandroid.R
+import kotlinx.android.synthetic.main.activity_main.main_activity_drawer
+import kotlinx.android.synthetic.main.detail_fragment.view.image2
+import kotlinx.android.synthetic.main.detail_view_pager.view.detailViewPager
+import kotlinx.android.synthetic.main.detail_view_pager.view.share_button
 import org.jetbrains.anko.toast
-
+import java.io.File
 
 val DETAIL_VIEW_PAGER_FRAGMENT_TAG = "DETAIL_VIEW_PAGER_FRAGMENT_TAG"
 
 @SuppressLint("ValidFragment")
-class DetailViewPagerFragment(val previewGridAdapter: PreviewGridAdapter, val position: Int) :
-    Fragment()
-{
+class DetailViewPagerFragment(val images: List<Image>, val position: Int, val isAnimation: Boolean,
+                              val backPress: (view: View, fragmentManager: FragmentManager) -> Unit) :
+        Fragment() {
 
     lateinit var mchildFragmentManager: FragmentManager
     val AUTHORITY = "com.privategalery.akscorp.privategalleryandroid"
@@ -47,66 +39,62 @@ class DetailViewPagerFragment(val previewGridAdapter: PreviewGridAdapter, val po
     lateinit var imageName: String
     lateinit var image: Image
 
-
-    override fun onCreate(savedInstanceState: Bundle?)
-    {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        imageName = arguments!!.getString("imageName")
-        image = arguments!!.getSerializable("image") as Image
+        with(arguments!!) {
+            imageName = getString("imageName") ?: ""
+            image = getSerializable("image") as Image
+        }
+
     }
 
-    override fun onDestroyView()
-    {
+    override fun onDestroyView() {
         (activity as MainActivity).main_activity_drawer.setDrawerLockMode(
-            DrawerLayout.LOCK_MODE_UNLOCKED)
+                DrawerLayout.LOCK_MODE_UNLOCKED)
         super.onDestroyView()
     }
 
-    override fun onStart()
-    {
+    override fun onStart() {
         (activity as MainActivity).main_activity_drawer.setDrawerLockMode(
-            DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         super.onStart()
     }
 
-    var isShowBottomBar = true
+    override fun onResume() {
+        super.onResume()
 
+    }
 
-    override fun onCreateView(inflater: LayoutInflater, parent: ViewGroup?, state: Bundle?): View?
-    {
+    override fun onCreateView(inflater: LayoutInflater, parent: ViewGroup?, state: Bundle?): View? {
         super.onCreateView(inflater, parent, state)
-
-        mchildFragmentManager = (previewGridAdapter.context as MainActivity)
-            .supportFragmentManager.findFragmentByTag(DETAIL_VIEW_PAGER_FRAGMENT_TAG)
-            .childFragmentManager
+        mchildFragmentManager = childFragmentManager!!
 
         val view = activity!!.layoutInflater.inflate(R.layout.detail_view_pager, parent, false)
         view.detailViewPager.adapter =
-                DetailViewPagerAdapter(previewGridAdapter, mchildFragmentManager)
+                DetailViewPagerAdapter(images, mchildFragmentManager, isAnimation)
         view.detailViewPager.currentItem = lastSelectedImagePosition
 
         sendButton(view)
 
-        (previewGridAdapter.context).onBackPressedListener = BackPressedListener()
-        view.detailViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener
-        {
-            override fun onPageScrollStateChanged(state: Int)
-            {
+        (context as MainActivity).onBackPressedListener = BackPressedListener()
+
+
+
+        view.detailViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+            override fun onPageScrollStateChanged(state: Int) {
             }
 
             override fun onPageScrolled(position: Int, positionOffset: Float,
-                                        positionOffsetPixels: Int)
-            {
+                                        positionOffsetPixels: Int) {
             }
 
-            override fun onPageSelected(position: Int)
-            {
+            override fun onPageSelected(position: Int) {
                 val lastDetailFragment =
-                    mchildFragmentManager.findFragmentByTag("android:switcher:" + view!!.detailViewPager.id + ":" + lastSelectedImagePosition) as DetailFragment
+                        mchildFragmentManager.findFragmentByTag("android:switcher:" + view!!.detailViewPager.id + ":" + lastSelectedImagePosition) as DetailFragment
 
                 val currentDetailFragment =
-                    mchildFragmentManager.findFragmentByTag("android:switcher:" + view!!.detailViewPager.id + ":" + position) as DetailFragment
+                        mchildFragmentManager.findFragmentByTag("android:switcher:" + view!!.detailViewPager.id + ":" + position) as DetailFragment
                 image = currentDetailFragment.image
 
                 ViewCompat.setTransitionName(lastDetailFragment.view!!.image2, "")
@@ -118,17 +106,15 @@ class DetailViewPagerFragment(val previewGridAdapter: PreviewGridAdapter, val po
     }
 
     private fun getImagePath(image: Image) =
-        ContextWrapper(context).filesDir.path + "/Images/${image.id}.${image.extension}"
+            ContextWrapper(context).filesDir.path + "/Images/${image.id}.${image.extension}"
 
-    private fun sendButton(view: View)
-    {
+    private fun sendButton(view: View) {
 
         view.share_button.setOnClickListener {
 
-            try
-            {
+            try {
                 val contentUri =
-                    FileProvider.getUriForFile(activity!!, AUTHORITY, File(getImagePath(image)))
+                        FileProvider.getUriForFile(activity!!, AUTHORITY, File(getImagePath(image)))
 
                 val shareIntent = Intent()
                 shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -136,58 +122,20 @@ class DetailViewPagerFragment(val previewGridAdapter: PreviewGridAdapter, val po
                 shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri)
                 shareIntent.type = "image/*"
                 val pm = activity!!.packageManager;
-                if (shareIntent.resolveActivity(pm) != null)
-                {
+                if (shareIntent.resolveActivity(pm) != null) {
                     startActivity(Intent.createChooser(shareIntent, "Share images to.."))
                 }
-            } catch (e: Exception)
-            {
+            } catch (e: Exception) {
                 context!!.toast("Internal error")
                 (context as MainActivity).app.exceptionCatcher.logException(e)
             }
         }
     }
 
-    inner class BackPressedListener() : IOnBackPressedListener
-    {
+    inner class BackPressedListener() : IOnBackPressedListener {
 
-        override fun doBack()
-        {
-            try
-            {
-                val image = previewGridAdapter.images[lastSelectedImagePosition]
-                val imageName = "image_" + image.albumId + "_" + image.id
-
-                val currentDetailFragment =
-                    mchildFragmentManager.findFragmentByTag("android:switcher:" + view!!.detailViewPager.id + ":" + lastSelectedImagePosition) as DetailFragment
-
-                ViewCompat.setTransitionName(currentDetailFragment.view!!.image2, imageName)
-
-                if (currentDetailFragment.view!!.image2.drawable is GifDrawable)
-                {
-                    currentDetailFragment.view!!.image2.setImageBitmap(previews[imageName])
-                    lastImage =
-                            (currentDetailFragment.view!!.image2.drawable.current as BitmapDrawable).bitmap
-                }
-                else
-                    lastImage =
-                            (currentDetailFragment.view!!.image2.drawable.current as BitmapDrawable).bitmap
-
-            } catch (e: Exception)
-            {
-                (activity as MainActivity).app.exceptionCatcher.logException(e)
-                (activity as MainActivity).onBackPressedListener = null
-                return
-            }
-
-            showAppBar((activity as MainActivity).appbar)
-            showFab((activity as MainActivity).fab)
-
-            val act = activity
-            (act as MainActivity).onBackPressedListener = null
-            (act as MainActivity).onBackPressed()
-            (act as MainActivity).onBackPressedListener =
-                    (act as MainActivity).BaseBackPressedListener()
+        override fun doBack() {
+            backPress(view!!, mchildFragmentManager)
         }
     }
 }

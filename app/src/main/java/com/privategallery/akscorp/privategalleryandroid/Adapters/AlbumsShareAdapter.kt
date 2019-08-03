@@ -5,17 +5,17 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Handler
 import android.os.Messenger
-import android.support.v4.content.ContextCompat
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.RecyclerView
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Album
 import com.privategallery.akscorp.privategalleryandroid.R
 import com.privategallery.akscorp.privategalleryandroid.Services.LockImagesService
-import kotlinx.android.synthetic.main.album_rv_item.view.*
+import kotlinx.android.synthetic.main.album_rv_item.view.album_name
 import java.io.Serializable
 
 /**
@@ -25,7 +25,7 @@ import java.io.Serializable
  */
 class AlbumsShareAdapter(private val context: Context, val albums: List<Album>, val intent: Intent,
                          val handler: Handler, val isMultiply: Boolean) :
-    RecyclerView.Adapter<AlbumsShareAdapter.AlbumHolder>() {
+        RecyclerView.Adapter<AlbumsShareAdapter.AlbumHolder>() {
 
     private var lastAlbumChoose: Int = -1
 
@@ -36,7 +36,7 @@ class AlbumsShareAdapter(private val context: Context, val albums: List<Album>, 
     }
 
     override fun onCreateViewHolder(
-        parent: ViewGroup, viewType: Int): AlbumsShareAdapter.AlbumHolder {
+            parent: ViewGroup, viewType: Int): AlbumsShareAdapter.AlbumHolder {
         val context = parent.context
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.album_rv_item, parent, false)
@@ -53,8 +53,7 @@ class AlbumsShareAdapter(private val context: Context, val albums: List<Album>, 
         if (lastAlbumChoose == position) {
             (holder.itemView).background =
                     ContextCompat.getDrawable(context, R.drawable.ripple_selector_selected)
-        }
-        else {
+        } else {
             (holder.itemView).background =
                     ContextCompat.getDrawable(context, R.drawable.ripple_selector_common)
         }
@@ -71,10 +70,10 @@ class AlbumsShareAdapter(private val context: Context, val albums: List<Album>, 
                 int.putExtra("messenger", Messenger(handler))
                 context.startService(int)
 
-            }
-            else {
-                var imageUri: MutableSet<String> = intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
-                    .map { it.toString() }.toMutableSet()
+            } else {
+                var imageUri: MutableSet<String> =
+                        intent.getParcelableArrayListExtra<Uri>(Intent.EXTRA_STREAM)
+                                .map { it.toString() }.toMutableSet()
                 val int = Intent(context, LockImagesService::class.java)
                 int.putExtra("images", imageUri as Serializable)
                 int.putExtra("albumId", albums[position].id)

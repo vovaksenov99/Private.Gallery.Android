@@ -10,5 +10,6 @@ import java.io.Serializable
 
 data class Image(var id: Long? = null, var name: String? = null, var localPath:
 String? = null, var albumId: Long? = null, var extension: String? = null,
-                 var addedTime: Long? = null, var height: Int? = null, var width: Int? = null)
+                 var addedTime: Long? = null, var height: Int? = null, var width: Int? = null,
+                 var fingerPrint: String? = null)
     : Serializable

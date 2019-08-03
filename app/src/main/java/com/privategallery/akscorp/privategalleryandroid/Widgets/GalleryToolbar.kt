@@ -4,12 +4,12 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Color
-import android.support.v4.content.ContextCompat
-import android.support.v4.widget.DrawerLayout
-import android.support.v7.app.ActionBarDrawerToggle
-import android.support.v7.widget.Toolbar
 import android.util.AttributeSet
 import android.view.Gravity
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Fragments.LOCAL_STORAGE_FRAGMENT_TAG
 import com.privategallery.akscorp.privategalleryandroid.Fragments.UNLOCK_LIST_FRAGMENT_TAG
@@ -18,10 +18,8 @@ import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.AlbumSet
 import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.LockImageButton
 import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.SelectAllButton
 import com.privategallery.akscorp.privategalleryandroid.Widgets.Buttons.UnlockImageButton
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main.main_activity_drawer
 import org.jetbrains.anko.find
-import java.util.*
-import kotlin.properties.Delegates
 
 /**
  * Created by AksCorp on 12.04.2018.
@@ -32,8 +30,7 @@ const val COMMON = 1
 const val LOCK_FILES = 2
 const val UNLOCK_FILES = 3
 
-class GalleryToolbar : android.support.v7.widget.Toolbar
-{
+class GalleryToolbar : androidx.appcompat.widget.Toolbar {
 
     var status = COMMON
         private set
@@ -43,55 +40,50 @@ class GalleryToolbar : android.support.v7.widget.Toolbar
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
 
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(
-        context, attrs, defStyleAttr)
+            context, attrs, defStyleAttr)
 
     private fun getBaseContext() = ((context as ContextWrapper).baseContext as MainActivity)
 
     @SuppressLint("ResourceType", "PrivateResource")
-    fun setState(state: Int)
-    {
+    fun setState(state: Int) {
         status = state
-        when (state)
-        {
-            COMMON ->
-            {
+        when (state) {
+            COMMON -> {
                 removeAllViews()
                 setBackgroundColor(
-                    ContextCompat.getColor(
-                        context, R.color.colorPrimary))
+                        ContextCompat.getColor(
+                                context, R.color.colorPrimary))
                 setTitleTextColor(ContextCompat.getColor(getBaseContext(), R.color.darkGrey))
                 getBaseContext().main_activity_drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
 
                 val settingAlbumButton = AlbumSettingsButton(context)
                 settingAlbumButton.id = 16
                 val l1 = Toolbar.LayoutParams(
-                    Toolbar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT)
+                        Toolbar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT)
                 l1.gravity = Gravity.END
                 settingAlbumButton.layoutParams = l1
                 settingAlbumButton.background = null
                 settingAlbumButton.setImageResource(R.drawable.ic_settings_black_24dp)
 
-                if (getBaseContext().albums.isNotEmpty())
-                {
+                if (getBaseContext().albums.isNotEmpty()) {
                     addView(settingAlbumButton)
 
                 }
 
 
                 val toggle = ActionBarDrawerToggle(
-                    getBaseContext(),
-                    getBaseContext().main_activity_drawer,
-                    this,
-                    R.string.navigation_drawer_open,
-                    R.string.navigation_drawer_close)
+                        getBaseContext(),
+                        getBaseContext().main_activity_drawer,
+                        this,
+                        R.string.navigation_drawer_open,
+                        R.string.navigation_drawer_close)
                 getBaseContext().main_activity_drawer.addDrawerListener(toggle)
                 toggle.syncState()
 
                 menu.setGroupVisible(
-                    R.id.popup_menu_group, true)
+                        R.id.popup_menu_group, true)
             }
-            LOCK_FILES ->
-            {
+            LOCK_FILES -> {
                 removeAllViews()
                 setBackgroundColor(ContextCompat.getColor(context, R.color.toolbarSelectColor))
                 setTitleTextColor(Color.WHITE)
@@ -99,7 +91,7 @@ class GalleryToolbar : android.support.v7.widget.Toolbar
                 val lockImageButton = LockImageButton(context)
                 lockImageButton.id = 12
                 val l1 = Toolbar.LayoutParams(
-                    Toolbar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT)
+                        Toolbar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT)
                 l1.gravity = Gravity.END
                 lockImageButton.layoutParams = l1
                 lockImageButton.background = null
@@ -114,24 +106,23 @@ class GalleryToolbar : android.support.v7.widget.Toolbar
                 addView(selectAllButton)
 
                 menu.setGroupVisible(
-                    R.id.popup_menu_group, false)
+                        R.id.popup_menu_group, false)
 
                 navigationIcon = null
                 getBaseContext().main_activity_drawer.setDrawerLockMode(
-                    DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                        DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             }
-            UNLOCK_FILES ->
-            {
+            UNLOCK_FILES -> {
                 removeAllViews()
                 setBackgroundColor(
-                    ContextCompat.getColor(
-                        context, R.color.toolbarSelectColor))
+                        ContextCompat.getColor(
+                                context, R.color.toolbarSelectColor))
                 setTitleTextColor(Color.WHITE)
 
                 val b = UnlockImageButton(context)
                 b.id = 14
                 val l1 = Toolbar.LayoutParams(
-                    Toolbar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT)
+                        Toolbar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT)
                 l1.gravity = Gravity.END
                 b.layoutParams = l1
                 b.background = null
@@ -146,18 +137,19 @@ class GalleryToolbar : android.support.v7.widget.Toolbar
                 addView(selectAllButton)
 
                 menu.setGroupVisible(
-                    R.id.popup_menu_group, false)
+                        R.id.popup_menu_group, false)
 
                 navigationIcon = null
                 getBaseContext().main_activity_drawer.setDrawerLockMode(
-                    DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+                        DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             }
+
+
         }
     }
 
     @SuppressLint("ResourceType")
-    override fun removeAllViews()
-    {
+    override fun removeAllViews() {
         if (findViewById<LockImageButton>(12) != null) removeView(find(12))
         if (findViewById<LockImageButton>(14) != null) removeView(find(14))
         if (findViewById<LockImageButton>(15) != null) removeView(find(15))

@@ -1,11 +1,9 @@
 package com.privategallery.akscorp.privategalleryandroid.Database
 
-object SignInPreference
-{
+object SignInPreference {
     val NAME = "SignInPreferences"
 
-    object FIELDS
-    {
+    object FIELDS {
         val SALT = "salt"
         val RESULT = "result"
         val CURRENT_SECURITY_TYPE = "currentSecurityType"

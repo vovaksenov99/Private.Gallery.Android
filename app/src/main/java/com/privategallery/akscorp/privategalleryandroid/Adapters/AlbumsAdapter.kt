@@ -1,16 +1,16 @@
 package com.privategallery.akscorp.privategalleryandroid.Adapters
 
 import android.content.Context
-import android.support.v4.content.ContextCompat
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.RecyclerView
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Essentials.Album
 import com.privategallery.akscorp.privategalleryandroid.R
-import kotlinx.android.synthetic.main.album_rv_item.view.*
+import kotlinx.android.synthetic.main.album_rv_item.view.album_name
 
 /**
  * Created by AksCorp on 03.04.2018.
@@ -18,7 +18,7 @@ import kotlinx.android.synthetic.main.album_rv_item.view.*
  * web site aksenov-vladimir.herokuapp.com
  */
 class AlbumsAdapter(private val context: Context, val albums: List<Album>) :
-    RecyclerView.Adapter<AlbumsAdapter.AlbumHolder>() {
+        RecyclerView.Adapter<AlbumsAdapter.AlbumHolder>() {
 
     private var lastAlbumChoose: Int = -1
 
@@ -29,7 +29,7 @@ class AlbumsAdapter(private val context: Context, val albums: List<Album>) :
     }
 
     override fun onCreateViewHolder(
-        parent: ViewGroup, viewType: Int): AlbumsAdapter.AlbumHolder {
+            parent: ViewGroup, viewType: Int): AlbumHolder {
         val context = parent.context
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(R.layout.album_rv_item, parent, false)
@@ -39,7 +39,7 @@ class AlbumsAdapter(private val context: Context, val albums: List<Album>) :
     /**
      * Load imageData by [GlideApp] library from local folder
      */
-    override fun onBindViewHolder(holder: AlbumsAdapter.AlbumHolder, position: Int) {
+    override fun onBindViewHolder(holder: AlbumHolder, position: Int) {
         val text = holder.text
         text.text = albums[position].name
 
@@ -47,9 +47,9 @@ class AlbumsAdapter(private val context: Context, val albums: List<Album>) :
         val item = (holder.itemView)
 
         if (lastAlbumChoose == position) {
-            item.background = ContextCompat.getDrawable(context, R.drawable.ripple_selector_selected)
-        }
-        else {
+            item.background =
+                    ContextCompat.getDrawable(context, R.drawable.ripple_selector_selected)
+        } else {
             item.background =
                     ContextCompat.getDrawable(context, R.drawable.ripple_selector_common)
         }

@@ -31,6 +31,7 @@
     <string name="backup_settings">Backup settings</string>
     <string name="create_zip_file">Backup files to zip archive</string>
     <string name="create_zip_file_summary">All files within Private Gallery can be compressed into zip file on the SD card</string>
+    <string name="find_duplicate">Find duplicates in gallery</string>
 
 
     <string name="none">None</string>
@@ -43,5 +44,8 @@
     <string name="pin_pref">pin_pref</string>
     <string name="none_pref">none_pref</string>
     <string name="setup_backup_zip_pref">setup_backup_zip_pref</string>
+
+    <string name="duplicate_pref">duplicate_pref</string>
+    <string name="not_duplicates">No similar images</string>
 
 </resources>

@@ -7,8 +7,17 @@ import android.view.View
 import com.privategallery.akscorp.privategalleryandroid.Database.SignInPreference
 import com.privategallery.akscorp.privategalleryandroid.R
 import com.privategallery.akscorp.privategalleryandroid.Widgets.SquareImageView
-import kotlinx.android.synthetic.main.pin_dialog.*
-import kotlinx.android.synthetic.main.pin_dialog.view.*
+import kotlinx.android.synthetic.main.pin_dialog.pin_dialog_text
+import kotlinx.android.synthetic.main.pin_dialog.view.num_0
+import kotlinx.android.synthetic.main.pin_dialog.view.num_1
+import kotlinx.android.synthetic.main.pin_dialog.view.num_2
+import kotlinx.android.synthetic.main.pin_dialog.view.num_3
+import kotlinx.android.synthetic.main.pin_dialog.view.num_4
+import kotlinx.android.synthetic.main.pin_dialog.view.num_5
+import kotlinx.android.synthetic.main.pin_dialog.view.num_6
+import kotlinx.android.synthetic.main.pin_dialog.view.num_7
+import kotlinx.android.synthetic.main.pin_dialog.view.num_8
+import kotlinx.android.synthetic.main.pin_dialog.view.num_9
 
 /**
  * Sign in types
@@ -17,7 +26,6 @@ import kotlinx.android.synthetic.main.pin_dialog.view.*
  */
 val PIN = 0
 val NONE = -1
-
 
 class SecurityController(val context: Context) {
 
@@ -31,7 +39,7 @@ class SecurityController(val context: Context) {
     }
 
     private val sharedPreferences =
-        context.getSharedPreferences(SignInPreference.NAME, Context.MODE_PRIVATE)
+            context.getSharedPreferences(SignInPreference.NAME, Context.MODE_PRIVATE)
 
 
     lateinit var securityDialog: SecurityDialog
@@ -57,12 +65,12 @@ class SecurityController(val context: Context) {
     }
 
     fun dismissSecurityDialog() {
-        if(::securityDialog.isInitialized)
+        if (::securityDialog.isInitialized)
             securityDialog.dismissDialog()
     }
 
     fun logout() {
-        if(::securityDialog.isInitialized)
+        if (::securityDialog.isInitialized)
             securityDialog.logout()
     }
 
@@ -73,15 +81,14 @@ class SecurityController(val context: Context) {
 
 class PasswordControl(private val context: Context) {
     private val sharedPreferences =
-        context.getSharedPreferences(SignInPreference.NAME, Context.MODE_PRIVATE);
-
+            context.getSharedPreferences(SignInPreference.NAME, Context.MODE_PRIVATE);
 
     fun checkPassword(password: String): Boolean {
         val salt =
-            sharedPreferences.getString(
-                SignInPreference.FIELDS.SALT,
-                "Kak tebe takoe Ilon Mask?"
-            )
+                sharedPreferences.getString(
+                        SignInPreference.FIELDS.SALT,
+                        "Kak tebe takoe Ilon Mask?"
+                )
         val result = sharedPreferences.getString(SignInPreference.FIELDS.RESULT, "")
 
         val hash = Utilities.HashUtils.sha256(salt + password)
@@ -95,13 +102,11 @@ class PasswordControl(private val context: Context) {
         val salt = Utilities.getRandomString(16, 256)
         val hash = Utilities.HashUtils.sha256(salt + password)
         sharedPreferences.edit()
-            .putString(SignInPreference.FIELDS.SALT, salt)
-            .putInt(SignInPreference.FIELDS.CURRENT_SECURITY_TYPE, type)
-            .putString(SignInPreference.FIELDS.RESULT, hash).apply()
-
+                .putString(SignInPreference.FIELDS.SALT, salt)
+                .putInt(SignInPreference.FIELDS.CURRENT_SECURITY_TYPE, type)
+                .putString(SignInPreference.FIELDS.RESULT, hash).apply()
 
     }
-
 
 }
 
@@ -180,9 +185,9 @@ abstract class SecurityDialog(open val context: Context) {
  * @param rejectAction -  action which will be called when PIN will be incorrect
  */
 class LoginPinDialog(
-    override val context: Context,
-    private val acceptAction: (loginPinDialog: LoginPinDialog) -> Unit,
-    private val rejectAction: (loginPinDialog: LoginPinDialog) -> Unit = {}
+        override val context: Context,
+        private val acceptAction: (loginPinDialog: LoginPinDialog) -> Unit,
+        private val rejectAction: (loginPinDialog: LoginPinDialog) -> Unit = {}
 ) : SecurityDialog(context) {
 
 
@@ -198,7 +203,7 @@ class LoginPinDialog(
      * PIN points with current submit progress
      */
     private val pinPoints =
-        listOf(R.id.pin_point_1, R.id.pin_point_2, R.id.pin_point_3, R.id.pin_point_4)
+            listOf(R.id.pin_point_1, R.id.pin_point_2, R.id.pin_point_3, R.id.pin_point_4)
 
     override fun dismissDialog() {
         securityDialog.dismiss()
@@ -217,7 +222,6 @@ class LoginPinDialog(
     fun setMessage(message: String) {
         securityDialog.pin_dialog_text.text = message
     }
-
 
     override fun clickAction() {
         fillPinPoint(value.length - 1)
@@ -243,13 +247,13 @@ class LoginPinDialog(
 
     private fun fillPinPoint(pos: Int) {
         securityDialog.findViewById<SquareImageView>(pinPoints[pos])
-            .setImageResource(R.drawable.pin_point_fill)
+                .setImageResource(R.drawable.pin_point_fill)
     }
 
     fun clearPinPoints() {
         for (point in pinPoints)
             securityDialog.findViewById<SquareImageView>(point)
-                .setImageResource(R.drawable.pin_point_empty)
+                    .setImageResource(R.drawable.pin_point_empty)
     }
 
     private fun getPinView(): View? {
@@ -263,8 +267,8 @@ class LoginPinDialog(
  * @param acceptAction - action which will be called when PIN will be correct
  */
 class EstablishPinDialog(
-    override val context: Context,
-    private val acceptAction: (loginPinDialog: EstablishPinDialog) -> Unit = {}
+        override val context: Context,
+        private val acceptAction: (loginPinDialog: EstablishPinDialog) -> Unit = {}
 ) : SecurityDialog(context) {
 
 
@@ -279,7 +283,7 @@ class EstablishPinDialog(
      * PIN points with current submit progress
      */
     private val pinPoints =
-        listOf(R.id.pin_point_1, R.id.pin_point_2, R.id.pin_point_3, R.id.pin_point_4)
+            listOf(R.id.pin_point_1, R.id.pin_point_2, R.id.pin_point_3, R.id.pin_point_4)
 
     override fun dismissDialog() {
         securityDialog.dismiss()
@@ -299,7 +303,6 @@ class EstablishPinDialog(
         securityDialog.pin_dialog_text.text = message
     }
 
-
     override fun clickAction() {
         fillPinPoint(value.length - 1)
 
@@ -311,18 +314,17 @@ class EstablishPinDialog(
             acceptAction(this)
         }
 
-
     }
 
     private fun fillPinPoint(pos: Int) {
         securityDialog.findViewById<SquareImageView>(pinPoints[pos])
-            .setImageResource(R.drawable.pin_point_fill)
+                .setImageResource(R.drawable.pin_point_fill)
     }
 
     fun clearPinPoints() {
         for (point in pinPoints)
             securityDialog.findViewById<SquareImageView>(point)
-                .setImageResource(R.drawable.pin_point_empty)
+                    .setImageResource(R.drawable.pin_point_empty)
     }
 
     private fun getPinView(): View? {
@@ -332,13 +334,12 @@ class EstablishPinDialog(
     }
 }
 
-
 /**
  * @param acceptAction - action which will be called when PIN will be correct
  */
 class EstablishNoneDialog(
-    override val context: Context,
-    private val acceptAction: (establishNoneDialog: EstablishNoneDialog) -> Unit = {}
+        override val context: Context,
+        private val acceptAction: (establishNoneDialog: EstablishNoneDialog) -> Unit = {}
 ) : SecurityDialog(context) {
 
 

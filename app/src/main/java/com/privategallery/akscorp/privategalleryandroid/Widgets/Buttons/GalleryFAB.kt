@@ -4,34 +4,36 @@ import android.animation.Animator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Point
-import android.support.design.widget.FloatingActionButton
 import android.util.AttributeSet
 import android.view.View
+import android.view.ViewAnimationUtils
 import android.view.animation.RotateAnimation
+import android.widget.FrameLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.fragment.app.Fragment
+import androidx.transition.Fade
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.privategallery.akscorp.privategalleryandroid.Activities.MainActivity
 import com.privategallery.akscorp.privategalleryandroid.Fragments.LOCAL_STORAGE_FRAGMENT_TAG
 import com.privategallery.akscorp.privategalleryandroid.Fragments.LocalStorageFragment
 import com.privategallery.akscorp.privategalleryandroid.R
-import android.view.ViewAnimationUtils
-import android.support.design.widget.CoordinatorLayout
-import android.support.transition.Fade
-import android.widget.FrameLayout
 import com.privategallery.akscorp.privategalleryandroid.Widgets.COMMON
 import com.privategallery.akscorp.privategalleryandroid.Widgets.GalleryToolbar
 import com.privategallery.akscorp.privategalleryandroid.Widgets.LOCK_FILES
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_main.view.*
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
-
+import kotlinx.android.synthetic.main.activity_main.main_activity_coordinator_layout
+import kotlinx.android.synthetic.main.activity_main.reveal
+import kotlinx.android.synthetic.main.activity_main.toolbar
+import kotlinx.android.synthetic.main.activity_main.view.fab
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 /**
  * Created by AksCorp on 08.04.2018.
  * akscorp2014@gmail.com
  * web site aksenov-vladimir.herokuapp.com
  */
-class GalleryFAB : FloatingActionButton, View.OnClickListener
-{
+class GalleryFAB : FloatingActionButton, View.OnClickListener {
     private var isButtonShowGallery = false
     private var isAnimationRunning = false
     private var startHeight = -1
@@ -47,39 +49,33 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener
     private var contentLayout: CoordinatorLayout? = null
     private var revealMask: FrameLayout? = null
 
-    init
-    {
+    init {
         setOnClickListener(this)
     }
 
-    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int)
-    {
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
         if (startHeight == -1)
             startHeight = height
     }
 
-    override fun onClick(v: View?)
-    {
+    override fun onClick(v: View?) {
         toolbar = (context as MainActivity).toolbar
         clickAction()
 
     }
 
-    fun clickAction()
-    {
+    fun clickAction() {
         if (isAnimationRunning)
             return
 
         isAnimationRunning = true
 
 
-        try
-        {
+        try {
             showMenuWithRevealAnim()
             showButtonAnimation()
-        } catch (e: Exception)
-        {
+        } catch (e: Exception) {
             isAnimationRunning = false
             isButtonShowGallery = false
             return
@@ -88,8 +84,7 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener
         isButtonShowGallery = !isButtonShowGallery
     }
 
-    private fun showButtonAnimation()
-    {
+    private fun showButtonAnimation() {
         var from = 0f
         var to = 45f
         if (isButtonShowGallery)
@@ -101,8 +96,7 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener
         startAnimation(animation1)
     }
 
-    override fun hide()
-    {
+    override fun hide() {
         val am = ValueAnimator.ofInt(startHeight, 0)
         am.addUpdateListener {
             layoutParams.height = it.animatedValue as Int
@@ -112,8 +106,7 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener
         am.start()
     }
 
-    override fun show()
-    {
+    override fun show() {
         val am = ValueAnimator.ofInt(0, startHeight)
         am.addUpdateListener {
             layoutParams.height = it.animatedValue as Int
@@ -123,57 +116,49 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener
         am.start()
     }
 
-
-    private fun showMenuWithRevealAnim()
-    {
+    private fun showMenuWithRevealAnim() {
         val fabCenter = Point(fab.x.toInt() + fab.width / 2, fab.y.toInt() + fab.height / 2)
 
         contentLayout = (context as MainActivity).main_activity_coordinator_layout
         revealMask = (context as MainActivity).reveal
-        if (!isButtonShowGallery)
-        {
-            launch {
+        if (!isButtonShowGallery) {
+            GlobalScope.launch(Dispatchers.IO) {
 
                 currentFragment = establishFragment()
 
-                launch(UI) {
+                GlobalScope.launch(Dispatchers.Main) {
                     revealMask!!.visibility = View.VISIBLE
 
                     val startRadius = 0
                     val endRadius = Math.hypot(contentLayout!!.width.toDouble(),
-                        contentLayout!!.height.toDouble()
+                            contentLayout!!.height.toDouble()
                     ).toInt()
 
                     val anim = ViewAnimationUtils.createCircularReveal(
-                        revealMask,
-                        fabCenter.x,
-                        fabCenter.y,
-                        startRadius.toFloat(),
-                        endRadius.toFloat())
+                            revealMask,
+                            fabCenter.x,
+                            fabCenter.y,
+                            startRadius.toFloat(),
+                            endRadius.toFloat())
                     anim.duration = ANIMATION_DURATION
 
-                    anim.addListener(object : Animator.AnimatorListener
-                    {
-                        override fun onAnimationStart(animator: Animator)
-                        {
+                    anim.addListener(object : Animator.AnimatorListener {
+                        override fun onAnimationStart(animator: Animator) {
 
                         }
 
-                        override fun onAnimationEnd(animator: Animator)
-                        {
-                            launch(UI) {
+                        override fun onAnimationEnd(animator: Animator) {
+                            GlobalScope.launch(Dispatchers.Main) {
                                 isAnimationRunning = false
                                 toolbar.setState(LOCK_FILES)
                             }
                         }
 
-                        override fun onAnimationCancel(animator: Animator)
-                        {
+                        override fun onAnimationCancel(animator: Animator) {
 
                         }
 
-                        override fun onAnimationRepeat(animator: Animator)
-                        {
+                        override fun onAnimationRepeat(animator: Animator) {
 
                         }
                     })
@@ -182,52 +167,43 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener
                 }
             }
 
-        }
-        else
-        {
+        } else {
 
             val startRadius =
-                Math.hypot(contentLayout!!.width.toDouble(), contentLayout!!.height.toDouble())
-                    .toInt()
+                    Math.hypot(contentLayout!!.width.toDouble(), contentLayout!!.height.toDouble())
+                            .toInt()
             val endRadius = 0
 
             val anim = ViewAnimationUtils.createCircularReveal(
-                revealMask,
-                fabCenter.x,
-                fabCenter.y,
-                startRadius.toFloat(),
-                endRadius.toFloat())
+                    revealMask,
+                    fabCenter.x,
+                    fabCenter.y,
+                    startRadius.toFloat(),
+                    endRadius.toFloat())
 
-            anim.addListener(object : Animator.AnimatorListener
-            {
-                override fun onAnimationStart(animator: Animator)
-                {
+            anim.addListener(object : Animator.AnimatorListener {
+                override fun onAnimationStart(animator: Animator) {
 
                 }
 
-                override fun onAnimationEnd(animator: Animator)
-                {
-                    try
-                    {
+                override fun onAnimationEnd(animator: Animator) {
+                    try {
                         (context as MainActivity).toolbar.setState(COMMON)
 
                         (context as MainActivity).supportFragmentManager.beginTransaction()
-                            .remove(currentFragment).commit()
+                                .remove(currentFragment as Fragment).commit()
                         revealMask!!.visibility = View.INVISIBLE
-                    } catch (e: Exception)
-                    {
+                    } catch (e: Exception) {
 
                     }
                     isAnimationRunning = false
                 }
 
-                override fun onAnimationCancel(animator: Animator)
-                {
+                override fun onAnimationCancel(animator: Animator) {
 
                 }
 
-                override fun onAnimationRepeat(animator: Animator)
-                {
+                override fun onAnimationRepeat(animator: Animator) {
 
                 }
             })
@@ -237,8 +213,7 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener
         }
     }
 
-    private fun establishFragment(): LocalStorageFragment
-    {
+    private fun establishFragment(): LocalStorageFragment {
 
         val fragment = LocalStorageFragment()
 
@@ -246,23 +221,22 @@ class GalleryFAB : FloatingActionButton, View.OnClickListener
         fragment.enterTransition = Fade()
 
         val fragmentTransaction = fragmentManager.beginTransaction()
-            .replace(R.id.reveal, fragment, LOCAL_STORAGE_FRAGMENT_TAG)
+                .replace(R.id.reveal, fragment, LOCAL_STORAGE_FRAGMENT_TAG)
 
-        launch(UI) {
+        GlobalScope.launch(Dispatchers.Main) {
             fragmentTransaction.commit()
         }
 
         return fragment
     }
 
-    constructor(context: Context) : super(context)
-    {
+    constructor(context: Context) : super(context) {
     }
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(
-        context,
-        attrs,
-        defStyleAttr
+            context,
+            attrs,
+            defStyleAttr
     )
 }
